@@ -1,6 +1,2 @@
 @BuildHubAPI_HostAddress = http://localhost:5134
 
-GET {{BuildHubAPI_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
