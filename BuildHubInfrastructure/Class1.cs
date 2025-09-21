@@ -1,4 +1,4 @@
-﻿namespace Core
+﻿namespace BuildHubInfrastructure
 {
     public class Class1
     {
