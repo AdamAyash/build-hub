@@ -58,6 +58,7 @@ if (isMainModule(import.meta.url)) {
       throw error;
     }
 
+    // eslint-disable-next-line no-console
     console.log(`Node Express server listening on http://localhost:${port}`);
   });
 }
