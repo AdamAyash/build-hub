@@ -1,0 +1,66 @@
+<div class="space-y-6">
+    <app-page-header title="Notifications" description="Stay updated with your build system activities">
+        <div actions class="flex items-center space-x-2 ">
+            <p-tag class="text-xs!">4 unread</p-tag>
+            <p-tag class="text-xs!">5 urgent</p-tag>
+        </div>
+    </app-page-header>
+
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+
+    </div>
+
+    <p-tabs value="0">
+        <div class="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+            <div class="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+                <p-tablist class="grid w-full grid-cols-4 lg:w-[400px]">
+                    <p-tab value="0">All</p-tab>
+                    <p-tab value="1">Unread</p-tab>
+                    <p-tab value="2">Errors</p-tab>
+                    <p-tab value="3">Warnings</p-tab>
+                </p-tablist>
+            </div>
+            <div class="flex gap-2 w-full sm:w-auto">
+                <p-iconfield iconPosition="left">
+                    <p-inputicon>
+                        <app-icon [icon]="SearchIcon" />
+                    </p-inputicon>
+                    <input type="text" pInputText placeholder="Search" class="relative flex-1 sm:w-64"/>
+                </p-iconfield>
+                <p-iconfield iconPosition="left">
+                    <p-inputicon>
+                        <app-icon [icon]="FunnelIcon" />
+                    </p-inputicon>
+                    <p-select [options]="filterValues" optionLabel="name" placeholder="Select a City"
+                        class="pl-6 w-39" />
+                </p-iconfield>
+            </div>
+        </div>
+        <p-tabpanels>
+            <p-tabpanel value="0" class="space-y-4">
+                <p class="m-0">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
+                    et
+                </p>
+            </p-tabpanel>
+            <p-tabpanel value="1">
+                <p class="m-0">
+                    Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium,
+                    totam
+                </p>
+            </p-tabpanel>
+            <p-tabpanel value="2">
+                <p class="m-0">
+                    At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum
+                    deleniti
+                </p>
+            </p-tabpanel>
+            <p-tabpanel value="3">
+                <p class="m-0">
+                    At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum
+                    deleniti
+                </p>
+            </p-tabpanel>
+        </p-tabpanels>
+    </p-tabs>
+</div>
