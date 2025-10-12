@@ -1,0 +1,12 @@
+<app-menubar></app-menubar>
+<div class="flex">
+    <app-sidebar></app-sidebar>
+    <main class="flex-1 relative">
+        <div class="border-b border-zinc-500">
+            <p-breadcrumb [model]="items" [home]="home" />
+        </div>
+        <div class="p-6 relative">
+            <router-outlet></router-outlet>
+        </div>
+    </main>
+</div>
