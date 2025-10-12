@@ -1,0 +1,6 @@
+<p-overlaybadge badgeSize="small" value="2" severity="danger">
+    <p-button (click)="menu.toggle($event)" size="small" variant="text">
+        <app-icon [icon]="BellIcon" [size]="4"/>
+    </p-button>
+</p-overlaybadge>
+<p-menu #menu [model]="items" [popup]="true" />
