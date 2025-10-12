@@ -1,0 +1,51 @@
+<div class="flex flex-col w-80 sticky top-16 border-r space-y-6">
+    <p-accordion value="0" class="flex justify-center flex-col space-y-6" multiple="true">
+        @for (item of navGroups; track $index) {
+            <p-accordion-panel [value]="'0'" class="pb-1">
+                <p-accordion-header >
+                    <div class="flex items-center space-x-2">
+                        <app-icon [icon]="item.icon" />
+                        <h3 >{{item.label}}</h3>
+                    </div>
+                    <ng-template #toggleicon let-active="active">
+                        @if (active) {
+                            <app-icon [icon]="ChevronUpIcon" />
+                        } @else {
+                            <app-icon [icon]="ChevronDownIcon" />
+                        }
+                    </ng-template>
+                </p-accordion-header>
+                <p-accordion-content [classList]="'space-y-1'">
+                    @for (subItem of item.items; track subItem.id) {
+                        <p-button variant="text" [routerLink]="subItem.page">
+                            <app-icon [icon]="subItem.icon" [size]="3" />
+                            <span class="`flex-1 text-left text-sm truncate`">
+                                {{subItem.label}}
+                            </span>
+                            <div class="flex items-center gap-2 ml-1">
+                                @if (subItem.isNew && true) {
+                                    <p-tag value="New" />
+                                }
+                                @if (subItem.badge && true) {
+                                    <p-tag>
+                                        {{subItem.badge.content}}
+                                    </p-tag>
+                                }
+                                @if (subItem.shortcut && true) {
+                                    <p-tag>
+                                        {{subItem.shortcut}}
+                                    </p-tag>
+                                }
+                                @if (true) {
+                                    <p-button variant="text">
+                                        <app-icon [icon]="PinIcon" [size]="3" />
+                                    </p-button>
+                                }
+                            </div>
+                        </p-button>
+                    }
+                </p-accordion-content>
+            </p-accordion-panel>
+        }
+    </p-accordion>
+</div>
