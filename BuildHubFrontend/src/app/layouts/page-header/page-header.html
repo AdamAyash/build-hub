@@ -1,0 +1,10 @@
+<div class="flex justify-between items-center pb-6">
+    <div>
+        <h1 class="text-3xl font-bold">{{title}}</h1>
+        <p class="text-zinc-500">{{description}}</p>
+    </div>
+
+    <div class="flex items-center space-x-2">
+        <ng-content select="[actions]"></ng-content>
+    </div>
+</div>
