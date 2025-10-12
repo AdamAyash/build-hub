@@ -1,0 +1,20 @@
+@keyframes ticker {
+  0% {
+    transform: translate3d(0, 0, 0);
+    visibility: visible;
+  }
+
+  100% {
+    transform: translate3d(-100%, 0, 0);
+  }
+}
+
+.ticker-wrap {
+  padding-left: 100%;
+  box-sizing: content-box;
+}
+
+.ticker {
+  padding-right: 100%;
+  animation: ticker 20s linear infinite;
+}

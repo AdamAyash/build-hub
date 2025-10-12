@@ -1,0 +1,9 @@
+@if(this.thickerService.isTickerVisible) {
+    <div class="bg-black text-white h-9 w-full ticker-wrap overflow-hidden flex items-center">
+        <div class="ticker whitespace-nowrap">
+            @for (message of this.thickerService.tickerMessages; track $index) {
+                <span class="mr-3 text-base">{{message}}</span>
+            }
+        </div>
+    </div>
+}
