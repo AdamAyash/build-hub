@@ -1,0 +1,18 @@
+export type Page =
+  | 'dashboard'
+  | 'builds'
+  | 'jobs'
+  | 'schedules'
+  | 'workers'
+  | 'statistics'
+  | 'settings'
+  | 'notifications'
+  | 'users'
+  | 'build-requests'
+  | 'error-404'
+  | 'error-500'
+  | 'error-401'
+  | 'error-403'
+  | 'system-status'
+  | 'maintenance'
+  | 'maintenance-notification';
