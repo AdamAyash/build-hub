@@ -1,0 +1,31 @@
+<p-menubar class="sticky top-0 z-50 flex h-16 items-center px-6 border-b!">
+    <ng-template #start>
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2">
+                <!-- <div class="h-8 w-8 rounded-md bg-primary flex items-center justify-center">
+                    <span class="font-bold text-sm">BO</span>
+                </div> -->
+                <h1 >Build Hub</h1>
+            </div>
+        </div>
+    </ng-template>
+    <!-- <ng-template>
+        <a pRipple class="flex items-center p-menubar-item-link">
+            <span>test</span>
+            <p-badge *ngIf="item.badge" [ngClass]="{ 'ml-auto': !root, 'ml-2': root }" [value]="item.badge" />
+            <span *ngIf="item.shortcut"
+                class="ml-auto border border-surface rounded bg-emphasis text-muted-color text-xs p-1">{{
+                item.shortcut }}</span>
+            <i *ngIf="item.items" [ngClass]="['ml-auto pi', root ? 'pi-angle-down' : 'pi-angle-right']"></i>
+        </a>
+    </ng-template> -->
+    <ng-template #end>
+        <div class="flex items-center space-x-4">
+            <app-notification-bell></app-notification-bell>
+            <app-dark-mode-toggle></app-dark-mode-toggle>
+            <p-overlaybadge class="inline-flex">
+                <p-avatar image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png" shape="circle" />
+            </p-overlaybadge>
+        </div>
+    </ng-template>
+</p-menubar>
