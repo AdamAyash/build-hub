@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36414.22
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildHubAPI", "BuildHubAPI\BuildHubAPI.csproj", "{F8DB5826-399E-45A4-B48A-80CFADC5C13F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BuildHubAPI", "BuildHubAPI\BuildHubAPI.csproj", "{F8DB5826-399E-45A4-B48A-80CFADC5C13F}"
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "BuildHubDatabase", "BuildHubDatabase\BuildHubDatabase.sqlproj", "{235AA642-2DC7-43B1-818D-FCFF75538DFD}"
 EndProject
@@ -28,13 +28,16 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "BuildHubFrontend", "BuildHu
 		SlnRelativePath = "BuildHubFrontend\"
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildHubDataEngine", "BuildHubDataEngine\BuildHubDataEngine.csproj", "{E69BE106-74D4-4B36-A8E2-D71CD4C4738B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BuildHubDataEngine", "BuildHubDataEngine\BuildHubDataEngine.csproj", "{E69BE106-74D4-4B36-A8E2-D71CD4C4738B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{7F66EEA2-9B29-47E5-B04B-5836B5836DCE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "UnitTests\UnitTests.csproj", "{7F66EEA2-9B29-47E5-B04B-5836B5836DCE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{62CE4BA6-0AD7-4CDA-925E-B4E7F746462B} = {62CE4BA6-0AD7-4CDA-925E-B4E7F746462B}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildHubCommon", "BuildHubCommon\BuildHubCommon.csproj", "{62CE4BA6-0AD7-4CDA-925E-B4E7F746462B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BuildHubCommon", "BuildHubCommon\BuildHubCommon.csproj", "{62CE4BA6-0AD7-4CDA-925E-B4E7F746462B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildHubInfrastructure", "BuildHubInfrastructure\BuildHubInfrastructure.csproj", "{8C143D79-3D98-4CD4-98A9-14E7F997ABB5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BuildHubInfrastructure", "BuildHubInfrastructure\BuildHubInfrastructure.csproj", "{8C143D79-3D98-4CD4-98A9-14E7F997ABB5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
