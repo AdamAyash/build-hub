@@ -1,10 +1,14 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using System.Data;
+using Microsoft.Data.SqlClient;
 
 namespace BuildHubDataEngine.DatabaseConnection
 {
+    /// <summary>
+    /// A virtual proxy to the SqlConnection class
+    /// </summary>
     public class DatabaseConnection
     {
-        private SqlConnection _internalDatabaseConnection;
+        private readonly SqlConnection _internalDatabaseConnection;
 
         public DatabaseConnection()
         {
@@ -23,5 +27,11 @@ namespace BuildHubDataEngine.DatabaseConnection
                 return this._internalDatabaseConnection;
             }
         }
+
+        public bool IsConnectionOpen() => this._internalDatabaseConnection.State == ConnectionState.Open;
+
+        public void OpenConnection() => this._internalDatabaseConnection.Open();
+
+        public void CloseConnection() => this._internalDatabaseConnection.Close();
     }
 }
