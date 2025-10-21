@@ -5,7 +5,7 @@ namespace BuildHubCommon.ConfigurationManager
     /// <summary>
     /// Configuration manager class
     /// </summary>
-    public sealed class ConfigurationManager
+    public class ConfigurationManager
     {
         /// <summary>
         /// Configuration manager singleton instance
@@ -19,7 +19,6 @@ namespace BuildHubCommon.ConfigurationManager
 
         private ConfigurationManager()
         {
-            Initialize();
         }
 
         /// <summary>
@@ -37,7 +36,7 @@ namespace BuildHubCommon.ConfigurationManager
         /// <summary>
         /// Initializes the configuration manager
         /// </summary>
-        private void Initialize()
+        protected virtual void Initialize()
         {
             var builder = new ConfigurationBuilder();
             builder.AddEnvironmentVariables();
