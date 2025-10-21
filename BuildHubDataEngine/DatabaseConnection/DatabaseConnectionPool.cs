@@ -12,7 +12,6 @@ namespace BuildHubDataEngine.DatabaseConnection
 
         /// <summary>Singleton instance</summary>
         private static DatabaseConnectionPool? _databaseConnectionPoolInstance = null;
-
         /// <summary>Available connection ready for use</summary>
         private readonly List<DatabaseConnection> _availableDatabaseConnections;
         /// <summary>Currently used connections</summary>

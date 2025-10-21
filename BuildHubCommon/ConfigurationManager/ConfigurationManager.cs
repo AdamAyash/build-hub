@@ -1,21 +1,17 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using BuildHubCommon.ConfigurationManager.Base;
+using Microsoft.Extensions.Configuration;
 
 namespace BuildHubCommon.ConfigurationManager
 {
     /// <summary>
     /// Configuration manager class
     /// </summary>
-    public class ConfigurationManager
+    public class ConfigurationManager : BaseConfigurationManager
     {
         /// <summary>
         /// Configuration manager singleton instance
         /// </summary>
         private static ConfigurationManager? _configurationManager = null;
-
-        private IConfiguration? _configuration;
-
-        private bool _reloadOnChange = true;
-        private bool _isOptional = true;
 
         private ConfigurationManager()
         {
@@ -30,24 +26,20 @@ namespace BuildHubCommon.ConfigurationManager
             if (_configurationManager == null)
                 _configurationManager = new ConfigurationManager();
 
+            _configurationManager.Initialize();
             return _configurationManager;
         }
 
         /// <summary>
         /// Initializes the configuration manager
         /// </summary>
-        protected virtual void Initialize()
+        protected override void Initialize()
         {
-            var builder = new ConfigurationBuilder();
-            builder.AddEnvironmentVariables();
+            var builder = new ConfigurationBuilder()
+                .AddEnvironmentVariables();
 
             _configuration = builder.Build();
         }
-
-        /// <summary>
-        /// Gets a configuration value by key
-        /// </summary>
-        public string? GetValue(string key, string? defaultValue = null) => _configuration?[key] ?? defaultValue;
 
         /// <summary>
         /// Gets a connection string
