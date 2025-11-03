@@ -5,7 +5,7 @@ from colorama import Fore, Style, init
 init(autoreset=True)
 
 def prompt_with_default(prompt, default):
-    value = input(f"{prompt} [{default}]: ").strip()
+    value = input(f"{prompt}: ").strip()
     return value if value else default
 
 def load_animation(message, duration=2):
@@ -19,9 +19,9 @@ def load_animation(message, duration=2):
     
 
 def section(title):
-    print("\n" +Fore.CYAN + "=" * 30)
+    print("\n" +Fore.CYAN + "=" * len(title))
     print(Fore.CYAN + f"🏗️  {title}")
-    print(Fore.CYAN + "=" * 30 + "\n")
+    print(Fore.CYAN + "=" * len(title) + "\n")
 
 def success(msg):
     print(Fore.GREEN + f"✅ {msg}")

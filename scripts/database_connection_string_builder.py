@@ -22,7 +22,7 @@ class DatabaseConnectionStringBuilder:
 		self.__save_connection_string()
 	
 	def __save_connection_string(self):
-		confirmation = prompt_with_default("Do you want to save the connection string to an environment variable? (y/n)", "y")
+		confirmation = prompt_with_default("Do you want to save the connection string to an environment variable? (Y/n)", "y")
 		if(confirmation.lower() == "n"):
 			exit()
 
