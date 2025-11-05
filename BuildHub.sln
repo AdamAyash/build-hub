@@ -9,7 +9,7 @@ Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "BuildHubDatabase", "BuildHu
 EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "BuildHubFrontend", "BuildHubFrontend\", "{FDF4B59B-35AD-6015-B25A-E0DC55C3637F}"
 	ProjectSection(WebsiteProperties) = preProject
-		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.8"
 		Debug.AspNetCompiler.VirtualPath = "/localhost_49388"
 		Debug.AspNetCompiler.PhysicalPath = "BuildHubFrontend\"
 		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_49388\"
@@ -38,11 +38,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BuildHubCommon", "BuildHubCommon\BuildHubCommon.csproj", "{62CE4BA6-0AD7-4CDA-925E-B4E7F746462B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BuildHubInfrastructure", "BuildHubInfrastructure\BuildHubInfrastructure.csproj", "{8C143D79-3D98-4CD4-98A9-14E7F997ABB5}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F972D6AC-3C98-4ADB-8F5F-9713D4CD2B48}"
-	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

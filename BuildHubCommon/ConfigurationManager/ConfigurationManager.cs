@@ -6,7 +6,7 @@ namespace BuildHubCommon.ConfigurationManager
     /// <summary>
     /// Configuration manager class
     /// </summary>
-    public class ConfigurationManager : BaseConfigurationManager
+    public sealed class  ConfigurationManager : BaseConfigurationManager
     {
         /// <summary>
         /// Configuration manager singleton instance
@@ -37,6 +37,9 @@ namespace BuildHubCommon.ConfigurationManager
         {
             var builder = new ConfigurationBuilder()
                 .AddEnvironmentVariables();
+
+            builder.SetBasePath(AppDomain.CurrentDomain.BaseDirectory);
+            builder.AddJsonFile("appsettings.json", optional: this._isOptional, reloadOnChange: this._reloadOnChange);
 
             _configuration = builder.Build();
         }

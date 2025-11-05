@@ -10,12 +10,12 @@ namespace BuildHubCommon.ConfigurationManager.Base
         /// <summary>
         /// Whether the configuration should reload on change
         /// </summary>
-        protected bool _reloadOnChange;
+        protected readonly bool _reloadOnChange;
 
         /// <summary>
         /// Whether the configuration is optional
         /// </summary>
-        protected bool _isOptional;
+        protected readonly bool _isOptional;
 
         /// <summary>
         /// Configuration interface
@@ -33,9 +33,5 @@ namespace BuildHubCommon.ConfigurationManager.Base
         /// </summary>
         protected abstract void Initialize();
 
-        /// <summary>
-        /// Gets a configuration value by key
-        /// </summary>
-        public string? GetValue(string key, string? defaultValue = null) => _configuration?[key] ?? defaultValue;
     }
 }

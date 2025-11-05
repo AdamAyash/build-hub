@@ -62,7 +62,7 @@ namespace BuildHubDataEngine.DatabaseConnection
             DatabaseConnection? databaseConnection = _availableDatabaseConnections.FirstOrDefault();
 
             if (databaseConnection == null)
-                databaseConnection = TryInitializeConnection();
+                databaseConnection = TryToInitializeConnection();
 
             var databaseConnectionValidator = new DatabaseConnectionValidator(databaseConnection);
             if (!databaseConnectionValidator.TestDatabaseConnection())
@@ -89,7 +89,7 @@ namespace BuildHubDataEngine.DatabaseConnection
         /// </summary>
         /// <returns>DatabaseConnection</returns>
         /// <exception cref="InvalidOperationException"></exception>
-        private DatabaseConnection TryInitializeConnection()
+        private DatabaseConnection TryToInitializeConnection()
         {
            var databaseConnection = new DatabaseConnection(_CONNECTION_STRING);
 
@@ -115,7 +115,7 @@ namespace BuildHubDataEngine.DatabaseConnection
         private void Initialize()
         {
             for (int index = 0; index < _MAXIMUM_DATABASE_CONNECTIONS_COUNT; ++index)
-                 this._availableDatabaseConnections.Add(TryInitializeConnection());
+                 this._availableDatabaseConnections.Add(TryToInitializeConnection());
         }
 
         /// <summary>
