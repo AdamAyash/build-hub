@@ -6,7 +6,7 @@ namespace BuildHubCommon.ConfigurationManager
     /// <summary>
     /// Configuration manager class
     /// </summary>
-    public class ConfigurationManager : BaseConfigurationManager
+    public sealed class  ConfigurationManager : BaseConfigurationManager
     {
         private const string _CONFIGURATION_FILE_NAME = "appsettings.json"; 
 
@@ -41,6 +41,9 @@ namespace BuildHubCommon.ConfigurationManager
                 .AddEnvironmentVariables()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile(_CONFIGURATION_FILE_NAME);
+
+            builder.SetBasePath(AppDomain.CurrentDomain.BaseDirectory);
+            builder.AddJsonFile("appsettings.json", optional: this._isOptional, reloadOnChange: this._reloadOnChange);
 
             _configuration = builder.Build();
         }
