@@ -13,7 +13,7 @@ namespace BuildHubCommon.Utilities
         /// <typeparam name="EnumType">Type parameter for enums</typeparam>
         /// <param name="enumeration">Value of the enum</param>
         /// <returns>string</returns>
-        public static string GetDescriptionFromEnumeration<EnumType>(Enum enumeration)
+        public static string GetEnumDescription<EnumType>(Enum enumeration)
             where EnumType : Enum
         {
             DescriptionAttribute? descriptionAttribute = enumeration.GetType()?.GetField(enumeration.ToString())

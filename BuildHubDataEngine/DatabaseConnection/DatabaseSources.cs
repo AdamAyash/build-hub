@@ -2,6 +2,6 @@
 
 public enum DatabaseSources
 {
-    [Description("Users")]  
-     BuildHubUsersDB
+     [Description("BuildHubCore")]  
+     BuildHubCore = 0
 }

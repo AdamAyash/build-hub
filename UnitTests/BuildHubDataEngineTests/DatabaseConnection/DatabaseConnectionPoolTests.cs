@@ -33,7 +33,7 @@ namespace UnitTests.BuildHubDataEngineTests.DatabaseConnection
 
             databaseConnectionPoolInstance.ReleaseDatabaseConnection(databaseConnection);
 
-            Assert.IsTrue(databaseConnectionPoolInstance.AvailableConnections - availableConnectionsCount == 1);
+            Assert.AreEqual(1, databaseConnectionPoolInstance.AvailableConnections - availableConnectionsCount);
         }
     }
 }

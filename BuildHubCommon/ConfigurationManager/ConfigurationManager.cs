@@ -8,6 +8,8 @@ namespace BuildHubCommon.ConfigurationManager
     /// </summary>
     public class ConfigurationManager : BaseConfigurationManager
     {
+        private const string _CONFIGURATION_FILE_NAME = "appsettings.json"; 
+
         /// <summary>
         /// Configuration manager singleton instance
         /// </summary>
@@ -36,7 +38,9 @@ namespace BuildHubCommon.ConfigurationManager
         protected override void Initialize()
         {
             var builder = new ConfigurationBuilder()
-                .AddEnvironmentVariables();
+                .AddEnvironmentVariables()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile(_CONFIGURATION_FILE_NAME);
 
             _configuration = builder.Build();
         }
@@ -48,6 +52,30 @@ namespace BuildHubCommon.ConfigurationManager
         {
             var connectionString = _configuration?.GetConnectionString(key);
             return connectionString;
+        }
+
+        /// <summary>
+        /// Retrieves a configuration model
+        /// </summaryConfigurationModel
+        /// <typeparam name="ConfugurationSettingsModel">Type of the configuration</typeparam>
+        /// <param name="key">key of the configuration</param>
+        /// <returns>ConfugurationSettingsModel</returns>
+        public ConfigurationModel? GetConfigurationModel<ConfigurationModel>(string key)
+            where ConfigurationModel : IConfigurationModel
+        {
+            return _configuration!.GetSection(key).Get<ConfigurationModel>();
+        }
+
+        /// <summary>
+        /// Retrieves a collection of configuration models
+        /// </summary>
+        /// <typeparam name="ConfigurationModelConfigurationModel>Type of the configuration</typeparam>
+        /// <param name="key"></param>
+        /// <returns>IEnumerable<ConfugurationSettingsModel></returns>
+        public IEnumerable<ConfigurationModel>? GetConfigurationModels<ConfigurationModel>(string key)
+              where ConfigurationModel : IConfigurationModel
+        {
+            return _configuration!.GetSection(key).Get<IEnumerable<ConfigurationModel>>();
         }
     }
 }

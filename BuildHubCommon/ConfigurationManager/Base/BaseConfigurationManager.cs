@@ -32,10 +32,5 @@ namespace BuildHubCommon.ConfigurationManager.Base
         /// Initializes the configuration
         /// </summary>
         protected abstract void Initialize();
-
-        /// <summary>
-        /// Gets a configuration value by key
-        /// </summary>
-        public string? GetValue(string key, string? defaultValue = null) => _configuration?[key] ?? defaultValue;
     }
 }
