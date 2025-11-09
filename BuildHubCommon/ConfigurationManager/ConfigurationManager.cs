@@ -6,9 +6,9 @@ namespace BuildHubCommon.ConfigurationManager
     /// <summary>
     /// Configuration manager class
     /// </summary>
-    public sealed class  ConfigurationManager : BaseConfigurationManager
+    public sealed class ConfigurationManager : BaseConfigurationManager
     {
-        private const string _CONFIGURATION_FILE_NAME = "appsettings.json"; 
+        private const string _CONFIGURATION_FILE_NAME = "appsettings.json";
 
         /// <summary>
         /// Configuration manager singleton instance

@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using BuildHubCommon.ConfigurationManager;
+using Microsoft.Data.SqlClient;
 
 namespace BuildHubDataEngine.DatabaseConnection
 {
@@ -91,20 +92,20 @@ namespace BuildHubDataEngine.DatabaseConnection
         /// <exception cref="InvalidOperationException"></exception>
         private DatabaseConnection TryToInitializeConnection()
         {
-           var databaseConnection = new DatabaseConnection(_CONNECTION_STRING);
+            var databaseConnection = new DatabaseConnection(_CONNECTION_STRING);
 
             try
             {
                 databaseConnection.OpenConnection();
-            }                          
+            }
             catch (SqlException sqlException)
             {
                 //LOG ERROR
             }
 
             var databaseConnectionValidator = new DatabaseConnectionValidator(databaseConnection);
-            if(!databaseConnectionValidator.TestDatabaseConnection())
-                    throw new InvalidOperationException();
+            if (!databaseConnectionValidator.TestDatabaseConnection())
+                throw new InvalidOperationException();
 
             return databaseConnection;
         }
@@ -114,8 +115,23 @@ namespace BuildHubDataEngine.DatabaseConnection
         /// </summary>
         private void Initialize()
         {
-            for (int index = 0; index < _MAXIMUM_DATABASE_CONNECTIONS_COUNT; ++index)
-                 this._availableDatabaseConnections.Add(TryToInitializeConnection());
+            ConfigurationManager configurationManager = ConfigurationManager.GetConfigurationManager();
+
+            IEnumerable<DatabaseSettingsModel>? databaseSettings = configurationManager.GetConfigurationModels<DatabaseSettingsModel>("DatabaseSettings");
+            if(databaseSettings is null)
+            {
+                //LOG error 
+                //trow exeception
+                return;
+            }
+
+            foreach (var settingsModel in databaseSettings)
+            {
+
+            }
+
+            //for (vae index = 0; index < _MAXIMUM_DATABASE_CONNECTIONS_COUNT; ++index)
+            //    this._availableDatabaseConnections.Add(TryToInitializeConnection());
         }
 
         /// <summary>
@@ -127,7 +143,7 @@ namespace BuildHubDataEngine.DatabaseConnection
                 databaseConnection.CloseConnection();
 
             foreach (DatabaseConnection databaseConnection in this._currentlyUsedDatabaseConnections)
-                 databaseConnection.CloseConnection();
+                databaseConnection.CloseConnection();
 
             this._availableDatabaseConnections.Clear();
             this._currentlyUsedDatabaseConnections.Clear();

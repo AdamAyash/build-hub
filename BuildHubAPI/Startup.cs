@@ -5,8 +5,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
@@ -15,13 +13,15 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-	app.MapScalarApiReference(options =>
-	{
-		options.Title = "AngelDust API";
-		options.Theme = ScalarTheme.Saturn;
-		options.HideClientButton = true;
-	});
+    app.MapScalarApiReference("/api-docs", options =>
+
+    {
+        options.Title = "BuildHub API";
+        options.Theme = ScalarTheme.Saturn;
+        options.HideClientButton = true;
+    });
 }
+app.MapGet("/", () => Results.Redirect("api-docs")).ExcludeFromDescription();
 
 app.UseHttpsRedirection();
 

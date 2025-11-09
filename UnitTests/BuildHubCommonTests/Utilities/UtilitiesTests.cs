@@ -1,7 +1,7 @@
 ﻿namespace UnitTests.BuildHubCommonTests.Utilities
 {
-    using System.ComponentModel;
     using BuildHubCommon.Utilities;
+    using System.ComponentModel;
 
     [TestClass]
     public sealed class UtilitiesTests

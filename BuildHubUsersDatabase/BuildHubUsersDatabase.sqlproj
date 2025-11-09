@@ -3,16 +3,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <Name>BuildHubDatabase</Name>
+    <Name>BuildHubUsersDatabase</Name>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>4.1</ProjectVersion>
-    <ProjectGuid>{235aa642-2dc7-43b1-818d-fcff75538dfd}</ProjectGuid>
+    <ProjectGuid>{9a7d801f-5d9d-4b2f-a72e-b086fc209332}</ProjectGuid>
     <DSP>Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider</DSP>
     <OutputType>Database</OutputType>
     <RootPath>
     </RootPath>
-    <RootNamespace>BuildHubDatabase</RootNamespace>
-    <AssemblyName>BuildHubDatabase</AssemblyName>
+    <RootNamespace>BuildHubUsersDatabase</RootNamespace>
+    <AssemblyName>BuildHubUsersDatabase</AssemblyName>
     <ModelCollation>1033, CI</ModelCollation>
     <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
     <DeployToDatabase>True</DeployToDatabase>

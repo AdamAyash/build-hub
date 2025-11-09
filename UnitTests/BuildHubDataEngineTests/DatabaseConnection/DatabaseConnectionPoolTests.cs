@@ -19,9 +19,9 @@ namespace UnitTests.BuildHubDataEngineTests.DatabaseConnection
             int availableConnectionsCount = databaseConnectionPoolInstance.AvailableConnections;
             var databaseConnection = databaseConnectionPoolInstance.GetDatabaseConnection();
 
-              Assert.IsTrue(databaseConnection != null 
-                && databaseConnection.IsConnectionOpen() 
-                && Math.Abs(databaseConnectionPoolInstance.AvailableConnections - availableConnectionsCount) == 1);
+            Assert.IsTrue(databaseConnection != null
+              && databaseConnection.IsConnectionOpen()
+              && Math.Abs(databaseConnectionPoolInstance.AvailableConnections - availableConnectionsCount) == 1);
         }
 
         [TestMethod]
