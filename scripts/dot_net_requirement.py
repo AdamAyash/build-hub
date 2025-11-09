@@ -19,7 +19,7 @@ def __get_dotnet_version():
 def validate_dotnet_version():
     version = __get_dotnet_version()
     print(f"Current .NET version: {version}")
-    if float(version[:3]) >= 4.8:
+    if float(version[:3]) >= 9.0:
        return True
     else:
          print("Build-Hub requires .NET 4.8 or higher.")
