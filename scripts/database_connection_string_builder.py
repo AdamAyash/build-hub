@@ -163,10 +163,10 @@ class DatabaseConnectionStringBuilder:
         
         # Encrypt connection
         encrypt = prompt_with_default(
-            "  Encrypt connection? (Y/n)", "y"
+            "  Integrated security? (Y/n)", "y"
         )
         if encrypt.lower() != 'n':
-            self.connectionString += "Encrypt=True;"
+            self.connectionString += "Integrated Security=True;"
             
         # Trust server certificate
         trust_cert = prompt_with_default(
