@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-public enum DatabaseSources
+public enum DatabaseSource
 {
     [Description("BuildHubCore")]
     Core = 0,

@@ -67,7 +67,7 @@ class DatabaseConnectionStringBuilder:
                 )
             
             # Add optional parameters
-            self._add_optional_parameters()
+            self._add_parameters()
             
             print("\n✅ Connection string built successfully")
             self.logger.info(f"Connection string built for {self.databaseName}")
@@ -128,7 +128,6 @@ class DatabaseConnectionStringBuilder:
             return userId
     
     def _get_password(self) -> str:
-        """Get and validate password."""
         while True:
             password = getpass.getpass("🔑 Password: ")
             
@@ -142,7 +141,7 @@ class DatabaseConnectionStringBuilder:
                 continue
             
             return password
-    
+
     def _prompt_windows_auth(self) -> bool:
         """Ask if user wants to use Windows Authentication."""
         if os.name != 'nt':
@@ -153,21 +152,12 @@ class DatabaseConnectionStringBuilder:
         )
         return response.lower() == 'y'
     
-    def _add_optional_parameters(self):
-        """Add optional connection string parameters."""
-        add_params = prompt_with_default(
-            "\n⚙️  Add optional parameters? (y/N)", "n"
-        )
-        
-        if add_params.lower() != 'y':
-            return
-        
-        print("\nOptional parameters:")
-        
-        # Connection timeout
+    def _add_parameters(self):
+
         timeout = prompt_with_default(
             "  Connection Timeout in seconds (default: 30)", "30"
         )
+
         if timeout and timeout.isdigit():
             self.connectionString += f"Connection Timeout={timeout};"
         
@@ -178,13 +168,12 @@ class DatabaseConnectionStringBuilder:
         if encrypt.lower() != 'n':
             self.connectionString += "Encrypt=True;"
             
-            # Trust server certificate
-            trust_cert = prompt_with_default(
-                "  Trust Server Certificate? (y/N)", "n"
-            )
-            if trust_cert.lower() == 'y':
-                self.connectionString += "TrustServerCertificate=True;"
-        
+        # Trust server certificate
+        trust_cert = prompt_with_default(
+            " Trust Server Certificate? (y/N)", "n"
+        )
+        if trust_cert.lower() == 'y':
+            self.connectionString += "TrustServerCertificate=True;"
         # MultipleActiveResultSets
         mars = prompt_with_default(
             "  Enable Multiple Active Result Sets (MARS)? (y/N)", "n"
