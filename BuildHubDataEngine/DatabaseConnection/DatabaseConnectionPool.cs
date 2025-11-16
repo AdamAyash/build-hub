@@ -1,5 +1,7 @@
 ﻿using BuildHubCommon.ConfigurationManager;
 using BuildHubCommon.Utilities;
+using BuildHubDataEngine.Exceptions;
+using Microsoft.Data.SqlClient;
 
 namespace BuildHubDataEngine.DatabaseConnection
 {
@@ -22,7 +24,6 @@ namespace BuildHubDataEngine.DatabaseConnection
         {
             this._availableDatabaseConnectionsMap = new Dictionary<DatabaseSource, List<DatabaseConnection>>();
             this._currentlyUsedDatabaseConnectionsMap = new Dictionary<DatabaseSource, List<DatabaseConnection>>();
-
             this._configurationManager = ConfigurationManager.GetConfigurationManager();
 
             Initialize();
@@ -44,6 +45,22 @@ namespace BuildHubDataEngine.DatabaseConnection
 
             return _databaseConnectionPoolInstance;
         }
+
+        /// <summary>
+        /// Returns the number of currently available database connections.
+        /// </summary>
+        /// <param name="databaseSource">Source of the database</param>
+        /// <returns>int</returns>
+        public int GetAvailableDatabaseConnectionsCount(DatabaseSource databaseSource)
+            => this._availableDatabaseConnectionsMap[databaseSource].Count;
+
+        /// <summary>
+        /// Returns the number of currently used database connections.
+        /// </summary>
+        /// <param name="databaseSource">Source of the database</param>
+        /// <returns>int</returns>
+        public int GetCurrentlyUsedConnectionsCount(DatabaseSource databaseSource)
+            => this._currentlyUsedDatabaseConnectionsMap[databaseSource].Count;
 
         /// <summary>
         /// Returns a reference to a database connection
@@ -78,27 +95,36 @@ namespace BuildHubDataEngine.DatabaseConnection
         {
             var databaseSource = databaseConnection.DatabaseSource;
 
+            if (databaseConnection.IsConnectionOpen())
+                this._availableDatabaseConnectionsMap[databaseSource].Add(databaseConnection);
+
             this._currentlyUsedDatabaseConnectionsMap[databaseSource].Remove(databaseConnection);
-            this._availableDatabaseConnectionsMap[databaseSource].Add(databaseConnection);
+        }
+
+        private string GetConnectionString(DatabaseSource databaseSource)
+        {
+            string connectionStringKey = Utilities.GetEnumDescription<DatabaseSource>(databaseSource);
+            string connectionString = this._configurationManager.GetConnectionString(connectionStringKey);
+
+            if (string.IsNullOrEmpty(connectionString))
+                throw new EmptyConnectionStringException();
+
+            return connectionString;
         }
 
         private DatabaseConnection InitializeConnection(DatabaseSource databaseSource)
         {
-            string connectionStringKey = Utilities.GetEnumDescription<DatabaseSource>(databaseSource);
-            string? connectionString = this._configurationManager.GetConnectionString(connectionStringKey);
-
-            if (connectionString is null)
-                throw new Exception();
-
+            var connectionString = GetConnectionString(databaseSource);
             var databaseConnection = new DatabaseConnection(databaseSource, connectionString);
 
             try
             {
                 databaseConnection.OpenConnection();
             }
-            catch (Exception)
+            catch (SqlException exception)
             {
-                //LOG ERROR
+                //TODO log error and  abort.
+                Environment.Exit(0);
             }
 
             var databaseConnectionValidator = new DatabaseConnectionValidator(databaseConnection);
@@ -119,13 +145,14 @@ namespace BuildHubDataEngine.DatabaseConnection
         {
             var availableDatabaseConnections = new List<DatabaseConnection>();
 
-            for(var index = 0; index < databaseConfiguration.MaxPoolConnections; index++)
+            for (var index = 0; index < databaseConfiguration.MaxPoolConnections; index++)
             {
                DatabaseConnection databaseConnection = InitializeConnection(databaseConfiguration.DatabaseSource);
                availableDatabaseConnections.Add(databaseConnection);
             }
 
             this._availableDatabaseConnectionsMap.Add(databaseConfiguration.DatabaseSource, availableDatabaseConnections);
+            this._currentlyUsedDatabaseConnectionsMap.Add(databaseConfiguration.DatabaseSource, new List<DatabaseConnection>());
         }
 
         /// <summary>
@@ -137,8 +164,8 @@ namespace BuildHubDataEngine.DatabaseConnection
 
             if (databaseConfigurations is null)
             {
-                //LOG error 
-                throw new Exception();
+                // TODO log error and abort.
+                throw new MissingDatabaseConfigurationException();
             }
 
             databaseConfigurations = databaseConfigurations.DistinctBy(x => x.DatabaseSource);
@@ -150,7 +177,7 @@ namespace BuildHubDataEngine.DatabaseConnection
         }
 
         /// <summary>
-        /// Closes all connections
+        /// Closes all connections.
         /// </summary>
         private void Cleanup()
         {

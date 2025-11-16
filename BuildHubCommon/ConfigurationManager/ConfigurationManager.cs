@@ -39,11 +39,9 @@ namespace BuildHubCommon.ConfigurationManager
         {
             var builder = new ConfigurationBuilder()
                 .AddEnvironmentVariables()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile(_CONFIGURATION_FILE_NAME);
-
-            builder.SetBasePath(AppDomain.CurrentDomain.BaseDirectory);
-            builder.AddJsonFile("appsettings.json", optional: this._isOptional, reloadOnChange: this._reloadOnChange);
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile(_CONFIGURATION_FILE_NAME, optional: this._isOptional, 
+                reloadOnChange: this._reloadOnChange);
 
             _configuration = builder.Build();
         }
@@ -51,10 +49,10 @@ namespace BuildHubCommon.ConfigurationManager
         /// <summary>
         /// Gets a connection string
         /// </summary>
-        public string? GetConnectionString(string key)
+        public string GetConnectionString(string key)
         {
             var connectionString = _configuration?.GetConnectionString(key);
-            return connectionString;
+            return connectionString ?? string.Empty;
         }
 
         /// <summary>

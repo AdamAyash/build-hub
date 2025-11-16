@@ -6,7 +6,7 @@
     [TestClass]
     public sealed class ConfigurationManagerTests
     {
-        private sealed class TestConfigurationModel : IConfigurationModel
+        private sealed class TestConfiguration : IConfigurationModel
         {
             public string? Value { get; set; }
         }
@@ -31,16 +31,16 @@
         public void TryToGetInvalidConnectionStringTest()
         {
             ConfigurationManager configurationManager = ConfigurationManager.GetConfigurationManager();
-            string? connectionString = configurationManager.GetConnectionString("BuildHubDBInvalid");
+            string connectionString = configurationManager.GetConnectionString("BuildHubDBInvalid");
 
-            Assert.IsNull(connectionString);
+            Assert.IsEmpty(connectionString);
         }
 
         [TestMethod]
         public void GetTestConfigurationModelTest()
         {
             ConfigurationManager configurationManager = ConfigurationManager.GetConfigurationManager();
-            TestConfigurationModel? testConfigurationModel = configurationManager.GetConfigurationModel<TestConfigurationModel>("TestConfiguration");
+            TestConfiguration? testConfigurationModel = configurationManager.GetConfigurationModel<TestConfiguration>("TestConfiguration");
 
             Assert.IsNotNull(testConfigurationModel);
         }
@@ -49,7 +49,7 @@
         public void GetTestConfigurationModelAndCompareValuesTest()
         {
             ConfigurationManager configurationManager = ConfigurationManager.GetConfigurationManager();
-            TestConfigurationModel? testConfigurationModel = configurationManager.GetConfigurationModel<TestConfigurationModel>("TestConfiguration");
+            TestConfiguration? testConfigurationModel = configurationManager.GetConfigurationModel<TestConfiguration>("TestConfiguration");
 
             Assert.AreEqual("TestValue", testConfigurationModel?.Value);
         }
@@ -58,9 +58,18 @@
         public void GetNonExistingTestConfigurationModelTest()
         {
             ConfigurationManager configurationManager = ConfigurationManager.GetConfigurationManager();
-            TestConfigurationModel? testConfigurationModel = configurationManager.GetConfigurationModel<TestConfigurationModel>("NotExistingTestConfiguration");
+            TestConfiguration? testConfigurationModel = configurationManager.GetConfigurationModel<TestConfiguration>("NotExistingTestConfiguration");
 
             Assert.IsNull(testConfigurationModel);
+        }
+
+        [TestMethod]
+        public void GetTestConfigurationModels()
+        {
+            ConfigurationManager configurationManager = ConfigurationManager.GetConfigurationManager();
+            IEnumerable<TestConfiguration>? testConfigurations = configurationManager.GetConfigurationModels<TestConfiguration>("TestConfigurations");
+
+            Assert.AreEqual(2, testConfigurations?.Count());
         }
     }
 }

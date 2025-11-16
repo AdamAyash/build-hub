@@ -18,8 +18,4 @@
     <ProjectReference Include="..\BuildHubCommon\BuildHubCommon.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Exceptions\" />
-  </ItemGroup>
-
 </Project>
