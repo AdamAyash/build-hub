@@ -8,30 +8,36 @@ namespace BuildHubDataEngine.DatabaseConnection
     /// </summary>
     public class DatabaseConnection
     {
-        private readonly SqlConnection _internalDatabaseConnection;
-
-        public DatabaseConnection()
+        public DatabaseConnection(DatabaseSource databaseSource, string connectionString)
         {
-            this._internalDatabaseConnection = new SqlConnection();
+            this.InternalConnection = new SqlConnection(connectionString);
+            this.DatabaseSource = databaseSource;
         }
 
-        public DatabaseConnection(string connectionString)
-        {
-            this._internalDatabaseConnection = new SqlConnection(connectionString);
-        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public SqlConnection InternalConnection { get; private set; }
 
-        public SqlConnection InternalConnection
-        {
-            get
-            {
-                return this._internalDatabaseConnection;
-            }
-        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public DatabaseSource DatabaseSource { get; private set; }
 
-        public bool IsConnectionOpen() => this._internalDatabaseConnection.State == ConnectionState.Open;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public bool IsConnectionOpen() => this.InternalConnection.State == ConnectionState.Open;
 
-        public void OpenConnection() => this._internalDatabaseConnection.Open();
+        /// <summary>
+        /// 
+        /// </summary>
+        public void OpenConnection() => this.InternalConnection.Open();
 
-        public void CloseConnection() => this._internalDatabaseConnection.Close();
+        /// <summary>
+        /// 
+        /// </summary>
+        public void CloseConnection() => this.InternalConnection.Close();
     }
 }

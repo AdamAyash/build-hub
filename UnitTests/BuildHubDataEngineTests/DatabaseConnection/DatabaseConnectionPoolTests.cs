@@ -1,7 +1,7 @@
-﻿using BuildHubDataEngine.DatabaseConnection;
-
-namespace UnitTests.BuildHubDataEngineTests.DatabaseConnection
+﻿namespace UnitTests.BuildHubDataEngineTests.DatabaseConnection
 {
+    using BuildHubDataEngine.DatabaseConnection;
+
     [TestClass]
     public sealed class DatabaseConnectionPoolTests
     {
@@ -11,29 +11,57 @@ namespace UnitTests.BuildHubDataEngineTests.DatabaseConnection
             DatabaseConnectionPool databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
             Assert.IsNotNull(databaseConnectionPoolInstance);
         }
-
+       
         [TestMethod]
-        public void GetDatabaseConnectionTest()
+        [DataRow(DatabaseSource.Users)]
+        [DataRow(DatabaseSource.Core)]
+        public void GetConnectionTest(DatabaseSource databaseSource)
         {
             DatabaseConnectionPool databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
-            int availableConnectionsCount = databaseConnectionPoolInstance.AvailableConnections;
-            var databaseConnection = databaseConnectionPoolInstance.GetDatabaseConnection();
+            DatabaseConnection databaseConnection = databaseConnectionPoolInstance.GetDatabaseConnection(databaseSource);
 
-            Assert.IsTrue(databaseConnection != null
-              && databaseConnection.IsConnectionOpen()
-              && Math.Abs(databaseConnectionPoolInstance.AvailableConnections - availableConnectionsCount) == 1);
+            Assert.IsTrue(databaseConnection.IsConnectionOpen());
         }
 
         [TestMethod]
-        public void ReleaseDatabaseConnectionTest()
+        [DataRow(DatabaseSource.Users)]
+        [DataRow(DatabaseSource.Core)]
+        public void RelseaseConnectionsTest(DatabaseSource databaseSource)
         {
             DatabaseConnectionPool databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
-            var databaseConnection = databaseConnectionPoolInstance.GetDatabaseConnection();
-            int availableConnectionsCount = databaseConnectionPoolInstance.AvailableConnections;
+            DatabaseConnection databaseConnection = databaseConnectionPoolInstance.GetDatabaseConnection(databaseSource);
 
             databaseConnectionPoolInstance.ReleaseDatabaseConnection(databaseConnection);
 
-            Assert.AreEqual(1, databaseConnectionPoolInstance.AvailableConnections - availableConnectionsCount);
+            Assert.IsTrue(databaseConnection.IsConnectionOpen());
+        }
+
+        [TestMethod]
+        public void GetDatabaseConnectionFromNonExistingSourceTest()
+        {
+            DatabaseConnectionPool databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
+            Assert.Throws<KeyNotFoundException>(() => databaseConnectionPoolInstance.GetDatabaseConnection((DatabaseSource)3));
+        }
+
+        [TestMethod]
+        [DataRow(DatabaseSource.Users)]
+        [DataRow(DatabaseSource.Core)]
+        public void GetAvailableConnectionsTest(DatabaseSource databaseSource)
+        {
+            DatabaseConnectionPool databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
+            Assert.IsGreaterThan(0, databaseConnectionPoolInstance.GetAvailableDatabaseConnectionsCount(databaseSource));
+        }
+
+        [TestMethod]
+        [DataRow(DatabaseSource.Users)]
+        [DataRow(DatabaseSource.Core)]
+        public void GetCurrentlyUsedConnectionsTest(DatabaseSource databaseSource)
+        {
+            DatabaseConnectionPool databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
+            DatabaseConnection databaseConnection = databaseConnectionPoolInstance.GetDatabaseConnection(databaseSource);
+
+            int currentlyUsedConnections = databaseConnectionPoolInstance.GetCurrentlyUsedConnectionsCount(databaseSource);
+            Assert.AreEqual(1, currentlyUsedConnections);
         }
     }
 }

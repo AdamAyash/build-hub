@@ -2,12 +2,12 @@
 
 namespace BuildHubDataEngine.DatabaseConnection
 {
-    internal sealed class DatabaseSettingsModel : IConfigurationModel
+    internal sealed class DatabaseConfiguration : IConfigurationModel
     {
-        public DatabaseSources DatabaseSource { get; set; }
+        public DatabaseSource DatabaseSource { get; set; }
         public int MinPoolConnections { get; set; }
         public int MaxPoolConnections { get; set; }
-        public DatabaseSettingsModel()
+        public DatabaseConfiguration()
         {
         }
     }

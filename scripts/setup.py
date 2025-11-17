@@ -101,6 +101,9 @@ class BuildHubSetup:
             
             builder = DatabaseConnectionStringBuilder("BuildHubUsers", "Users database")
             builder.build()
+
+            builder = DatabaseConnectionStringBuilder("BuildHubCore", "Core database")
+            builder.build()
             
             self.logger.info("✓ Database configured successfully")
             return True
