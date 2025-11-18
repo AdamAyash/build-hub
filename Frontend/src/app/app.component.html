@@ -1,0 +1,7 @@
+<ng-template #noExportAccess>
+    <div class="section red">
+        <h2>✗ No Export Access</h2>
+        <p>You need 'reports:export' permission</p>
+    </div>
+</ng-template>
+<h1 class="text-3xl font-bold underline" *bhHasPermission="'test:te'; mode: 'any'; else: noExportAccess">Hello world!</h1>
