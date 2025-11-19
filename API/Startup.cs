@@ -1,4 +1,5 @@
 using Scalar.AspNetCore;
+using BuildHubCommon.Logger;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,9 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+Logger logger = Logger.GetInstance();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

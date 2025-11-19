@@ -22,4 +22,8 @@
     <Folder Include="Controllers\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BuildHubCommon\BuildHubCommon.csproj" />
+  </ItemGroup>
+
 </Project>
