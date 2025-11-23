@@ -1,19 +1,17 @@
 using Scalar.AspNetCore;
-using BuildHubCommon.Logger;
+using BuildHub.Common.Logger;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
+//Initialization
+Logger.Initialize();
+Logger.LogInformation("Application Starting Up");
+
 var app = builder.Build();
 
-Logger logger = Logger.GetInstance();
-
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
 	app.MapOpenApi();

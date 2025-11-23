@@ -1,7 +1,8 @@
 using BuildHub.Common.ConfigurationManager;
+using BuildHub.Common.Logger;
 using BuildHub.Common.Utilities;
-using BuildHub.DataEngine.Exceptions;
 using Microsoft.Data.SqlClient;
+using BuildHub.Common.Application;
 
 namespace BuildHub.DataEngine.DatabaseConnection
 {
@@ -107,7 +108,10 @@ namespace BuildHub.DataEngine.DatabaseConnection
 			string connectionString = this._configurationManager.GetConnectionString(connectionStringKey);
 
 			if (string.IsNullOrEmpty(connectionString))
-				throw new EmptyConnectionStringException();
+			{
+				Logger.LogFatal($"Connection string for {databaseSource} database is empty.");
+				Application.ExitWithError();
+			}
 
 			return connectionString;
 		}
@@ -123,8 +127,8 @@ namespace BuildHub.DataEngine.DatabaseConnection
 			}
 			catch (SqlException exception)
 			{
-				//TODO log error and  abort.
-				Environment.Exit(0);
+				Logger.LogFatal(exception, $"Failed to open database connection to {databaseSource} database.");
+				Application.ExitWithError();
 			}
 
 			var databaseConnectionValidator = new DatabaseConnectionValidator(databaseConnection);
@@ -164,16 +168,18 @@ namespace BuildHub.DataEngine.DatabaseConnection
 
 			if (databaseConfigurations is null)
 			{
-				// TODO log error and abort.
-				throw new MissingDatabaseConfigurationException();
+				Logger.LogFatal("No database configurations found. Application will terminate.");
+				Application.ExitWithError();
 			}
 
-			databaseConfigurations = databaseConfigurations.DistinctBy(x => x.DatabaseSource);
+			databaseConfigurations = databaseConfigurations?.DistinctBy(x => x.DatabaseSource);
 
 			foreach (var databaseConfiguration in databaseConfigurations)
 			{
 				InitializeConnections(databaseConfiguration);
 			}
+
+			Logger.LogInformation("Database connection pool initialized.");
 		}
 
 		/// <summary>
