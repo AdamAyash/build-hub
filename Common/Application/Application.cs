@@ -1,6 +1,7 @@
 ﻿namespace BuildHub.Common.Application
 {
 	using Logger;
+
 	public static class Application
 	{
 		public static void Exit()
@@ -9,10 +10,18 @@
 			Environment.Exit(0);
 		}
 
-		public static void ExitWithError()
+		public static void ExitWithError(Exception? exception, string message, params object[] propertyValues)
 		{
-			Environment.Exit(0);
+			Logger.LogError(exception, message, propertyValues);
 			Logger.LogError("Build-Hub has been shutdown due to an error.");
+			Environment.Exit(0);
+		}
+
+		public static void ExitWithError(string message, params object[] propertyValues)
+		{
+			Logger.LogError(message, propertyValues);
+			Logger.LogError("Build-Hub has been shutdown due to an error.");
+			Environment.Exit(0);
 		}
 	}
 }

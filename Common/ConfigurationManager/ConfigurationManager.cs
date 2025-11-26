@@ -1,8 +1,9 @@
-using BuildHub.Common.ConfigurationManager.Base;
 using Microsoft.Extensions.Configuration;
 
 namespace BuildHub.Common.ConfigurationManager
 {
+	using Base;
+
 	/// <summary>
 	/// Configuration manager class
 	/// </summary>

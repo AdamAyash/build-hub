@@ -1,11 +1,12 @@
-using BuildHub.Common.ConfigurationManager;
-using BuildHub.Common.Logger;
-using BuildHub.Common.Utilities;
 using Microsoft.Data.SqlClient;
-using BuildHub.Common.Application;
 
 namespace BuildHub.DataEngine.DatabaseConnection
 {
+	using Common.Application;
+	using Common.Utilities;
+	using Common.Logger;
+	using Common.ConfigurationManager;
+
 	/// <summary>
 	/// Database connection pool singleton, initializing and managing a number of database connections.
 	/// </summary>
@@ -108,10 +109,7 @@ namespace BuildHub.DataEngine.DatabaseConnection
 			string connectionString = this._configurationManager.GetConnectionString(connectionStringKey);
 
 			if (string.IsNullOrEmpty(connectionString))
-			{
-				Logger.LogFatal($"Connection string for {databaseSource} database is empty.");
-				Application.ExitWithError();
-			}
+				Application.ExitWithError($"Connection string for {databaseSource} database is empty.");
 
 			return connectionString;
 		}
@@ -127,8 +125,7 @@ namespace BuildHub.DataEngine.DatabaseConnection
 			}
 			catch (SqlException exception)
 			{
-				Logger.LogFatal(exception, $"Failed to open database connection to {databaseSource} database.");
-				Application.ExitWithError();
+				Application.ExitWithError(exception, $"Failed to open database connection to {databaseSource} database.");
 			}
 
 			var databaseConnectionValidator = new DatabaseConnectionValidator(databaseConnection);
@@ -139,7 +136,7 @@ namespace BuildHub.DataEngine.DatabaseConnection
 		}
 
 		/// <summary>
-		/// Initiliazes connection baed on the configuration provided
+		/// Initializes the connections for a specific database configuration
 		/// </summary>
 		/// <param name="databaseConfiguration">Datbase configuration model</param>
 		/// <returns></returns>
@@ -167,10 +164,7 @@ namespace BuildHub.DataEngine.DatabaseConnection
 			var databaseConfigurations = _configurationManager.GetConfigurationModels<DatabaseConfiguration>("DatabaseConfigurations");
 
 			if (databaseConfigurations is null)
-			{
-				Logger.LogFatal("No database configurations found. Application will terminate.");
-				Application.ExitWithError();
-			}
+				Application.ExitWithError("No database configurations found. Application will terminate.");
 
 			databaseConfigurations = databaseConfigurations?.DistinctBy(x => x.DatabaseSource);
 
