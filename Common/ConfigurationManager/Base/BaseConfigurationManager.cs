@@ -25,7 +25,7 @@ namespace BuildHub.Common.ConfigurationManager.Base
 		protected BaseConfigurationManager()
 		{
 			this._reloadOnChange = true;
-			this._isOptional = true;
+			this._isOptional = false;
 		}
 
 		/// <summary>

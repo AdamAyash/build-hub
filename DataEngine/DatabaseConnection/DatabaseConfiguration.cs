@@ -7,8 +7,5 @@ namespace BuildHub.DataEngine.DatabaseConnection
 		public DatabaseSource DatabaseSource { get; set; }
 		public int MinPoolConnections { get; set; }
 		public int MaxPoolConnections { get; set; }
-		public DatabaseConfiguration()
-		{
-		}
 	}
 }

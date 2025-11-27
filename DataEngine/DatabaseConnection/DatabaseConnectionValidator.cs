@@ -1,3 +1,4 @@
+using BuildHub.Common.Logger;
 using Microsoft.Data.SqlClient;
 
 namespace BuildHub.DataEngine.DatabaseConnection
@@ -28,11 +29,20 @@ namespace BuildHub.DataEngine.DatabaseConnection
 		/// <returns>bool</returns>
 		public bool TestDatabaseConnection()
 		{
-			if (!this._databaseConnection.IsConnectionOpen())
-				return false;
+			bool isSuccessful = false;
 
-			var testQuery = new SqlCommand(_TEST_SQL_QUERY, _databaseConnection.InternalConnection);
-			bool isSuccessful = Convert.ToInt32(testQuery.ExecuteScalar()) == 1;
+			if (!this._databaseConnection.IsConnectionOpen())
+				return isSuccessful;
+
+			try
+			{
+				var testQuery = new SqlCommand(_TEST_SQL_QUERY, _databaseConnection.InternalConnection);
+				isSuccessful = Convert.ToInt32(testQuery.ExecuteScalar()) == 1;
+			}
+			catch (Exception exception)
+			{
+				Logger.LogError(exception, "An error occurred while trying to execute a test query.");
+			}
 
 			return isSuccessful;
 		}

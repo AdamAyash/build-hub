@@ -1,8 +1,10 @@
-using BuildHub.Common.ConfigurationManager.Base;
 using Microsoft.Extensions.Configuration;
 
 namespace BuildHub.Common.ConfigurationManager
 {
+	using Base;
+	using Application;
+
 	/// <summary>
 	/// Configuration manager class
 	/// </summary>
@@ -37,13 +39,21 @@ namespace BuildHub.Common.ConfigurationManager
 		/// </summary>
 		protected override void Initialize()
 		{
-			var builder = new ConfigurationBuilder()
+			try
+			{
+				var builder = new ConfigurationBuilder()
 				.AddEnvironmentVariables()
 				.SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
 				.AddJsonFile(_CONFIGURATION_FILE_NAME, optional: this._isOptional,
 				reloadOnChange: this._reloadOnChange);
 
-			_configuration = builder.Build();
+				_configuration = builder.Build();
+			}
+			catch (Exception exception)
+			{
+				Application.ExitWithError(exception, "Failed to initialize configuration manager.");
+			}
+
 		}
 
 		/// <summary>

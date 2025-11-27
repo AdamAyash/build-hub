@@ -1,10 +1,12 @@
-using BuildHub.Common.ConfigurationManager;
-using BuildHub.Common.Utilities;
-using BuildHub.DataEngine.Exceptions;
 using Microsoft.Data.SqlClient;
 
 namespace BuildHub.DataEngine.DatabaseConnection
 {
+	using Common.Logger;
+	using Common.Utilities;
+	using Common.Application;
+	using Common.ConfigurationManager;
+
 	/// <summary>
 	/// Database connection pool singleton, initializing and managing a number of database connections.
 	/// </summary>
@@ -79,7 +81,9 @@ namespace BuildHub.DataEngine.DatabaseConnection
 
 			var databaseConnectionValidator = new DatabaseConnectionValidator(databaseConnection);
 			if (!databaseConnectionValidator.TestDatabaseConnection())
-				throw new InvalidOperationException();
+			{
+				Application.ExitWithError($"Database connection test failed for {databaseSource} database.");
+			}
 
 			currentlyUsedDatabaseConnections.Add(databaseConnection);
 			availableDatabaseConnections.Remove(databaseConnection);
@@ -107,7 +111,7 @@ namespace BuildHub.DataEngine.DatabaseConnection
 			string connectionString = this._configurationManager.GetConnectionString(connectionStringKey);
 
 			if (string.IsNullOrEmpty(connectionString))
-				throw new EmptyConnectionStringException();
+				Application.ExitWithError($"Connection string for {databaseSource} database is empty.");
 
 			return connectionString;
 		}
@@ -123,19 +127,20 @@ namespace BuildHub.DataEngine.DatabaseConnection
 			}
 			catch (SqlException exception)
 			{
-				//TODO log error and  abort.
-				Environment.Exit(0);
+				Application.ExitWithError(exception, $"Failed to open database connection to {databaseSource} database.");
 			}
 
 			var databaseConnectionValidator = new DatabaseConnectionValidator(databaseConnection);
 			if (!databaseConnectionValidator.TestDatabaseConnection())
-				throw new InvalidOperationException();
+			{
+				Application.ExitWithError($"Database connection test failed for {databaseSource} database.");
+			}
 
 			return databaseConnection;
 		}
 
 		/// <summary>
-		/// Initiliazes connection baed on the configuration provided
+		/// Initializes the connections for a specific database configuration
 		/// </summary>
 		/// <param name="databaseConfiguration">Datbase configuration model</param>
 		/// <returns></returns>
@@ -154,7 +159,7 @@ namespace BuildHub.DataEngine.DatabaseConnection
 			this._availableDatabaseConnectionsMap.Add(databaseConfiguration.DatabaseSource, availableDatabaseConnections);
 			this._currentlyUsedDatabaseConnectionsMap.Add(databaseConfiguration.DatabaseSource, new List<DatabaseConnection>());
 		}
-
+		
 		/// <summary>
 		/// Initializes a number of database connections
 		/// </summary>
@@ -163,17 +168,16 @@ namespace BuildHub.DataEngine.DatabaseConnection
 			var databaseConfigurations = _configurationManager.GetConfigurationModels<DatabaseConfiguration>("DatabaseConfigurations");
 
 			if (databaseConfigurations is null)
-			{
-				// TODO log error and abort.
-				throw new MissingDatabaseConfigurationException();
-			}
+				Application.ExitWithError("No database configurations found. Application will terminate.");
 
-			databaseConfigurations = databaseConfigurations.DistinctBy(x => x.DatabaseSource);
+			databaseConfigurations = databaseConfigurations?.DistinctBy(x => x.DatabaseSource);
 
 			foreach (var databaseConfiguration in databaseConfigurations)
 			{
 				InitializeConnections(databaseConfiguration);
 			}
+
+			Logger.LogInformation("Database connection pool initialized.");
 		}
 
 		/// <summary>
