@@ -7,7 +7,6 @@ namespace BuildHub.DataEngine.DatabaseConnection
 	using Common.Application;
 	using Common.ConfigurationManager;
 
-
 	/// <summary>
 	/// Database connection pool singleton, initializing and managing a number of database connections.
 	/// </summary>
@@ -82,7 +81,9 @@ namespace BuildHub.DataEngine.DatabaseConnection
 
 			var databaseConnectionValidator = new DatabaseConnectionValidator(databaseConnection);
 			if (!databaseConnectionValidator.TestDatabaseConnection())
-				throw new InvalidOperationException();
+			{
+				Application.ExitWithError($"Database connection test failed for {databaseSource} database.");
+			}
 
 			currentlyUsedDatabaseConnections.Add(databaseConnection);
 			availableDatabaseConnections.Remove(databaseConnection);
@@ -131,7 +132,9 @@ namespace BuildHub.DataEngine.DatabaseConnection
 
 			var databaseConnectionValidator = new DatabaseConnectionValidator(databaseConnection);
 			if (!databaseConnectionValidator.TestDatabaseConnection())
-				throw new InvalidOperationException();
+			{
+				Application.ExitWithError($"Database connection test failed for {databaseSource} database.");
+			}
 
 			return databaseConnection;
 		}
@@ -156,7 +159,7 @@ namespace BuildHub.DataEngine.DatabaseConnection
 			this._availableDatabaseConnectionsMap.Add(databaseConfiguration.DatabaseSource, availableDatabaseConnections);
 			this._currentlyUsedDatabaseConnectionsMap.Add(databaseConfiguration.DatabaseSource, new List<DatabaseConnection>());
 		}
-
+		
 		/// <summary>
 		/// Initializes a number of database connections
 		/// </summary>
