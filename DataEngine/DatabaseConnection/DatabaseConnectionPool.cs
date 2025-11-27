@@ -2,10 +2,11 @@ using Microsoft.Data.SqlClient;
 
 namespace BuildHub.DataEngine.DatabaseConnection
 {
-	using Common.Application;
-	using Common.Utilities;
 	using Common.Logger;
+	using Common.Utilities;
+	using Common.Application;
 	using Common.ConfigurationManager;
+
 
 	/// <summary>
 	/// Database connection pool singleton, initializing and managing a number of database connections.

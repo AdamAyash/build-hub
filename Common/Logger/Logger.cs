@@ -1,6 +1,7 @@
 ﻿namespace BuildHub.Common.Logger
 {
 	using Serilog;
+	using BuildHub.Common.Application;
 	using BuildHub.Common.ConfigurationManager;
 	using SerilogConfiguration = Serilog.LoggerConfiguration;
 
@@ -49,9 +50,9 @@
 
 				Log.Logger = serilogConfiguration.CreateLogger();
 			}
-			catch(Exception)
+			catch(Exception exception)
 			{
-				Environment.Exit(0);
+				Application.ExitWithError(exception, "Failed to initialize logger configuration.");
 			}
 		}
 
