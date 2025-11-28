@@ -17,15 +17,9 @@
 
 		private ConfigurationManager? _configurationManager = null;
 
-		private Logger()
-		{
-			this.InitializeLogger();
-		}
+		private Logger() => this.InitializeLogger();
 
-		~Logger()
-		{
-			Log.CloseAndFlush();
-		}
+		~Logger() => Log.CloseAndFlush();
 
 		/// <summary>
 		/// Initializes the application logger with default configuration settings.
@@ -44,9 +38,16 @@
 					throw new InvalidOperationException();
 
 				var serilogConfiguration = new SerilogConfiguration()
-					.WriteTo.File(loggerConfiguration.LogFileDirectory, rollingInterval: loggerConfiguration.RollingInterval)
-					.MinimumLevel.Is(loggerConfiguration.MinimumLogEventLevel)
-					.WriteTo.Seq(loggerConfiguration.SeqServerUrl);
+					.MinimumLevel.Is(loggerConfiguration.MinimumLogEventLevel);
+
+				if (loggerConfiguration.LogToConsoleEnabled)
+					serilogConfiguration = serilogConfiguration.WriteTo.Console();
+
+				if(!string.IsNullOrEmpty(loggerConfiguration.LogFileDirectory))
+					serilogConfiguration = serilogConfiguration.WriteTo.File(loggerConfiguration.LogFileDirectory, rollingInterval: loggerConfiguration.RollingInterval);
+
+				if(!string.IsNullOrEmpty(loggerConfiguration.SeqServerUrl))
+					serilogConfiguration = serilogConfiguration.WriteTo.Seq(loggerConfiguration.SeqServerUrl);
 
 				Log.Logger = serilogConfiguration.CreateLogger();
 			}

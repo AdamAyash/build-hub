@@ -8,6 +8,11 @@ namespace BuildHub.Common.Utilities
 	public class Utilities
 	{
 		/// <summary>
+		/// Default date time format
+		/// </summary>
+		private static string _DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss.fff";
+
+		/// <summary>
 		/// Retrieves a description attribute from an enumeration
 		/// </summary>
 		/// <typeparam name="EnumType">Type parameter for enums</typeparam>
@@ -27,5 +32,14 @@ namespace BuildHub.Common.Utilities
 		/// Retrieves the system date time
 		/// </summary>
 		public static DateTime GetCurrentDateTime => DateTime.Now;
+
+		public static string FormatDateTime(DateTime dateTime) => dateTime.ToString(_DATE_TIME_FORMAT);
+
+		/// <summary>
+		/// Surrounds the given value with single quotes
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns>The value surrounded by single quotes</returns>
+		public static string Stringify(object value) => $"'{value}'";
 	}
 }

@@ -1,5 +1,8 @@
 namespace BuildHub.DataEngine.Exceptions
 {
+	/// <summary>
+	/// Exception class for the scenario where an empty connection string isn't provided.
+	/// </summary>
 	public sealed class EmptyConnectionStringException : Exception
 	{
 		public EmptyConnectionStringException()

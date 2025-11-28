@@ -63,5 +63,20 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 			int currentlyUsedConnections = databaseConnectionPoolInstance.GetCurrentlyUsedConnectionsCount(databaseSource);
 			Assert.AreEqual(1, currentlyUsedConnections);
 		}
+
+		[TestMethod]
+		[DataRow(DatabaseSource.Users)]
+		[DataRow(DatabaseSource.Core)]
+		public void DisposeConnectionTest(DatabaseSource databaseSource)
+		{
+			DatabaseConnectionPool databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
+
+			DatabaseConnection databaseConnection = databaseConnectionPoolInstance.GetDatabaseConnection(databaseSource);
+
+			int currentlyUsedConnectionsBeforeDispose = databaseConnectionPoolInstance.GetCurrentlyUsedConnectionsCount(databaseSource);
+			databaseConnection.Dispose();
+
+			Assert.IsGreaterThan<int>(databaseConnectionPoolInstance.GetCurrentlyUsedConnectionsCount(databaseSource), currentlyUsedConnectionsBeforeDispose);
+		}
 	}
 }
