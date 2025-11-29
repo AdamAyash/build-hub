@@ -4,6 +4,13 @@ using Serilog.Events;
 
 namespace BuildHub.Common.Logger
 {
+	/// <summary>
+	/// Represents the configuration settings for a logging system, including log levels, output destinations, and
+	/// formatting options.
+	/// </summary>
+	/// <remarks>This class provides properties to configure various aspects of logging, such as the minimum log
+	/// level,  file-based logging settings, and integration with external logging services. It is typically used to 
+	/// define the logging behavior for an application.</remarks>
 	internal class LoggerConfiguration : IConfigurationModel
 	{
 		public LogEventLevel MinimumLogEventLevel { get; set; }

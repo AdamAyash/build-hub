@@ -1,5 +1,6 @@
 ﻿namespace BuildHub.DataEngine.Tables.Base
 {
+	using BuildHub.DataEngine.SQLQueries;
 	using DatabaseConnection;
 	using Microsoft.Data.SqlClient;
 	using Tables.Entities;
@@ -25,7 +26,11 @@
 		{
 			using var databaseConnection = this._databaseConnectionPoolInstance.GetDatabaseConnection(this._databaseSource);
 
-			SqlCommand sqlCommand = new SqlCommand($"SELECT * FROM {this.TableName}", databaseConnection.InternalConnection);
+			var query = new SQLQueryBuilder()
+				.From(this.TableName)
+				.BuildSelect();
+
+			SqlCommand sqlCommand = new SqlCommand(query.Query);
 			sqlCommand.ExecuteNonQuery();
 
 			return true;

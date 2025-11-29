@@ -1,4 +1,5 @@
-﻿using BuildHub.Common.Utilities;
+﻿using BuildHub.Common.Logger;
+using BuildHub.Common.Utilities;
 using System.Text;
 
 namespace BuildHub.DataEngine.SQLQueries
@@ -33,11 +34,28 @@ namespace BuildHub.DataEngine.SQLQueries
 			return value.ToString() ?? string.Empty;
 		}
 
+		private bool ValidateQueryParameters(object value)
+		{
+			Type type = value.GetType();
+
+			if (type != typeof(Int16)	&&
+				type != typeof(Int32) 	&&
+				type != typeof(Int64) 	&&
+				type != typeof(Double)  &&
+				type != typeof(String)  &&
+				type != typeof(DateTime))
+			{
+				return false;
+			}
+
+			return true;
+		}
+
 		public IQueryBuilder BuildSelect()
 		{
 			StringBuilder queryStringBuilder = new StringBuilder();
 			queryStringBuilder.Append($"SELECT * FROM {this._tableName} ");
-			queryStringBuilder.Append($"WITH({Utilities.GetEnumDescription<LockTypes>(this._lockType)}) ");
+			queryStringBuilder.Append($"WITH({Utilities.GetEnumDescription<LockTypes>(this._lockType)})");
 
 			if(_whereStatements.Count > 0)
 			{
@@ -46,17 +64,19 @@ namespace BuildHub.DataEngine.SQLQueries
 
 				foreach(var statement in this._whereStatements)
 				{
-					string condition = string.Empty;
-
+					string completedCondition = string.Empty;
 					string columnName = statement.Item1;
-					CompareTypes compareType = statement.Item2;
+					string compareOperator = Utilities.GetEnumDescription<CompareTypes>(statement.Item2);
 					object value = statement.Item3;
 
-					string compareOperator = Utilities.GetEnumDescription<CompareTypes>(compareType);
+					if (!this.ValidateQueryParameters(value))
+					{
+						Logger.LogError($"The given query parameter {value} is invalid.");
+						throw new ArgumentException();
+					}
 
-					condition = $"{columnName} {compareOperator} {this.ProcessValue(value)}";
-
-					whereStatements.Add(condition);
+					completedCondition = $"{columnName} {compareOperator} {this.ProcessValue(value)}";
+					whereStatements.Add(completedCondition);
 				}
 
 				queryStringBuilder.Append(string.Join(" AND ", whereStatements));
@@ -83,10 +103,9 @@ namespace BuildHub.DataEngine.SQLQueries
 			return this;
 		}
 
-		public IQueryBuilder Where<ValueType>(string columnName, CompareTypes compareType, ValueType value)
-			where ValueType : struct
+		public IQueryBuilder Where(string columnName, CompareTypes compareType, object value)
 		{
-			this._whereStatements.Add(new Tuple<string, CompareTypes, object>(columnName, compareType, value));
+			this._whereStatements.Add(new WhereCondition(columnName, compareType, value));
 			return this; 
 		}
 

@@ -10,12 +10,15 @@ namespace BuildHub.Common.ConfigurationManager
 	/// </summary>
 	public sealed class ConfigurationManager : BaseConfigurationManager
 	{
+		/// <summary>
+		/// Constant configuration file name
+		/// </summary>
 		private const string _CONFIGURATION_FILE_NAME = "appsettings.json";
 
 		/// <summary>
 		/// Configuration manager singleton instance
 		/// </summary>
-		private static ConfigurationManager? _configurationManager = null;
+		private static Lazy<ConfigurationManager> _configurationManagerInstance = new Lazy<ConfigurationManager>(() => new ConfigurationManager());
 
 		private ConfigurationManager()
 		{
@@ -27,11 +30,7 @@ namespace BuildHub.Common.ConfigurationManager
 		/// <returns></returns>
 		public static ConfigurationManager GetConfigurationManager()
 		{
-			if (_configurationManager == null)
-				_configurationManager = new ConfigurationManager();
-
-			_configurationManager.Initialize();
-			return _configurationManager;
+			return _configurationManagerInstance.Value;
 		}
 
 		/// <summary>
@@ -53,7 +52,6 @@ namespace BuildHub.Common.ConfigurationManager
 			{
 				Application.ExitWithError(exception, "Failed to initialize configuration manager.");
 			}
-
 		}
 
 		/// <summary>

@@ -8,8 +8,7 @@
 
 		IQueryBuilder From(string tableName);
 
-		IQueryBuilder Where<ValueType>(string columnName, CompareTypes compareType, ValueType value)
-			where ValueType : struct;
+		IQueryBuilder Where(string columnName, CompareTypes compareType, object value);
 
 		IQueryBuilder Lock(LockTypes lockType);
 

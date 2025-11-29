@@ -12,8 +12,8 @@ namespace BuildHub.DataEngine.DatabaseConnection
 	/// </summary>
 	public sealed class DatabaseConnectionPool
 	{
-		/// <summary>Singleton instance to the connection pool</summary>
-		private static DatabaseConnectionPool? _databaseConnectionPoolInstance = null;
+		/// <summary>Lazy database connection pool instance</summary>
+		private static Lazy<DatabaseConnectionPool> _databaseConnectionPoolInstance = new Lazy<DatabaseConnectionPool>(() => new DatabaseConnectionPool());
 		/// <summary>ConfigurationManager</summary>
 		private readonly ConfigurationManager _configurationManager;
 
@@ -42,10 +42,7 @@ namespace BuildHub.DataEngine.DatabaseConnection
 		/// <returns>DatabaseConnectionPool</returns>
 		public static DatabaseConnectionPool GetInstance()
 		{
-			if (_databaseConnectionPoolInstance == null)
-				_databaseConnectionPoolInstance = new DatabaseConnectionPool();
-
-			return _databaseConnectionPoolInstance;
+			return _databaseConnectionPoolInstance.Value;
 		}
 
 		/// <summary>
