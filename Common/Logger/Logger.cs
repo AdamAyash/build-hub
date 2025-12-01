@@ -14,7 +14,6 @@
 	public class Logger
 	{
 		private static Logger? _loggerInstance = null;
-
 		private ConfigurationManager? _configurationManager = null;
 
 		private Logger() => this.InitializeLogger();

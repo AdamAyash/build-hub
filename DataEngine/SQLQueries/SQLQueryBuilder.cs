@@ -5,10 +5,9 @@ using System.Text;
 namespace BuildHub.DataEngine.SQLQueries
 {
 	using WhereCondition = Tuple<string, CompareTypes, object>;
-
 	public sealed class SQLQueryBuilder : IQueryBuilder
 	{
-		private readonly List<WhereCondition> _whereStatements;
+		private readonly List<WhereCondition> _whereStatements = new List<WhereCondition>();
 
 		private string _tableName;
 		private LockTypes _lockType;
@@ -17,10 +16,7 @@ namespace BuildHub.DataEngine.SQLQueries
 
 		public SQLQueryBuilder()
 		{
-			this._tableName = string.Empty;
-			this._whereStatements = new List<WhereCondition>();
-			this._lockType = LockTypes.None;
-			this.Query = string.Empty;
+			this.Reset();
 		}
 
 		private string ProcessValue(object value)
@@ -107,6 +103,12 @@ namespace BuildHub.DataEngine.SQLQueries
 		{
 			this._whereStatements.Add(new WhereCondition(columnName, compareType, value));
 			return this; 
+		}
+
+		public IQueryBuilder Where(string columnName, object value)
+		{
+			this._whereStatements.Add(new WhereCondition(columnName, CompareTypes.Equal, value));
+			return this;
 		}
 
 		public IQueryBuilder Lock(LockTypes lockType)

@@ -5,7 +5,7 @@
 	using Microsoft.Data.SqlClient;
 	using Tables.Entities;
 
-	internal abstract class BaseTable<Entity>
+	public abstract class BaseTable<Entity>
 		where Entity : IEntity
 	{
 		private readonly DatabaseConnectionPool _databaseConnectionPoolInstance;
