@@ -5,7 +5,6 @@ using System.Text;
 namespace BuildHub.DataEngine.SQLQueries
 {
 	using WhereCondition = Tuple<string, CompareTypes, object>;
-
 	public sealed class SQLQueryBuilder : IQueryBuilder
 	{
 		private readonly List<WhereCondition> _whereStatements = new List<WhereCondition>();
@@ -105,6 +104,13 @@ namespace BuildHub.DataEngine.SQLQueries
 			this._whereStatements.Add(new WhereCondition(columnName.ToUpper(), compareType, value));
 			return this; 
 		}
+
+		public IQueryBuilder Where(string columnName, object value)
+		{
+			this._whereStatements.Add(new WhereCondition(columnName, CompareTypes.Equal, value));
+			return this;
+		}
+
 		public IQueryBuilder Lock(LockTypes lockType)
 		{
 			this._lockType = lockType;
