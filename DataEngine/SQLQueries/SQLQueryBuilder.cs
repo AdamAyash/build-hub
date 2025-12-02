@@ -8,7 +8,7 @@ namespace BuildHub.DataEngine.SQLQueries
 
 	public sealed class SQLQueryBuilder : IQueryBuilder
 	{
-		private readonly List<WhereCondition> _whereStatements;
+		private readonly List<WhereCondition> _whereStatements = new List<WhereCondition>();
 
 		private string _tableName;
 		private LockTypes _lockType;
@@ -17,10 +17,7 @@ namespace BuildHub.DataEngine.SQLQueries
 
 		public SQLQueryBuilder()
 		{
-			this._tableName = string.Empty;
-			this._whereStatements = new List<WhereCondition>();
-			this._lockType = LockTypes.None;
-			this.Query = string.Empty;
+			this.Reset();
 		}
 
 		private string ProcessValue(object value)
@@ -99,16 +96,15 @@ namespace BuildHub.DataEngine.SQLQueries
 
 		public IQueryBuilder From(string tableName)
 		{
-			this._tableName = tableName;
+			this._tableName = tableName.ToUpper();
 			return this;
 		}
 
 		public IQueryBuilder Where(string columnName, CompareTypes compareType, object value)
 		{
-			this._whereStatements.Add(new WhereCondition(columnName, compareType, value));
+			this._whereStatements.Add(new WhereCondition(columnName.ToUpper(), compareType, value));
 			return this; 
 		}
-
 		public IQueryBuilder Lock(LockTypes lockType)
 		{
 			this._lockType = lockType;

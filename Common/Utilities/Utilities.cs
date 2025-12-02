@@ -33,6 +33,12 @@ namespace BuildHub.Common.Utilities
 		/// </summary>
 		public static DateTime GetCurrentDateTime => DateTime.Now;
 
+		/// <summary>
+		/// Formats the specified <see cref="DateTime"/> value as a string using a predefined date and time format.
+		/// </summary>
+		/// <param name="dateTime">The <see cref="DateTime"/> value to format.</param>
+		/// <returns>A string representation of <paramref name="dateTime"/> formatted according to the predefined date and time
+		/// pattern.</returns>
 		public static string FormatDateTime(DateTime dateTime) => dateTime.ToString(_DATE_TIME_FORMAT);
 
 		/// <summary>

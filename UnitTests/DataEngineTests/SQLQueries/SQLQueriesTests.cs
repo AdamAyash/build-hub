@@ -1,6 +1,5 @@
 ﻿using BuildHub.Common.Utilities;
 using BuildHub.DataEngine.SQLQueries;
-using Newtonsoft.Json.Linq;
 
 namespace UnitTests.DataEngineTests.SQLQueries
 {
@@ -14,8 +13,8 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		}
 
 		[TestMethod]
-		[DataRow("Users")]
-		[DataRow("Builds")]
+		[DataRow("USERS")]
+		[DataRow("BUILDS")]
 		public void GenerateSimpleSelectStatementTest(string tableName)
 		{
 			var queryBuilder = new SQLQueryBuilder()
@@ -26,8 +25,8 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		}
 
 		[TestMethod]
-		[DataRow("Users", LockTypes.None)]
-		[DataRow("Builds", LockTypes.Update)]
+		[DataRow("USERS", LockTypes.None)]
+		[DataRow("BUILDS", LockTypes.Update)]
 		public void GenerateSimpleSelectStatementWithDifrentLockTypesTest(string tableName, LockTypes lockType)
 		{
 			var queryBuilder = new SQLQueryBuilder()
@@ -39,12 +38,12 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		}
 
 		[TestMethod]
-		[DataRow("Users", "Age", CompareTypes.Equal, 20)]
-		[DataRow("Builds", "BuildCount", CompareTypes.Equal, 200)]
-		[DataRow("Builds", "BuildCount", CompareTypes.NotEqual, 7000)]
-		[DataRow("Builds", "BuildCount", CompareTypes.LessThanOrEqual, 400)]
-		[DataRow("Builds", "BuildCount", CompareTypes.LessThan, 12)]
-		[DataRow("Builds", "BuildCount", CompareTypes.GreaterThanOrEqual, 56)]
+		[DataRow("USERS",  "AGE", CompareTypes.Equal, 20)]
+		[DataRow("BUILDS", "BUILD_COUNT", CompareTypes.Equal, 200)]
+		[DataRow("BUILDS", "BUILD_COUNT", CompareTypes.NotEqual, 7000)]
+		[DataRow("BUILDS", "BUILD_COUNT", CompareTypes.LessThanOrEqual, 400)]
+		[DataRow("BUILDS", "BUILD_COUNT", CompareTypes.LessThan, 12)]
+		[DataRow("BUILDS", "BUILD_COUNT", CompareTypes.GreaterThanOrEqual, 56)]
 		public void GenerateSimpleSelectStatementWithDifferentWhereStatementsOnlyNumbersTest(string tableName, string columnName, CompareTypes compareTypes, object value)
 		{
 			var queryBuilder = new SQLQueryBuilder()
@@ -57,12 +56,12 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		}
 
 		[TestMethod]
-		[DataRow("Users", "Age", CompareTypes.Equal, "TestBuild")]
-		[DataRow("Builds", "BuildName", CompareTypes.Equal, "Test Build")]
-		[DataRow("Builds", "BuildName", CompareTypes.NotEqual, "Test Build")]
-		[DataRow("Builds", "BuildName", CompareTypes.LessThanOrEqual, "Build")]
-		[DataRow("Builds", "BuildName", CompareTypes.LessThan, "Build")]
-		[DataRow("Builds", "BuildName", CompareTypes.GreaterThanOrEqual, "Build")]
+		[DataRow("USERS", "AGE", CompareTypes.Equal, "TestBuild")]
+		[DataRow("BUILDS", "BUILD_NAME", CompareTypes.Equal, "Test Build")]
+		[DataRow("BUILDS", "BUILD_NAME", CompareTypes.NotEqual, "Test Build")]
+		[DataRow("BUILDS", "BUILD_NAME", CompareTypes.LessThanOrEqual, "Build")]
+		[DataRow("BUILDS", "BUILD_NAME", CompareTypes.LessThan, "Build")]
+		[DataRow("BUILDS", "BUILD_NAME", CompareTypes.GreaterThanOrEqual, "Build")]
 		public void GenerateSimpleSelectStatementWithDifferentWhereStatementsOnlyStringsTest(string tableName, string columnName, CompareTypes compareTypes, object value)
 		{
 			var queryBuilder = new SQLQueryBuilder()
@@ -75,7 +74,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		}
 
 		[TestMethod]
-		[DataRow("Users", "Age", CompareTypes.Equal)]
+		[DataRow("USERS", "AGE", CompareTypes.Equal)]
 		public void GenerateWhereStatementWithInvalidTypesTest(string tableName, string columnName, CompareTypes compareTypes)
 		{
 			var testObject = new TestClass();
@@ -88,8 +87,8 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		}
 
 		[TestMethod]
-		[DataRow("Builds", "DateCreated", CompareTypes.Equal, 2026, 1, 1)]
-		[DataRow("Builds", "DateCreated", CompareTypes.LessThanOrEqual, 2024, 4, 19)]
+		[DataRow("BUILDS", "DATE_CREATED", CompareTypes.Equal, 2026, 1, 1)]
+		[DataRow("BUILDS", "DATE_CREATED", CompareTypes.LessThanOrEqual, 2024, 4, 19)]
 		public void GenerateWhereStatementWithDateTimeTest(string tableName, string columnName, CompareTypes compareTypes
 			, int year, int month, int day)
 		{
@@ -103,6 +102,22 @@ namespace UnitTests.DataEngineTests.SQLQueries
 			string compareOperator = Utilities.GetEnumDescription<CompareTypes>(compareTypes);
 
 			Assert.AreEqual($"SELECT * FROM {tableName} WITH(NOLOCK) WHERE {columnName} {compareOperator} '{dateToStringFormat}'", queryBuilder.Query);
+		}
+
+		[TestMethod]
+		public void ResetSQLQueryBuilderTest()
+		{
+			var queryBuilder = new SQLQueryBuilder()
+				.From("Builds")
+				.Where("BuildCount", CompareTypes.GreaterThan, 100)
+				.Where("BuildName", CompareTypes.NotEqual, "Test Build");
+			queryBuilder.Reset();
+
+			var newQueryBuilder = queryBuilder
+				.From("USERS")
+				.BuildSelect();
+
+			Assert.AreEqual("SELECT * FROM USERS WITH(NOLOCK)", newQueryBuilder.Query);
 		}
 	}
 }
