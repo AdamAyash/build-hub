@@ -24,5 +24,14 @@ namespace UnitTests.CommonTests.Utilities
 		{
 			Assert.AreEqual(string.Empty, Utilities.GetEnumDescription<TestEnumeration>(TestEnumeration.InvalidTest));
 		}
+
+		[TestMethod]
+		[DataRow("Buid")]
+		[DataRow("User Password")]
+		[DataRow("Build -  Hub")]
+		public void StringifyTest(string text)
+		{
+			Assert.AreEqual<string>($"'{text}'", Utilities.Stringify(text));
+		}
 	}
 }

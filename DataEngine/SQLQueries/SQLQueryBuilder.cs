@@ -95,13 +95,13 @@ namespace BuildHub.DataEngine.SQLQueries
 
 		public IQueryBuilder From(string tableName)
 		{
-			this._tableName = tableName;
+			this._tableName = tableName.ToUpper();
 			return this;
 		}
 
 		public IQueryBuilder Where(string columnName, CompareTypes compareType, object value)
 		{
-			this._whereStatements.Add(new WhereCondition(columnName, compareType, value));
+			this._whereStatements.Add(new WhereCondition(columnName.ToUpper(), compareType, value));
 			return this; 
 		}
 
