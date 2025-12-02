@@ -18,7 +18,7 @@ namespace BuildHub.Common.ConfigurationManager
 		/// <summary>
 		/// Configuration manager singleton instance
 		/// </summary>
-		private static Lazy<ConfigurationManager> _configurationManagerInstance = new Lazy<ConfigurationManager>(() => new ConfigurationManager());
+		private static ConfigurationManager? _configurationManagerInstance = null;
 
 		private ConfigurationManager()
 		{
@@ -30,7 +30,12 @@ namespace BuildHub.Common.ConfigurationManager
 		/// <returns></returns>
 		public static ConfigurationManager GetConfigurationManager()
 		{
-			return _configurationManagerInstance.Value;
+			if(_configurationManagerInstance is null)
+				_configurationManagerInstance = new ConfigurationManager();
+
+			_configurationManagerInstance.Initialize();
+
+			return _configurationManagerInstance;
 		}
 
 		/// <summary>

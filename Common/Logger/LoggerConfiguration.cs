@@ -1,6 +1,6 @@
-﻿using BuildHub.Common.ConfigurationManager.Base;
-using Serilog;
+﻿using Serilog;
 using Serilog.Events;
+using BuildHub.Common.ConfigurationManager.Base;
 
 namespace BuildHub.Common.Logger
 {

@@ -1,6 +1,5 @@
 ﻿using BuildHub.Common.Utilities;
 using BuildHub.DataEngine.SQLQueries;
-using Newtonsoft.Json.Linq;
 
 namespace UnitTests.DataEngineTests.SQLQueries
 {

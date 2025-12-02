@@ -10,7 +10,7 @@ namespace BuildHub.Common.Utilities
 		/// <summary>
 		/// Default date time format
 		/// </summary>
-		private static string _DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss.fff";
+		private const string _DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss.fff";
 
 		/// <summary>
 		/// Retrieves a description attribute from an enumeration
@@ -29,11 +29,23 @@ namespace BuildHub.Common.Utilities
 		}
 
 		/// <summary>
+		/// Retrieves all values of the specified enumeration type.
+		/// </summary>
+		/// <typeparam name="EnumType">The enumeration type whose values are to be retrieved. This type must be an enumeration.</typeparam>
+		/// <returns>An <see cref="IEnumerable{T}"/> containing all values of the specified enumeration type.</returns>
+		public static IEnumerable<EnumType> GetEnumValues<EnumType>() => Enum.GetValues(typeof(EnumType)).Cast<EnumType>();
+
+		/// <summary>
 		/// Retrieves the system date time
 		/// </summary>
 		public static DateTime GetCurrentDateTime => DateTime.Now;
 
-		public static string FormatDateTime(DateTime dateTime) => dateTime.ToString(_DATE_TIME_FORMAT);
+		/// <summary>
+		/// Formats the specified <see cref="DateTime"/> value as a string using a predefined format.
+		/// </summary>
+		/// <param name="dateTime">The <see cref="DateTime"/> value to format.</param>
+		/// <returns>A string representation of the <paramref name="dateTime"/> value in the predefined format.</returns>
+		public static string FormatDateTime(DateTime dateTime, string dateFormat = _DATE_TIME_FORMAT) => dateTime.ToString(dateFormat);
 
 		/// <summary>
 		/// Surrounds the given value with single quotes
