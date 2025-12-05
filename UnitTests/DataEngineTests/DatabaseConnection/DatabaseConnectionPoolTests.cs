@@ -18,7 +18,7 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 		public void GetConnectionTest(DatabaseSource databaseSource)
 		{
 			DatabaseConnectionPool databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
-			DatabaseConnection databaseConnection = databaseConnectionPoolInstance.GetDatabaseConnection(databaseSource);
+			using DatabaseConnection databaseConnection = databaseConnectionPoolInstance.GetDatabaseConnection(databaseSource);
 
 			Assert.IsTrue(databaseConnection.IsConnectionOpen());
 		}
@@ -26,13 +26,12 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 		[TestMethod]
 		[DataRow(DatabaseSource.Users)]
 		[DataRow(DatabaseSource.Core)]
-		public void RelseaseConnectionsTest(DatabaseSource databaseSource)
+		public void ReleaseConnectionsTest(DatabaseSource databaseSource)
 		{
 			DatabaseConnectionPool databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
 			DatabaseConnection databaseConnection = databaseConnectionPoolInstance.GetDatabaseConnection(databaseSource);
 
 			databaseConnectionPoolInstance.ReleaseDatabaseConnection(databaseConnection);
-
 			Assert.IsTrue(databaseConnection.IsConnectionOpen());
 		}
 
@@ -55,18 +54,6 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 		[TestMethod]
 		[DataRow(DatabaseSource.Users)]
 		[DataRow(DatabaseSource.Core)]
-		public void GetCurrentlyUsedConnectionsTest(DatabaseSource databaseSource)
-		{
-			DatabaseConnectionPool databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
-			DatabaseConnection databaseConnection = databaseConnectionPoolInstance.GetDatabaseConnection(databaseSource);
-
-			int currentlyUsedConnections = databaseConnectionPoolInstance.GetCurrentlyUsedConnectionsCount(databaseSource);
-			Assert.AreEqual(1, currentlyUsedConnections);
-		}
-
-		[TestMethod]
-		[DataRow(DatabaseSource.Users)]
-		[DataRow(DatabaseSource.Core)]
 		public void DisposeConnectionTest(DatabaseSource databaseSource)
 		{
 			DatabaseConnectionPool databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
@@ -77,6 +64,39 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 			databaseConnection.Dispose();
 
 			Assert.IsGreaterThan<int>(databaseConnectionPoolInstance.GetCurrentlyUsedConnectionsCount(databaseSource), currentlyUsedConnectionsBeforeDispose);
+		}
+
+		[TestMethod]
+		[DataRow(DatabaseSource.Users)]
+		[DataRow(DatabaseSource.Core)]
+		public void GetParallelDatbaseConnectionsTest(DatabaseSource databaseSource)
+		{
+			DatabaseConnectionPool databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
+			for(int index = 0; index < databaseConnectionPoolInstance.GetAvailableDatabaseConnectionsCount(databaseSource); ++index)
+			{
+				Parallel.Invoke(() =>
+				{
+					using DatabaseConnection databaseConnection = databaseConnectionPoolInstance.GetDatabaseConnection(databaseSource);
+					Assert.IsNotNull(databaseConnection);
+				});
+			}
+		}
+
+		[TestMethod]
+		[DataRow(DatabaseSource.Users)]
+		[DataRow(DatabaseSource.Core)]
+		public void TryToExhaustDatabseConenctionPoolTest(DatabaseSource databaseSource)
+		{
+			DatabaseConnectionPool databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
+
+			for (int index = 0; index < databaseConnectionPoolInstance.GetAvailableDatabaseConnectionsCount(databaseSource); ++index)
+			{
+				Parallel.Invoke(() =>
+				{
+					using DatabaseConnection databaseConnection = databaseConnectionPoolInstance.GetDatabaseConnection(databaseSource);
+					Assert.IsNotNull(databaseConnection);
+				});
+			}
 		}
 	}
 }

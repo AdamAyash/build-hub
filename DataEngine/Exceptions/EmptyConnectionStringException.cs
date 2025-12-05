@@ -5,8 +5,8 @@ namespace BuildHub.DataEngine.Exceptions
 	/// </summary>
 	public sealed class EmptyConnectionStringException : Exception
 	{
-		public EmptyConnectionStringException()
-			: base("The provided connection string is empty")
+		public EmptyConnectionStringException(DatabaseSource databaseSource)
+			: base($"The provided connection string for {databaseSource} is empty")
 		{
 		}
 	}

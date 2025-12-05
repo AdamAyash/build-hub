@@ -17,6 +17,8 @@ namespace BuildHub.DataEngine.DatabaseConnection
 			this.DatabaseSource = databaseSource;
 		}
 
+		~DatabaseConnection() => Dispose(false);
+
 		/// <summary>
 		/// Returns a boolean indicating whether the connection is open.
 		/// </summary>
@@ -48,10 +50,8 @@ namespace BuildHub.DataEngine.DatabaseConnection
 		/// <param name="disposing"></param>
 		protected virtual void Dispose(bool disposing)
 		{
-			if (disposing && this != null)
-			{
+			if (disposing)
 				DatabaseConnectionPool.GetInstance().ReleaseDatabaseConnection(this);
-			}
 		}
 	}
 }

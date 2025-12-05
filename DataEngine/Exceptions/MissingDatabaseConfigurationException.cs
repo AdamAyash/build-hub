@@ -8,7 +8,6 @@ namespace BuildHub.DataEngine.Exceptions
 		public MissingDatabaseConfigurationException()
 			: base("Database configuration is missing.")
 		{
-
 		}
 	}
 }

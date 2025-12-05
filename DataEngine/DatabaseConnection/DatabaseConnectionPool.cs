@@ -2,48 +2,54 @@ using Microsoft.Data.SqlClient;
 
 namespace BuildHub.DataEngine.DatabaseConnection
 {
-	using Common.Logger;
-	using Common.Utilities;
-	using Common.Application;
+	using Microsoft.IdentityModel.Protocols.Configuration;
+	using BuildHub.DataEngine.Exceptions;
 	using Common.ConfigurationManager;
+	using Common.Utilities;
+	using Common.Logger;
 
 	/// <summary>
 	/// Database connection pool singleton, initializing and managing a number of database connections.
 	/// </summary>
-	public sealed class DatabaseConnectionPool
+	public sealed class DatabaseConnectionPool : IDisposable
 	{
-		/// <summary>Lazy database connection pool instance</summary>
-		private static Lazy<DatabaseConnectionPool> _databaseConnectionPoolInstance = new Lazy<DatabaseConnectionPool>(() => new DatabaseConnectionPool());
-		/// <summary>ConfigurationManager</summary>
-		private readonly ConfigurationManager _configurationManager;
+		private static readonly Lazy<DatabaseConnectionPool> _databaseConnectionPoolInstance = new Lazy<DatabaseConnectionPool>(() => new DatabaseConnectionPool());
+		private ConfigurationManager _configurationManager;
 
+		/// <summary>
+		/// Represents a collection of database connection configurations.
+		/// </summary>
+		/// <remarks>This field holds the configurations for connecting to one or more databases.  It is intended for
+		/// internal use and should not be accessed directly outside of the containing class.</remarks>
+		private IEnumerable<DatabaseConfiguration> _databaseConfigurations;
 		/// <summary>Available connection ready for use</summary>
-		private readonly Dictionary<DatabaseSource, List<DatabaseConnection>> _availableDatabaseConnectionsMap;
-		/// <summary>Currently used connections</summary>
-		private readonly Dictionary<DatabaseSource, List<DatabaseConnection>> _currentlyUsedDatabaseConnectionsMap;
+		private readonly Dictionary<DatabaseSource, Queue<DatabaseConnection>> _availableDatabaseConnectionsMap;
+
+		/// <summary>
+		/// An object used to synchronize access to shared resources in a multi-threaded environment.
+		/// </summary>
+		/// <remarks>This field is intended to be used as a locking mechanism to ensure thread safety when accessing
+		/// or modifying shared data. Always use this object with a <c>lock</c> statement to avoid race conditions.</remarks>
+		private readonly object _mutex = new object();
+		private bool _isDisposed;
 
 		private DatabaseConnectionPool()
 		{
-			this._availableDatabaseConnectionsMap = new Dictionary<DatabaseSource, List<DatabaseConnection>>();
-			this._currentlyUsedDatabaseConnectionsMap = new Dictionary<DatabaseSource, List<DatabaseConnection>>();
 			this._configurationManager = ConfigurationManager.GetConfigurationManager();
+			this._availableDatabaseConnectionsMap = new Dictionary<DatabaseSource, Queue<DatabaseConnection>>();
+			this._databaseConfigurations = new List<DatabaseConfiguration>();
+			this._isDisposed = false;
 
 			Initialize();
 		}
 
-		~DatabaseConnectionPool()
-		{
-			Cleanup();
-		}
+		~DatabaseConnectionPool() => Dispose(false);
 
 		/// <summary>
 		/// Returns an instance to the connection pool
 		/// </summary>
 		/// <returns>DatabaseConnectionPool</returns>
-		public static DatabaseConnectionPool GetInstance()
-		{
-			return _databaseConnectionPoolInstance.Value;
-		}
+		public static DatabaseConnectionPool GetInstance() => _databaseConnectionPoolInstance.Value;
 
 		/// <summary>
 		/// Returns the number of currently available database connections.
@@ -51,15 +57,37 @@ namespace BuildHub.DataEngine.DatabaseConnection
 		/// <param name="databaseSource">Source of the database</param>
 		/// <returns>int</returns>
 		public int GetAvailableDatabaseConnectionsCount(DatabaseSource databaseSource)
-			=> this._availableDatabaseConnectionsMap[databaseSource].Count;
+		{
+			if (_isDisposed)
+				throw new ObjectDisposedException("DatabaseConnectionPool");
 
+			lock (_mutex)
+			{
+				if (!_availableDatabaseConnectionsMap.TryGetValue(databaseSource, out var databaseConnections))
+					throw new MissingDatabaseConfigurationException();
+
+				return databaseConnections.Count;
+			}
+		}
 		/// <summary>
 		/// Returns the number of currently used database connections.
 		/// </summary>
 		/// <param name="databaseSource">Source of the database</param>
 		/// <returns>int</returns>
 		public int GetCurrentlyUsedConnectionsCount(DatabaseSource databaseSource)
-			=> this._currentlyUsedDatabaseConnectionsMap[databaseSource].Count;
+		{
+			if (_isDisposed)
+				throw new ObjectDisposedException("DatabaseConnectionPool");
+
+			lock (_mutex)
+			{
+				var databaseConfiguration = _databaseConfigurations?.Where(config => config.DatabaseSource == databaseSource).FirstOrDefault();
+				if (databaseConfiguration is null)
+					throw new MissingDatabaseConfigurationException();
+
+				return databaseConfiguration.MaxPoolConnections - this._availableDatabaseConnectionsMap[databaseSource].Count;
+			}
+		}
 
 		/// <summary>
 		/// Returns a reference to a database connection
@@ -68,24 +96,26 @@ namespace BuildHub.DataEngine.DatabaseConnection
 		/// <exception cref="InvalidOperationException"></exception>
 		public DatabaseConnection GetDatabaseConnection(DatabaseSource databaseSource)
 		{
-			List<DatabaseConnection> availableDatabaseConnections = this._availableDatabaseConnectionsMap[databaseSource];
-			List<DatabaseConnection> currentlyUsedDatabaseConnections = this._currentlyUsedDatabaseConnectionsMap[databaseSource];
+			if (_isDisposed)
+				throw new ObjectDisposedException("DatabaseConnectionPool");
 
-			var databaseConnection = availableDatabaseConnections.FirstOrDefault();
-
-			if (databaseConnection == null)
-				databaseConnection = InitializeConnection(databaseSource);
-
-			var databaseConnectionValidator = new DatabaseConnectionValidator(databaseConnection);
-			if (!databaseConnectionValidator.TestDatabaseConnection())
+			lock (_mutex)
 			{
-				Application.ExitWithError($"Database connection test failed for {databaseSource} database.");
+				DatabaseConnection? databaseConnection = null;
+
+				if (!_availableDatabaseConnectionsMap.TryGetValue(databaseSource, out var availableDatabaseConnections))
+					throw new MissingDatabaseConfigurationException();
+
+				if (availableDatabaseConnections.Count > 0)
+					databaseConnection = availableDatabaseConnections.Dequeue();
+				else
+				{
+					Logger.LogWarning($"Connection pool exhausted for {databaseSource}.");
+					throw new ConnectionPoolExhaustedException(databaseSource);
+				}
+
+				return databaseConnection;
 			}
-
-			currentlyUsedDatabaseConnections.Add(databaseConnection);
-			availableDatabaseConnections.Remove(databaseConnection);
-
-			return databaseConnection;
 		}
 
 		/// <summary>
@@ -94,12 +124,33 @@ namespace BuildHub.DataEngine.DatabaseConnection
 		/// <param name="databaseConnection"></param>
 		public void ReleaseDatabaseConnection(DatabaseConnection databaseConnection)
 		{
-			var databaseSource = databaseConnection.DatabaseSource;
+			if (_isDisposed)
+				throw new ObjectDisposedException("DatabaseConnectionPool");
 
-			if (databaseConnection.IsConnectionOpen())
-				this._availableDatabaseConnectionsMap[databaseSource].Add(databaseConnection);
+			lock (_mutex)
+			{
+				var databaseSource = databaseConnection.DatabaseSource;
+				if(!this._availableDatabaseConnectionsMap.TryGetValue(databaseSource, out var availableDatabaseConnections))
+					throw new MissingDatabaseConfigurationException();
 
-			this._currentlyUsedDatabaseConnectionsMap[databaseSource].Remove(databaseConnection);
+				if (databaseConnection.IsConnectionOpen())
+				{
+					var databaseConfiguration = this._databaseConfigurations.Where(config => config.DatabaseSource.Equals(databaseSource)).FirstOrDefault();
+					if (databaseConfiguration is null)
+						throw new MissingDatabaseConfigurationException();
+
+					if (availableDatabaseConnections.Count < databaseConfiguration.MaxPoolConnections)
+					{
+						availableDatabaseConnections.Enqueue(databaseConnection);
+					}
+					else
+					{
+						databaseConnection.CloseConnection();
+						Logger.LogInformation($"Closing excess connection for database: {databaseSource}");
+					}
+
+				}
+			}
 		}
 
 		private string GetConnectionString(DatabaseSource databaseSource)
@@ -108,7 +159,7 @@ namespace BuildHub.DataEngine.DatabaseConnection
 			string connectionString = this._configurationManager.GetConnectionString(connectionStringKey);
 
 			if (string.IsNullOrEmpty(connectionString))
-				Application.ExitWithError($"Connection string for {databaseSource} database is empty.");
+				throw new EmptyConnectionStringException(databaseSource);
 
 			return connectionString;
 		}
@@ -124,13 +175,16 @@ namespace BuildHub.DataEngine.DatabaseConnection
 			}
 			catch (SqlException exception)
 			{
-				Application.ExitWithError(exception, $"Failed to open database connection to {databaseSource} database.");
+				databaseConnection.CloseConnection();
+				Logger.LogError(exception, $"An error occured while trying to open connection for {databaseSource}");
+				throw;
 			}
 
 			var databaseConnectionValidator = new DatabaseConnectionValidator(databaseConnection);
 			if (!databaseConnectionValidator.TestDatabaseConnection())
 			{
-				Application.ExitWithError($"Database connection test failed for {databaseSource} database.");
+				databaseConnection.CloseConnection();
+				throw new DatabaseConnectionValidationException(databaseSource);
 			}
 
 			return databaseConnection;
@@ -145,34 +199,47 @@ namespace BuildHub.DataEngine.DatabaseConnection
 		/// <exception cref="InvalidOperationException"></exception>
 		private void InitializeConnections(DatabaseConfiguration databaseConfiguration)
 		{
-			var availableDatabaseConnections = new List<DatabaseConnection>();
+			if (databaseConfiguration.MaxPoolConnections < 1)
+				throw new InvalidConfigurationException("MaxPoolConnections must be at least 1");
+
+			var availableDatabaseConnections = new Queue<DatabaseConnection>();
 
 			for (var index = 0; index < databaseConfiguration.MaxPoolConnections; index++)
 			{
+				DatabaseSource databaseSource = databaseConfiguration.DatabaseSource;
+
 				DatabaseConnection databaseConnection = InitializeConnection(databaseConfiguration.DatabaseSource);
-				availableDatabaseConnections.Add(databaseConnection);
+				availableDatabaseConnections.Enqueue(databaseConnection);
+
+				Logger.LogInformation($"Connection for database {databaseSource} was successfully initialized.");
 			}
 
 			this._availableDatabaseConnectionsMap.Add(databaseConfiguration.DatabaseSource, availableDatabaseConnections);
-			this._currentlyUsedDatabaseConnectionsMap.Add(databaseConfiguration.DatabaseSource, new List<DatabaseConnection>());
 		}
-		
+
+		private bool ValidateForDuplicateDatabaseConfigurations()
+		{
+			if (_databaseConfigurations?.Count() != _databaseConfigurations?.DistinctBy(config => config.DatabaseSource).Count())
+				return false;
+
+			return true;
+		}
+
 		/// <summary>
 		/// Initializes a number of database connections
 		/// </summary>
 		private void Initialize()
 		{
-			var databaseConfigurations = _configurationManager.GetConfigurationModels<DatabaseConfiguration>("DatabaseConfigurations");
+			_databaseConfigurations = _configurationManager.GetConfigurationModels<DatabaseConfiguration>("DatabaseConfigurations");
 
-			if (databaseConfigurations is null)
-				Application.ExitWithError("No database configurations found. Application will terminate.");
+			if (_databaseConfigurations is null)
+				throw new MissingDatabaseConfigurationException();
 
-			databaseConfigurations = databaseConfigurations?.DistinctBy(x => x.DatabaseSource);
+			if (!ValidateForDuplicateDatabaseConfigurations())
+				throw new DuplicateDatabaseConfigurationException();
 
-			foreach (var databaseConfiguration in databaseConfigurations)
-			{
+			foreach (DatabaseConfiguration databaseConfiguration in _databaseConfigurations)
 				InitializeConnections(databaseConfiguration);
-			}
 
 			Logger.LogInformation("Database connection pool initialized.");
 		}
@@ -182,20 +249,43 @@ namespace BuildHub.DataEngine.DatabaseConnection
 		/// </summary>
 		private void Cleanup()
 		{
-			foreach (var databaseConnections in this._availableDatabaseConnectionsMap.Values)
+			lock (_mutex)
 			{
-				foreach (DatabaseConnection databaseConnection in databaseConnections)
-					databaseConnection.CloseConnection();
+				foreach (var databaseConnections in this._availableDatabaseConnectionsMap.Values)
+				{
+					foreach (DatabaseConnection databaseConnection in databaseConnections)
+						databaseConnection.CloseConnection();
 
-				databaseConnections.Clear();
+					databaseConnections.Clear();
+				}
 			}
+		}
 
-			foreach (var databaseConnections in this._currentlyUsedDatabaseConnectionsMap.Values)
+		/// <summary>
+		/// Releases the resources used by the current instance of the class.
+		/// </summary>
+		/// <remarks>This method should be called when the instance is no longer needed to free up resources.  It
+		/// suppresses finalization to prevent the garbage collector from calling the finalizer.</remarks>
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		/// <summary>
+		/// Releases the resources used by the current instance of the class.
+		/// </summary>
+		/// <remarks>This method should be called when the instance is no longer needed to ensure that all resources 
+		/// are properly released. Once disposed, the instance should not be used further.</remarks>
+		/// <param name="disposing"></param>
+		private void Dispose(bool disposing)
+		{
+			if (!_isDisposed)
 			{
-				foreach (DatabaseConnection databaseConnection in databaseConnections)
-					databaseConnection.CloseConnection();
+				if (disposing)
+					Cleanup();
 
-				databaseConnections.Clear();
+				_isDisposed = true;
 			}
 		}
 	}
