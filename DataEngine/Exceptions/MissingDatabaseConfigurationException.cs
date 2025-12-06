@@ -9,5 +9,10 @@ namespace BuildHub.DataEngine.Exceptions
 			: base("Database configuration is missing.")
 		{
 		}
+
+		public MissingDatabaseConfigurationException(DatabaseSource databaseSource)
+			: base($"Database configuration is missing for database {databaseSource}.")
+		{
+		}
 	}
 }

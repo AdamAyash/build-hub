@@ -64,7 +64,7 @@ namespace BuildHub.DataEngine.DatabaseConnection
 			lock (_mutex)
 			{
 				if (!_availableDatabaseConnectionsMap.TryGetValue(databaseSource, out var databaseConnections))
-					throw new MissingDatabaseConfigurationException();
+					throw new MissingDatabaseConfigurationException(databaseSource);
 
 				return databaseConnections.Count;
 			}
@@ -83,7 +83,7 @@ namespace BuildHub.DataEngine.DatabaseConnection
 			{
 				var databaseConfiguration = _databaseConfigurations?.Where(config => config.DatabaseSource == databaseSource).FirstOrDefault();
 				if (databaseConfiguration is null)
-					throw new MissingDatabaseConfigurationException();
+					throw new MissingDatabaseConfigurationException(databaseSource);
 
 				return databaseConfiguration.MaxPoolConnections - this._availableDatabaseConnectionsMap[databaseSource].Count;
 			}
@@ -104,10 +104,12 @@ namespace BuildHub.DataEngine.DatabaseConnection
 				DatabaseConnection? databaseConnection = null;
 
 				if (!_availableDatabaseConnectionsMap.TryGetValue(databaseSource, out var availableDatabaseConnections))
-					throw new MissingDatabaseConfigurationException();
+					throw new MissingDatabaseConfigurationException(databaseSource);
 
 				if (availableDatabaseConnections.Count > 0)
+				{
 					databaseConnection = availableDatabaseConnections.Dequeue();
+				}
 				else
 				{
 					Logger.LogWarning($"Connection pool exhausted for {databaseSource}.");
@@ -131,13 +133,13 @@ namespace BuildHub.DataEngine.DatabaseConnection
 			{
 				var databaseSource = databaseConnection.DatabaseSource;
 				if(!this._availableDatabaseConnectionsMap.TryGetValue(databaseSource, out var availableDatabaseConnections))
-					throw new MissingDatabaseConfigurationException();
+					throw new MissingDatabaseConfigurationException(databaseSource);
 
 				if (databaseConnection.IsConnectionOpen())
 				{
 					var databaseConfiguration = this._databaseConfigurations.Where(config => config.DatabaseSource.Equals(databaseSource)).FirstOrDefault();
 					if (databaseConfiguration is null)
-						throw new MissingDatabaseConfigurationException();
+						throw new MissingDatabaseConfigurationException(databaseSource);
 
 					if (availableDatabaseConnections.Count < databaseConfiguration.MaxPoolConnections)
 					{
@@ -148,7 +150,6 @@ namespace BuildHub.DataEngine.DatabaseConnection
 						databaseConnection.CloseConnection();
 						Logger.LogInformation($"Closing excess connection for database: {databaseSource}");
 					}
-
 				}
 			}
 		}
@@ -164,6 +165,15 @@ namespace BuildHub.DataEngine.DatabaseConnection
 			return connectionString;
 		}
 
+		/// <summary>
+		/// Initializes and opens a connection to the specified database source.
+		/// </summary>
+		/// <remarks>This method retrieves the connection string for the specified database source, attempts to open
+		/// the connection,  and validates the connection. If the connection cannot be opened or fails validation, the
+		/// connection is closed  and an exception is thrown.</remarks>
+		/// <param name="databaseSource">The database source to connect to.</param>
+		/// <returns>A <see cref="DatabaseConnection"/> instance representing the established connection.</returns>
+		/// <exception cref="DatabaseConnectionValidationException">Thrown if the connection to the specified database source fails validation.</exception>
 		private DatabaseConnection InitializeConnection(DatabaseSource databaseSource)
 		{
 			var connectionString = GetConnectionString(databaseSource);

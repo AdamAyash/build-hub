@@ -17,11 +17,21 @@
 			this._contextDatabaseConnections = new Dictionary<DatabaseSource, DatabaseConnection>();
 		}
 
+		~DatabaseContext() => Dispose(false);
+		
+
 		/// <summary>
 		/// Gets the current connection context for this async flow
 		/// </summary>
 		public static DatabaseContext GetCurrentContext 
 			=> _currentAsyncLocalDatabaseConnection?.Value ?? new DatabaseContext();
+
+		/// <summary>
+		/// Determines whether a connection to the specified database source exists.
+		/// </summary>
+		/// <param name="databaseSource">The database source to check for an existing connection.</param>
+		/// <returns><see langword="true"/> if a connection to the specified database source exists; otherwise</returns>
+		public bool HasContexDatabaseConnection(DatabaseSource databaseSource) => this._contextDatabaseConnections.ContainsKey(databaseSource);
 
 		/// <summary>
 		/// Gets a connection for the specified database source, reusing if already exists in context
@@ -30,17 +40,36 @@
 		/// <returns>DatabaseConnection</returns>
 		public DatabaseConnection GetConnection(DatabaseSource databaseSource)
 		{
-			if (_contextDatabaseConnections.TryGetValue(databaseSource, out var existingConnection))
+			if (this._contextDatabaseConnections.TryGetValue(databaseSource, out var existingConnection))
 				return existingConnection;
 
-			var newConnection = _databaseConnectionPool.GetDatabaseConnection(databaseSource);
-			_contextDatabaseConnections[databaseSource] = newConnection;
+			var newConnection = this._databaseConnectionPool.GetDatabaseConnection(databaseSource);
+			this._contextDatabaseConnections[databaseSource] = newConnection;
 
 			return newConnection;
 		}
+
+		private void ClearContext()
+		{
+			foreach(var  databaseConnection in this._contextDatabaseConnections.Values)
+				databaseConnection.Dispose();
+		}
+
 		public void Dispose()
 		{
-			throw new NotImplementedException();
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		private void Dispose(bool disposing)
+		{
+			if (!_isDisposed)
+			{
+				if (disposing)
+					this.ClearContext();
+
+				_isDisposed = true;
+			}
 		}
 	}
 }
