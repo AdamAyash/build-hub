@@ -11,8 +11,8 @@
 		public void DatabaseConnectionGetContextTest(DatabaseSource databaseSource)
 		{
 			var databaseContext = DatabaseContext.GetCurrentContext;
-			using DatabaseConnection databaseConnection1 = databaseContext.GetConnection(databaseSource);
-			using DatabaseConnection databaseConnection2 = databaseContext.GetConnection(databaseSource);
+			DatabaseConnection databaseConnection1 = databaseContext.GetConnection(databaseSource);
+			DatabaseConnection databaseConnection2 = databaseContext.GetConnection(databaseSource);
 
 			Assert.AreEqual(databaseConnection1, databaseConnection2);
 		}
@@ -31,6 +31,8 @@
 			{
 				var databaseContext = DatabaseContext.GetCurrentContext;
 			});
+
+
 		}
 	}
 }

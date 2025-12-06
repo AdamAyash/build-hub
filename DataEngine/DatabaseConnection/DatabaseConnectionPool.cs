@@ -204,7 +204,7 @@ namespace BuildHub.DataEngine.DatabaseConnection
 
 			var availableDatabaseConnections = new Queue<DatabaseConnection>();
 
-			for (var index = 0; index < databaseConfiguration.MaxPoolConnections; index++)
+			for (var index = 0; index < databaseConfiguration.MinPoolConnections; index++)
 			{
 				DatabaseSource databaseSource = databaseConfiguration.DatabaseSource;
 

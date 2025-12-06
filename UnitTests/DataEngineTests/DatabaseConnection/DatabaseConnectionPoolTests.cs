@@ -1,6 +1,7 @@
 namespace UnitTests.DataEngineTests.DatabaseConnection
 {
 	using BuildHub.DataEngine.DatabaseConnection;
+	using BuildHub.DataEngine.Exceptions;
 
 	[TestClass]
 	public sealed class DatabaseConnectionPoolTests
@@ -36,10 +37,13 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 		}
 
 		[TestMethod]
-		public void GetDatabaseConnectionFromNonExistingSourceTest()
+		[DataRow(-1)]
+		[DataRow(-2)]
+		[DataRow(-3)]
+		public void GetDatabaseConnectionFromNonExistingSourceTest(int falseDatabaseSource)
 		{
 			DatabaseConnectionPool databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
-			Assert.Throws<KeyNotFoundException>(() => databaseConnectionPoolInstance.GetDatabaseConnection((DatabaseSource)3));
+			Assert.Throws<MissingDatabaseConfigurationException>(() => databaseConnectionPoolInstance.GetDatabaseConnection((DatabaseSource)falseDatabaseSource));
 		}
 
 		[TestMethod]
@@ -85,7 +89,7 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 		[TestMethod]
 		[DataRow(DatabaseSource.Users)]
 		[DataRow(DatabaseSource.Core)]
-		public void TryToExhaustDatabseConenctionPoolTest(DatabaseSource databaseSource)
+		public void GetMaxAvailableDatabseConenctionPoolTest(DatabaseSource databaseSource)
 		{
 			DatabaseConnectionPool databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
 
