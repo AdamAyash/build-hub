@@ -1,12 +1,12 @@
 ﻿namespace BuildHub.DataEngine.Tables.Base
 {
+	using BuildHub.DataEngine.Entities;
 	using BuildHub.DataEngine.SQLQueries;
 	using DatabaseConnection;
 	using Microsoft.Data.SqlClient;
 	using Tables.Entities;
 
-	public abstract class BaseTable<Entity>
-		where Entity : IEntity
+	public abstract class BaseTable<Entity> where Entity : IEntity
 	{
 		private readonly DatabaseConnectionPool _databaseConnectionPoolInstance;
 		private readonly DatabaseSource _databaseSource;
@@ -20,8 +20,6 @@
 			this._databaseSource = databaseSource;
 		}
 
-		public abstract bool InitializeTableBindings();
-
 		public bool GetAll(IEnumerable<Entity> entities)
 		{
 			using var databaseConnection = this._databaseConnectionPoolInstance.GetDatabaseConnection(this._databaseSource);
@@ -33,6 +31,7 @@
 			SqlCommand sqlCommand = new SqlCommand(query.Query);
 			sqlCommand.ExecuteNonQuery();
 
+			EntityDataMapper<Entity> entityMapper = new EntityDataMapper<Entity>();
 			return true;
 		}
 	}

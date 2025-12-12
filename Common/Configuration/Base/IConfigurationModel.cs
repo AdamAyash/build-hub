@@ -1,4 +1,4 @@
-namespace BuildHub.Common.ConfigurationManager.Base
+namespace BuildHub.Common.Configuration.Base
 {
 	/// <summary>
 	/// Marker interface for configuration settings models (it's supposed to be empty)

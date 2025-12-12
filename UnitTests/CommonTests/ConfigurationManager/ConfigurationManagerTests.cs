@@ -1,7 +1,8 @@
+
 namespace UnitTests.CommonTests.ConfigurationManager
 {
-	using BuildHub.Common.ConfigurationManager;
-	using BuildHub.Common.ConfigurationManager.Base;
+	using BuildHub.Common.Configuration;
+	using BuildHub.Common.Configuration.Base;
 
 	[TestClass]
 	public sealed class ConfigurationManagerTests
@@ -16,24 +17,6 @@ namespace UnitTests.CommonTests.ConfigurationManager
 		{
 			ConfigurationManager configurationManager = ConfigurationManager.GetConfigurationManager();
 			Assert.IsNotNull(configurationManager);
-		}
-
-		[TestMethod]
-		public void GetConnectionStringTest()
-		{
-			ConfigurationManager configurationManager = ConfigurationManager.GetConfigurationManager();
-			string? connectionString = configurationManager.GetConnectionString("BuildHubCore");
-
-			Assert.IsNotNull(connectionString);
-		}
-
-		[TestMethod]
-		public void TryToGetInvalidConnectionStringTest()
-		{
-			ConfigurationManager configurationManager = ConfigurationManager.GetConfigurationManager();
-			string connectionString = configurationManager.GetConnectionString("BuildHubDBInvalid");
-
-			Assert.IsEmpty(connectionString);
 		}
 
 		[TestMethod]

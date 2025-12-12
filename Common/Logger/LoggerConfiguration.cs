@@ -1,9 +1,10 @@
 ﻿using Serilog;
 using Serilog.Events;
-using BuildHub.Common.ConfigurationManager.Base;
 
 namespace BuildHub.Common.Logger
 {
+	using Configuration.Base;
+
 	/// <summary>
 	/// Represents the configuration settings for a logging system, including log levels, output destinations, and
 	/// formatting options.

@@ -1,4 +1,6 @@
-﻿namespace BuildHub.DataEngine.DatabaseConnection
+﻿using BuildHub.Common.Utilities;
+
+namespace BuildHub.DataEngine.DatabaseConnection
 {
 	/// <summary>
 	/// Manages thread-local database connections for the current async/thread context
@@ -19,7 +21,6 @@
 
 		~DatabaseContext() => Dispose(false);
 		
-
 		/// <summary>
 		/// Gets the current connection context for this async flow
 		/// </summary>
@@ -40,6 +41,9 @@
 		/// <returns>DatabaseConnection</returns>
 		public DatabaseConnection GetConnection(DatabaseSource databaseSource)
 		{
+			if(_isDisposed)
+				throw new ObjectDisposedException(Utilities.GetTypeName(typeof(DatabaseConnection)));
+
 			if (this._contextDatabaseConnections.TryGetValue(databaseSource, out var existingConnection))
 				return existingConnection;
 
@@ -51,7 +55,7 @@
 
 		private void ClearContext()
 		{
-			foreach(var  databaseConnection in this._contextDatabaseConnections.Values)
+			foreach(var databaseConnection in this._contextDatabaseConnections.Values)
 				databaseConnection.Dispose();
 		}
 

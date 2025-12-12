@@ -2,7 +2,9 @@
 {
 	using Serilog;
 	using BuildHub.Common.Application;
-	using BuildHub.Common.ConfigurationManager;
+	using BuildHub.Common.Configuration.Base;
+	using BuildHub.Common.Configuration;
+
 	using SerilogConfiguration = Serilog.LoggerConfiguration;
 
 	/// <summary>
@@ -14,7 +16,7 @@
 	public class Logger
 	{
 		private static Logger? _loggerInstance = null;
-		private ConfigurationManager? _configurationManager = null;
+		private BaseConfigurationManager? _configurationManager = null;
 
 		private Logger() => this.InitializeLogger();
 

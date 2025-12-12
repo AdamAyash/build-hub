@@ -1,47 +1,44 @@
 using Microsoft.Extensions.Configuration;
 
-namespace BuildHub.Common.ConfigurationManager
+namespace BuildHub.Common.Configuration.Base
 {
-	using Base;
 	using Application;
 
 	/// <summary>
-	/// Configuration manager class
+	/// Base class for the configuration managers.
 	/// </summary>
-	public sealed class ConfigurationManager : BaseConfigurationManager
+	public class BaseConfigurationManager
 	{
 		/// <summary>
 		/// Constant configuration file name
 		/// </summary>
-		private const string _CONFIGURATION_FILE_NAME = "appsettings.json";
+		protected const string _CONFIGURATION_FILE_NAME = "appsettings.json";
 
 		/// <summary>
-		/// Configuration manager singleton instance
+		/// Whether the configuration should reload on change
 		/// </summary>
-		private static ConfigurationManager? _configurationManagerInstance = null;
+		protected readonly bool _reloadOnChange;
 
-		private ConfigurationManager()
+		/// <summary>
+		/// Whether the configuration is optional
+		/// </summary>
+		protected readonly bool _isOptional;
+
+		/// <summary>
+		/// Configuration interface
+		/// </summary>
+		protected IConfiguration? _configuration;
+
+		protected BaseConfigurationManager()
 		{
+			this._reloadOnChange = true;
+			this._isOptional = false;
 		}
 
 		/// <summary>
-		/// Returns an instance to the configuration manager
+		/// Initializes the configuration
 		/// </summary>
-		/// <returns></returns>
-		public static ConfigurationManager GetConfigurationManager()
-		{
-			if(_configurationManagerInstance is null)
-				_configurationManagerInstance = new ConfigurationManager();
-
-			_configurationManagerInstance.Initialize();
-
-			return _configurationManagerInstance;
-		}
-
-		/// <summary>
-		/// Initializes the configuration manager
-		/// </summary>
-		protected override void Initialize()
+		protected virtual void Initialize()
 		{
 			try
 			{
@@ -57,15 +54,6 @@ namespace BuildHub.Common.ConfigurationManager
 			{
 				Application.ExitWithError(exception, "Failed to initialize configuration manager.");
 			}
-		}
-
-		/// <summary>
-		/// Gets a connection string
-		/// </summary>
-		public string GetConnectionString(string key)
-		{
-			var connectionString = _configuration?.GetConnectionString(key);
-			return connectionString ?? string.Empty;
 		}
 
 		/// <summary>

@@ -53,5 +53,12 @@ namespace BuildHub.Common.Utilities
 		/// <param name="value"></param>
 		/// <returns>The value surrounded by single quotes</returns>
 		public static string Stringify(object value) => $"'{value}'";
+
+		/// <summary>
+		/// Retrieves the name of the specified type.
+		/// </summary>
+		/// <param name="object">The <see cref="Type"/> whose name is to be retrieved. Cannot be <see langword="null"/>.</param>
+		/// <returns>The name of the specified type as a <see cref="string"/>.</returns>
+		public static string GetTypeName(Type @object) => @object.Name;
 	}
 }
