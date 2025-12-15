@@ -31,12 +31,20 @@
 		IQueryBuilder From(string tableName);
 
 		/// <summary>
+		/// Add a top clause in the select statement
+		/// </summary>
+		/// <param name="count"></param>
+		/// <returns></returns>
+		IQueryBuilder Top(int count);
+
+		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="columnName"></param>
 		/// <param name="compareType"></param>
 		/// <param name="value"></param>
 		/// <returns></returns>
+		///
 		IQueryBuilder Where(string columnName, CompareTypes compareType, object value);
 
 		/// <summary>

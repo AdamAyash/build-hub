@@ -1,10 +1,10 @@
 ﻿namespace BuildHub.Common.Logger
 {
-	using Serilog;
 	using BuildHub.Common.Application;
-	using BuildHub.Common.Configuration.Base;
 	using BuildHub.Common.Configuration;
-
+	using BuildHub.Common.Configuration.Base;
+	using Serilog;
+	using System.Diagnostics;
 	using SerilogConfiguration = Serilog.LoggerConfiguration;
 
 	/// <summary>
@@ -32,30 +32,23 @@
 		{
 			_configurationManager = ConfigurationManager.GetConfigurationManager();
 
-			try
-			{
-				var loggerConfiguration = _configurationManager.GetConfigurationModel<LoggerConfiguration>("LoggerConfiguration");
-				if (loggerConfiguration is null)
-					throw new InvalidOperationException();
+			var loggerConfiguration = _configurationManager.GetConfigurationModel<LoggerConfiguration>("LoggerConfiguration");
+			if (loggerConfiguration is null)
+				throw new InvalidOperationException();
 
-				var serilogConfiguration = new SerilogConfiguration()
-					.MinimumLevel.Is(loggerConfiguration.MinimumLogEventLevel);
+			var serilogConfiguration = new SerilogConfiguration()
+				.MinimumLevel.Is(loggerConfiguration.MinimumLogEventLevel);
 
-				if (loggerConfiguration.LogToConsoleEnabled)
-					serilogConfiguration = serilogConfiguration.WriteTo.Console();
+			if (loggerConfiguration.LogToConsoleEnabled)
+				serilogConfiguration = serilogConfiguration.WriteTo.Console();
 
-				if(!string.IsNullOrEmpty(loggerConfiguration.LogFileDirectory))
-					serilogConfiguration = serilogConfiguration.WriteTo.File(loggerConfiguration.LogFileDirectory, rollingInterval: loggerConfiguration.RollingInterval);
+			if (!string.IsNullOrEmpty(loggerConfiguration.LogFileDirectory))
+				serilogConfiguration = serilogConfiguration.WriteTo.File(loggerConfiguration.LogFileDirectory, rollingInterval: loggerConfiguration.RollingInterval);
 
-				if(!string.IsNullOrEmpty(loggerConfiguration.SeqServerUrl))
-					serilogConfiguration = serilogConfiguration.WriteTo.Seq(loggerConfiguration.SeqServerUrl);
+			if (!string.IsNullOrEmpty(loggerConfiguration.SeqServerUrl))
+				serilogConfiguration = serilogConfiguration.WriteTo.Seq(loggerConfiguration.SeqServerUrl);
 
-				Log.Logger = serilogConfiguration.CreateLogger();
-			}
-			catch(Exception exception)
-			{
-				Application.ExitWithError(exception, "Failed to initialize logger configuration.");
-			}
+			Log.Logger = serilogConfiguration.CreateLogger();
 		}
 
 		/// <summary>
@@ -80,6 +73,7 @@
 		/// elements from <paramref name="propertyValues"/>.</param>
 		/// <param name="propertyValues">An array of property values to be formatted into the message template. Each value is substituted into the
 		/// corresponding placeholder in <paramref name="message"/>.</param>
+		[Conditional("DEBUG")]
 		public static void LogDebug(string message, params object[] propertyValues)
 		{
 			Log.Debug(message, propertyValues);

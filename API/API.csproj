@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
 	<AssemblyName>BuildHub.API</AssemblyName>
 	<RootNamespace>BuildHub.API</RootNamespace>
+	<BaseOutputPath>..\bin\API</BaseOutputPath>
   </PropertyGroup>
 
   <ItemGroup>

@@ -11,13 +11,11 @@ namespace BuildHub.DataEngine.SQLQueries
 
 		private string _tableName;
 		private LockTypes _lockType;
+		private int _topStatementCount;
 
 		public string Query { get; private set; }
 
-		public SQLQueryBuilder()
-		{
-			this.Reset();
-		}
+		public SQLQueryBuilder() => this.Reset();
 
 		private string ProcessValue(object value)
 		{
@@ -50,7 +48,11 @@ namespace BuildHub.DataEngine.SQLQueries
 		public IQueryBuilder BuildSelect()
 		{
 			StringBuilder queryStringBuilder = new StringBuilder();
-			queryStringBuilder.Append($"SELECT * FROM {this._tableName} ");
+			if(_topStatementCount > -1)
+				queryStringBuilder.Append($"SELECT TOP {_topStatementCount} * FROM {this._tableName}" );
+			else
+				queryStringBuilder.Append($"SELECT * FROM {this._tableName} ");
+
 			queryStringBuilder.Append($"WITH({Utilities.GetEnumDescription<LockTypes>(this._lockType)})");
 
 			if(_whereStatements.Count > 0)
@@ -89,6 +91,7 @@ namespace BuildHub.DataEngine.SQLQueries
 			this._whereStatements.Clear();
 			this._lockType = LockTypes.None;
 			this.Query = string.Empty;
+			this._topStatementCount = -1;
 
 			return this;
 		}
@@ -96,6 +99,12 @@ namespace BuildHub.DataEngine.SQLQueries
 		public IQueryBuilder From(string tableName)
 		{
 			this._tableName = tableName.ToUpper();
+			return this;
+		}
+
+		public IQueryBuilder Top(int count)
+		{
+			this._topStatementCount = count;
 			return this;
 		}
 

@@ -119,5 +119,22 @@ namespace UnitTests.DataEngineTests.SQLQueries
 
 			Assert.AreEqual("SELECT * FROM USERS WITH(NOLOCK)", newQueryBuilder.Query);
 		}
+
+
+		[TestMethod]
+		[DataRow(10)]
+		[DataRow(1)]
+		[DataRow(1000)]
+		[DataRow(230)]
+		[DataRow(60)]
+		[DataRow(6 )]
+		public void TopClauseTest(int topClauseCount)
+		{
+			var queryBuilder = new SQLQueryBuilder()
+				.Top(10)
+				.From("USERS");
+
+			Assert.AreEqual($"SELECT TOP {topClauseCount} * FROM USERS WITH(NOLOCK)", queryBuilder.Query);
+		}
 	}
 }

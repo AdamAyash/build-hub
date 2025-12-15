@@ -1,5 +1,6 @@
 using Scalar.AspNetCore;
 using BuildHub.Common.Logger;
+using BuildHub.Common.Application;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,11 +8,18 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 //Initialization
-Logger.Initialize();
-Logger.LogInformation("Application Starting Up");
+
+try
+{
+	Logger.Initialize();
+	Logger.LogInformation("Application Starting Up");
+}
+catch(Exception exception)
+{
+	Application.ExitWithError(exception, "Failed to initialize logger configuration.");
+}
 
 var app = builder.Build();
-
 if (app.Environment.IsDevelopment())
 {
 	app.MapOpenApi();

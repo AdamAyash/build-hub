@@ -1,7 +1,7 @@
 ﻿namespace BuildHub.DataEngine.Entities
 {
 	[AttributeUsage(AttributeTargets.Property)]
-	internal class ColumnDescription : Attribute
+	public sealed class ColumnDescription : Attribute
 	{
 		private readonly string _columnName;
 		private readonly int _size;

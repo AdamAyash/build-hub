@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
 	<AssemblyName>BuildHub.Common</AssemblyName>
 	<RootNamespace>BuildHub.Common</RootNamespace>
+	<BaseOutputPath>..\bin</BaseOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
