@@ -1,4 +1,6 @@
 using System.ComponentModel;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace BuildHub.Common.Utilities
 {
@@ -60,5 +62,56 @@ namespace BuildHub.Common.Utilities
 		/// <param name="object">The <see cref="Type"/> whose name is to be retrieved. Cannot be <see langword="null"/>.</param>
 		/// <returns>The name of the specified type as a <see cref="string"/>.</returns>
 		public static string GetTypeName(Type @object) => @object.Name;
+
+		/// <summary>
+		/// Retrieves the public properties of the specified type.
+		/// </summary>
+		/// <typeparam name="Object">The type whose public properties are to be retrieved.</typeparam>
+		/// <returns>An <see cref="IEnumerable{PropertyInfo}"/> containing the public properties of the specified type. The collection
+		/// is empty if the type has no public properties.</returns>
+		public static IEnumerable<PropertyInfo> GetObjectProiperties<Object>() => typeof(Object).GetProperties().ToList();
+
+		/// <summary>
+		/// Gets the value of a property using reflection
+		/// </summary>
+		/// <param name="object"></param>
+		/// <param name="property"></param>
+		/// <returns></returns>
+		public static object? GetPropertyValue(object @object, PropertyInfo property)
+		{
+			return property.GetValue(@object);
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <typeparam name="Object"></typeparam>
+		/// <param name="expression"></param>
+		/// <returns></returns>
+		/// <exception cref="ArgumentException"></exception>
+		public static MemberExpression GetMemberExpression<Object>(Expression<Func<Object, object>> expression)
+		{
+			if (expression.Body is MemberExpression memberExpression)
+				return memberExpression;
+
+			if (expression.Body is UnaryExpression unaryExpression)
+				return (MemberExpression)unaryExpression.Operand;
+
+			throw new ArgumentException("Invalid expression");
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <typeparam name="Object"></typeparam>
+		/// <param name="propertyExpression"></param>
+		/// <returns></returns>
+		public static PropertyInfo GetPropertyInfo<Object>(Expression<Func<Object, object>> propertyExpression)
+		{
+			var memberExpression = GetMemberExpression(propertyExpression);
+			var propertyInfo = (PropertyInfo)memberExpression.Member;
+			
+			return propertyInfo;
+		}
 	}
 }

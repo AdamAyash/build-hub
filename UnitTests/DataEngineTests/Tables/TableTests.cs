@@ -27,5 +27,16 @@ namespace UnitTests.DataEngineTests.Tables
 			var unitTestTable = new UnitTestsWithUnmappedFieldTable();
 			Assert.Throws<MissingColumnDescriptionException>(() => unitTestTable.GetAll());
 		}
+
+		[TestMethod]
+		[DataRow("5DC46FBF-5522-4D76-87D7-A148A4A0B419")]
+		public void GetByGuidTest(string guid)
+		{
+			var unitTestTable = new UnitTestsTable();
+			var unitTest = unitTestTable.GetByGuid(Guid.Parse(guid));
+
+			Assert.IsNotNull(unitTest);
+			Assert.IsGreaterThan(0, unitTest.Id);		
+		}
 	}
 }

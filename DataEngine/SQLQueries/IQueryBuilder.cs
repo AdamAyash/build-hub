@@ -64,10 +64,5 @@
 		/// <param name="lockType">The type of lock to apply, represented by a value from the <see cref="LockTypes"/> enumeration.</param>
 		/// <returns>An instance of <see cref="IQueryBuilder"/> with the specified locking behavior applied.</returns>
 		IQueryBuilder Lock(LockTypes lockType);
-
-		/// <summary>
-		/// Gets the query string used to retrieve or filter data.
-		/// </summary>
-		string Query { get; }
 	}
 }

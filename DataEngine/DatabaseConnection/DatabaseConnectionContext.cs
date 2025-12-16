@@ -5,27 +5,27 @@ namespace BuildHub.DataEngine.DatabaseConnection
 	/// <summary>
 	/// Manages thread-local database connections for the current async/thread context
 	/// </summary>
-	public sealed class DatabaseContext : IDisposable
+	public sealed class DatabaseConnectionContext : IDisposable
 	{
-		private static readonly AsyncLocal<DatabaseContext>? _currentAsyncLocalDatabaseConnection;
+		private static readonly AsyncLocal<DatabaseConnectionContext>? _currentAsyncLocalDatabaseConnection;
 
 		private readonly DatabaseConnectionPool _databaseConnectionPool = DatabaseConnectionPool.GetInstance();
 		private readonly Dictionary<DatabaseSource, DatabaseConnection> _contextDatabaseConnections;
 		private bool _isDisposed = false;
 
-		private DatabaseContext()
+		private DatabaseConnectionContext()
 		{
 			this._databaseConnectionPool = DatabaseConnectionPool.GetInstance();
 			this._contextDatabaseConnections = new Dictionary<DatabaseSource, DatabaseConnection>();
 		}
 
-		~DatabaseContext() => Dispose(false);
+		~DatabaseConnectionContext() => Dispose(false);
 		
 		/// <summary>
 		/// Gets the current connection context for this async flow
 		/// </summary>
-		public static DatabaseContext GetCurrentContext 
-			=> _currentAsyncLocalDatabaseConnection?.Value ?? new DatabaseContext();
+		public static DatabaseConnectionContext GetCurrentContext 
+			=> _currentAsyncLocalDatabaseConnection?.Value ?? new DatabaseConnectionContext();
 
 		/// <summary>
 		/// Determines whether a connection to the specified database source exists.

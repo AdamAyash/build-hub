@@ -10,10 +10,9 @@ namespace BuildHub.DataEngine.SQLQueries
 		private readonly List<WhereCondition> _whereStatements = new List<WhereCondition>();
 
 		private string _tableName;
+		private string _buildedQuery;
 		private LockTypes _lockType;
 		private int _topStatementCount;
-
-		public string Query { get; private set; }
 
 		public SQLQueryBuilder() => this.Reset();
 
@@ -25,6 +24,9 @@ namespace BuildHub.DataEngine.SQLQueries
 			if (value is DateTime)
 				return Utilities.Stringify(Utilities.FormatDateTime((DateTime)(value)));
 
+			if(value is Guid)
+				return Utilities.Stringify(value);
+
 			return value.ToString() ?? string.Empty;
 		}
 
@@ -32,12 +34,13 @@ namespace BuildHub.DataEngine.SQLQueries
 		{
 			Type type = value.GetType();
 
-			if (type != typeof(Int16)	&&
-				type != typeof(Int32) 	&&
-				type != typeof(Int64) 	&&
-				type != typeof(Double)  &&
-				type != typeof(String)  &&
-				type != typeof(DateTime))
+			if (type != typeof(Int16)		&&
+				type != typeof(Int32) 		&&
+				type != typeof(Int64) 		&&
+				type != typeof(Double)		&&
+				type != typeof(String)		&&
+				type != typeof(DateTime)	&&
+				type != typeof(Guid))
 			{
 				return false;
 			}
@@ -80,7 +83,7 @@ namespace BuildHub.DataEngine.SQLQueries
 				queryStringBuilder.Append(string.Join(" AND ", whereStatements));
 			}
 
-			Query = queryStringBuilder.ToString().Trim();
+			_buildedQuery = queryStringBuilder.ToString().Trim();
 
 			return this;
 		}
@@ -90,7 +93,7 @@ namespace BuildHub.DataEngine.SQLQueries
 			this._tableName = string.Empty;
 			this._whereStatements.Clear();
 			this._lockType = LockTypes.None;
-			this.Query = string.Empty;
+			this._buildedQuery = string.Empty;
 			this._topStatementCount = -1;
 
 			return this;
@@ -124,6 +127,11 @@ namespace BuildHub.DataEngine.SQLQueries
 		{
 			this._lockType = lockType;
 			return this;
+		}
+
+		public override string ToString()
+		{
+			return this._buildedQuery;
 		}
 	}
 }

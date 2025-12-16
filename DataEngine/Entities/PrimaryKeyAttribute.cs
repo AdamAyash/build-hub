@@ -5,7 +5,7 @@
 	/// </summary>
 	/// <remarks>Apply this attribute to a property or field to indicate that it uniquely identifies an instance of
 	/// the entity, typically for use with object-relational mapping frameworks or data access layers.</remarks>
-	[AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+	[AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
 	public sealed class PrimaryKey : Attribute
 	{
 		public PrimaryKey()

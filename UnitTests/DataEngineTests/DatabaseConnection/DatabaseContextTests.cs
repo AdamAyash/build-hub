@@ -10,7 +10,7 @@
 		[DataRow(DatabaseSource.Core)]
 		public void DatabaseConnectionGetContextTest(DatabaseSource databaseSource)
 		{
-			var databaseContext = DatabaseContext.GetCurrentContext;
+			var databaseContext = DatabaseConnectionContext.GetCurrentContext;
 			DatabaseConnection databaseConnection1 = databaseContext.GetConnection(databaseSource);
 			DatabaseConnection databaseConnection2 = databaseContext.GetConnection(databaseSource);
 
@@ -22,7 +22,7 @@
 		[DataRow(DatabaseSource.Core)]
 		public void TestHasContextDatabaseConnection(DatabaseSource databaseSource)
 		{
-			var databaseContext = DatabaseContext.GetCurrentContext;
+			var databaseContext = DatabaseConnectionContext.GetCurrentContext;
 			DatabaseConnection databaseConnection1 = databaseContext.GetConnection(databaseSource);
 
 			Assert.IsTrue(databaseContext.HasContexDatabaseConnection(databaseSource));
@@ -33,13 +33,13 @@
 		[DataRow(DatabaseSource.Core)]
 		public void TestHasContextDatabaseConnectionFromAnotherThread(DatabaseSource databaseSource)
 		{
-			var databaseContext = DatabaseContext.GetCurrentContext;
+			var databaseContext = DatabaseConnectionContext.GetCurrentContext;
 			DatabaseConnection databaseConnection1 = databaseContext.GetConnection(databaseSource);
 			Assert.IsTrue(databaseContext.HasContexDatabaseConnection(databaseSource));
 
 			Parallel.Invoke(() =>
 			{
-				var databaseContext = DatabaseContext.GetCurrentContext;
+				var databaseContext = DatabaseConnectionContext.GetCurrentContext;
 				Assert.IsFalse(databaseContext.HasContexDatabaseConnection(databaseSource));
 			});
 		}
@@ -51,12 +51,12 @@
 		{
 			Parallel.Invoke(() =>
 			{
-				var databaseContext = DatabaseContext.GetCurrentContext;
+				var databaseContext = DatabaseConnectionContext.GetCurrentContext;
 			});
 
 			Parallel.Invoke(() =>
 			{
-				var databaseContext = DatabaseContext.GetCurrentContext;
+				var databaseContext = DatabaseConnectionContext.GetCurrentContext;
 			});
 		}
 	}

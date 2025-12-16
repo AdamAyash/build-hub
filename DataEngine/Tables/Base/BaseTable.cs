@@ -5,6 +5,7 @@
 	using DatabaseConnection;
 	using Microsoft.Data.SqlClient;
 	using BuildHub.Common.Logger;
+	using BuildHub.Common.Utilities;
 
 	/// <summary>
 	/// Provides a base class for database table access, supporting retrieval of all entities of a specified type.
@@ -30,7 +31,6 @@
 
 		private bool Initialize()
 		{
-
 			return true;
 		}
 
@@ -50,8 +50,6 @@
 		/// collection will be empty if no records are present.</returns>
 		public IEnumerable<Entity> GetAll()
 		{
-			var entities = new List<Entity>();
-
 			try
 			{
 				using var databaseConnection = this._databaseConnectionPoolInstance.GetDatabaseConnection(this._databaseSource);
@@ -60,26 +58,37 @@
 					.From(this.TableName)
 					.BuildSelect();
 
-				Logger.LogDebug($"Table '{TableName}' generated a query '{query.Query}'");
+				Logger.LogDebug($"Table '{TableName}' generated a query '{query.ToString()}'");
 
-				SqlCommand sqlCommand = new SqlCommand(query.Query, databaseConnection.InternalConnection);
+				SqlCommand sqlCommand = new SqlCommand(query.ToString(), databaseConnection.InternalConnection);
 				using var sqlReader = sqlCommand.ExecuteReader();
 
 				EntityDataMapper<Entity> entityDataMapper = new EntityDataMapper<Entity>(sqlReader);
 
+				var entities = new List<Entity>();
 				while (sqlReader.Read())
 				{
 					var entity = entityDataMapper.MaDataToEntity();
 					entities.Add(entity);
 				}
+
+				return entities;
 			}
-			catch(Exception exception)
+			catch (Exception exception)
 			{
 				Logger.LogError(exception, $"Retrieving records for table {TableName} failed.");
 				throw;
 			}
+		}
+		private string FormQueryByGuid(Guid guid)
+		{
+			ColumnMappingData primaryKeyMappingData = EntityDataMapper<Entity>.GetPrimaryKeyInfo();
+			var query = new SQLQueryBuilder()
+				.From(this.TableName)
+				.Where(primaryKeyMappingData.ColumnDescription.ColumnName, guid)
+				.BuildSelect();
 
-			return entities;
+			return query.ToString();
 		}
 
 		public Entity GetByGuid(Guid guid)
@@ -88,22 +97,18 @@
 			{
 				using var databaseConnection = this._databaseConnectionPoolInstance.GetDatabaseConnection(this._databaseSource);
 
-				var query = new SQLQueryBuilder()
-					.From(this.TableName)
-					.BuildSelect();
+				var query = FormQueryByGuid(guid);
+				Logger.LogDebug($"Table '{TableName}' generated a query '{query}'");
 
-				Logger.LogDebug($"Table '{TableName}' generated a query '{query.Query}'");
-
-				SqlCommand sqlCommand = new SqlCommand(query.Query, databaseConnection.InternalConnection);
+				SqlCommand sqlCommand = new SqlCommand(query, databaseConnection.InternalConnection);
 				using var sqlReader = sqlCommand.ExecuteReader();
 
 				EntityDataMapper<Entity> entityDataMapper = new EntityDataMapper<Entity>(sqlReader);
 
-				while (sqlReader.Read())
-				{
-					var entity = entityDataMapper.MaDataToEntity();
-					entities.Add(entity);
-				}
+				sqlReader.Read();
+				var entity = entityDataMapper.MaDataToEntity();
+
+				return entity;
 			}
 			catch (Exception exception)
 			{
