@@ -69,7 +69,8 @@ namespace BuildHub.Common.Utilities
 		/// <typeparam name="Object">The type whose public properties are to be retrieved.</typeparam>
 		/// <returns>An <see cref="IEnumerable{PropertyInfo}"/> containing the public properties of the specified type. The collection
 		/// is empty if the type has no public properties.</returns>
-		public static IEnumerable<PropertyInfo> GetObjectProiperties<Object>() => typeof(Object).GetProperties().ToList();
+		public static IEnumerable<PropertyInfo> GetObjectProiperties<Object>() 
+			=> typeof(Object).GetProperties().ToList().OrderBy(property => property.MetadataToken);
 
 		/// <summary>
 		/// Gets the value of a property using reflection

@@ -1,4 +1,6 @@
-﻿namespace BuildHub.DataEngine.SQLQueries
+﻿using BuildHub.DataEngine.Entities;
+
+namespace BuildHub.DataEngine.SQLQueries
 {
 	/// <summary>
 	/// Defines an interface for building SQL queries in a fluent and composable manner.
@@ -16,6 +18,12 @@
 		/// structure.</remarks>
 		/// <returns>An <see cref="IQueryBuilder"/> instance representing the SELECT query being built.</returns>
 		IQueryBuilder BuildSelect();
+
+		/// <summary>
+		/// Constructs an insert query.
+		/// </summary>
+		/// <returns>an insert statement</returns>
+		IQueryBuilder BuildInsert<Entity>(Entity entity) where Entity : IEntity;
 
 		/// <summary>
 		/// Resets the query builder to its initial state, clearing any previously applied configurations.

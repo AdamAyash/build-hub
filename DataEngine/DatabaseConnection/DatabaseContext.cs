@@ -1,31 +1,34 @@
 ﻿using BuildHub.Common.Utilities;
+using BuildHub.DataEngine.Transactions;
 
 namespace BuildHub.DataEngine.DatabaseConnection
 {
 	/// <summary>
 	/// Manages thread-local database connections for the current async/thread context
 	/// </summary>
-	public sealed class DatabaseConnectionContext : IDisposable
+	public sealed class DatabaseContext : IDisposable
 	{
-		private static readonly AsyncLocal<DatabaseConnectionContext>? _currentAsyncLocalDatabaseConnection;
+		private static readonly ThreadLocal<DatabaseContext> _currentThreadLocalDatabaseConnection
+			= new ThreadLocal<DatabaseContext>(() => new DatabaseContext());
 
 		private readonly DatabaseConnectionPool _databaseConnectionPool = DatabaseConnectionPool.GetInstance();
 		private readonly Dictionary<DatabaseSource, DatabaseConnection> _contextDatabaseConnections;
 		private bool _isDisposed = false;
+		public ITransactionContext? TransactionContext { get; set; }
 
-		private DatabaseConnectionContext()
+		private DatabaseContext()
 		{
 			this._databaseConnectionPool = DatabaseConnectionPool.GetInstance();
 			this._contextDatabaseConnections = new Dictionary<DatabaseSource, DatabaseConnection>();
+			this.TransactionContext = null;
 		}
 
-		~DatabaseConnectionContext() => Dispose(false);
-		
+		~DatabaseContext() => Dispose(false);
+
 		/// <summary>
 		/// Gets the current connection context for this async flow
 		/// </summary>
-		public static DatabaseConnectionContext GetCurrentContext 
-			=> _currentAsyncLocalDatabaseConnection?.Value ?? new DatabaseConnectionContext();
+		public static DatabaseContext GetCurrentContext => _currentThreadLocalDatabaseConnection.Value;
 
 		/// <summary>
 		/// Determines whether a connection to the specified database source exists.
@@ -42,10 +45,14 @@ namespace BuildHub.DataEngine.DatabaseConnection
 		public DatabaseConnection GetConnection(DatabaseSource databaseSource)
 		{
 			if(_isDisposed)
-				throw new ObjectDisposedException(Utilities.GetTypeName(typeof(DatabaseConnection)));
+				throw new ObjectDisposedException(Utilities.GetTypeName(typeof(DatabaseContext)));
 
 			if (this._contextDatabaseConnections.TryGetValue(databaseSource, out var existingConnection))
-				return existingConnection;
+			{
+				DatabaseConnectionValidator databaseConnectionValidator = new(existingConnection);
+				if(databaseConnectionValidator.TestDatabaseConnection())
+					return existingConnection;
+			}
 
 			var newConnection = this._databaseConnectionPool.GetDatabaseConnection(databaseSource);
 			this._contextDatabaseConnections[databaseSource] = newConnection;

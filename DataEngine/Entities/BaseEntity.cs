@@ -7,8 +7,9 @@
 	/// after creation. All properties are read-only.</remarks>
 	public class BaseEntity : IEntity
 	{
+		[Identity]
 		[ColumnDescription("ID")]
-		public int Id { get; set; }
+		public int Id { get; private set; }
 
 		[PrimaryKey]
 		[ColumnDescription("GUID")]

@@ -38,5 +38,36 @@ namespace UnitTests.DataEngineTests.Tables
 			Assert.IsNotNull(unitTest);
 			Assert.IsGreaterThan(0, unitTest.Id);		
 		}
+
+		[TestMethod]
+		[DataRow("5DC46FBF-5522-4D76-87D7-A148A4A0B418")]
+		public void GetNotExistinUnitTestgByGuidTest(string guid)
+		{
+			var unitTestTable = new UnitTestsTable();
+			var unitTest = unitTestTable.GetByGuid(Guid.Parse(guid));
+
+			Assert.IsNull(unitTest);
+		}
+
+		[TestMethod]
+		public void InsertUnitTest()
+		{
+			var unitTest = new UnitTest();
+			unitTest.Name = "Insert Test";
+
+			var unitTestTable = new UnitTestsTable();
+			Assert.IsTrue(unitTestTable.Insert(unitTest));
+		}
+
+		[TestMethod]
+		public void InsertDuplicateUnitTest()
+		{
+			var unitTest = new UnitTest();
+			unitTest.Name = "Insert Test";
+
+			var unitTestTable = new UnitTestsTable();
+			Assert.IsTrue(unitTestTable.Insert(unitTest));
+			Assert.IsFalse(unitTestTable.Insert(unitTest));
+		}
 	}
 }

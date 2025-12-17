@@ -15,21 +15,29 @@ namespace BuildHub.DataEngine.Entities
 	/// <para> This class is not thread-safe. Each instance should be used only within the context of a single data reader
 	/// and mapping operation. </para></remarks>
 	/// <typeparam name="Entity"></typeparam>
-	internal sealed class EntityDataMapper<Entity> where Entity : IEntity
+	public sealed class EntityDataMapper
 	{
 		private readonly SqlDataReader sqlDataReader;
 		public EntityDataMapper(SqlDataReader sqlDataReader) => this.sqlDataReader = sqlDataReader;
 
-		public Entity MaDataToEntity()
+		public ColumnDescription GetColumnDescription(PropertyInfo property)
+		{
+			ColumnDescription? columnDescription = property.GetCustomAttribute<ColumnDescription>();
+			if (columnDescription is null)
+				throw new MissingColumnDescriptionException(property);
+
+			return columnDescription;
+		}
+
+		public Entity MaDataToEntity<Entity>() 
+			where Entity : IEntity
 		{
 			Entity entity = Activator.CreateInstance<Entity>();
 
 			var properties = Utilities.GetObjectProiperties<Entity>();
 			foreach (PropertyInfo property in properties)
 			{
-				ColumnDescription? columnDescription = property.GetCustomAttribute<ColumnDescription>();
-				if (columnDescription is null)
-					throw new MissingColumnDescriptionException(property);
+				ColumnDescription? columnDescription = this.GetColumnDescription(property);
 
 				object columnValue = sqlDataReader[columnDescription.ColumnName];
 				property.SetValue(entity, columnValue, null);
@@ -38,7 +46,8 @@ namespace BuildHub.DataEngine.Entities
 			return entity;
 		}
 
-		public static string GetColumnName(Expression<Func<Entity, object>> propertyExpressions)
+		public static string GetColumnName<Entity>(Expression<Func<Entity, object>> propertyExpressions)
+			 where Entity : IEntity
 		{
 			PropertyInfo propertyInfo = Utilities.GetPropertyInfo<Entity>(propertyExpressions);
 			ColumnDescription? columnDescription = propertyInfo.GetCustomAttribute<ColumnDescription>();
@@ -48,7 +57,26 @@ namespace BuildHub.DataEngine.Entities
 			return columnDescription.ColumnName;
 		}
 
-		public static ColumnMappingData GetPrimaryKeyInfo()
+		public static string GetColumnName(PropertyInfo property)
+		{
+			ColumnDescription? columnDescription = property.GetCustomAttribute<ColumnDescription>();
+			if (columnDescription is null)
+				throw new MissingColumnDescriptionException(property);
+
+			return columnDescription.ColumnName;
+		}
+
+		public static bool HasIdentityColumn(PropertyInfo property)
+		{
+			Identity? columnDescription = property.GetCustomAttribute<Identity>();
+			if (columnDescription is null)
+				return false;
+
+			return true;
+		}
+
+		public static ColumnMappingData GetPrimaryKeyMappingData<Entity>()
+			where Entity : IEntity
 		{
 			List<PropertyInfo> properties = Utilities.GetObjectProiperties<Entity>().ToList();
 			PropertyInfo? primaryKeyProperty = properties.Find(property => property.GetCustomAttributes<PrimaryKey>().Count() > 0);

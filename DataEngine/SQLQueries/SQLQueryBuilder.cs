@@ -1,5 +1,9 @@
 ﻿using BuildHub.Common.Logger;
 using BuildHub.Common.Utilities;
+using BuildHub.DataEngine.Entities;
+using BuildHub.DataEngine.Exceptions;
+using Microsoft.Extensions.Primitives;
+using System.Reflection;
 using System.Text;
 
 namespace BuildHub.DataEngine.SQLQueries
@@ -10,9 +14,11 @@ namespace BuildHub.DataEngine.SQLQueries
 		private readonly List<WhereCondition> _whereStatements = new List<WhereCondition>();
 
 		private string _tableName;
-		private string _buildedQuery;
+		private string _query;
 		private LockTypes _lockType;
 		private int _topStatementCount;
+
+		private bool _isQueryBuilt;
 
 		public SQLQueryBuilder() => this.Reset();
 
@@ -50,9 +56,12 @@ namespace BuildHub.DataEngine.SQLQueries
 
 		public IQueryBuilder BuildSelect()
 		{
+			if (this._isQueryBuilt)
+				throw new QueryAlreadyBuiltException();
+
 			StringBuilder queryStringBuilder = new StringBuilder();
 			if(_topStatementCount > -1)
-				queryStringBuilder.Append($"SELECT TOP {_topStatementCount} * FROM {this._tableName}" );
+				queryStringBuilder.Append($"SELECT TOP {_topStatementCount} * FROM {this._tableName} " );
 			else
 				queryStringBuilder.Append($"SELECT * FROM {this._tableName} ");
 
@@ -80,10 +89,46 @@ namespace BuildHub.DataEngine.SQLQueries
 					whereStatements.Add(completedCondition);
 				}
 
-				queryStringBuilder.Append(string.Join(" AND ", whereStatements));
+				queryStringBuilder.AppendJoin(" AND ", whereStatements);
 			}
 
-			_buildedQuery = queryStringBuilder.ToString().Trim();
+			_query = queryStringBuilder.ToString().Trim();
+			_isQueryBuilt = true;
+
+			return this;
+		}
+
+		public IQueryBuilder BuildInsert<Entity>(Entity entity) 
+			where Entity : IEntity
+		{
+			if (this._isQueryBuilt)
+				throw new QueryAlreadyBuiltException();
+
+			StringBuilder queryStringBuilder = new StringBuilder();
+			queryStringBuilder.Append($"INSERT INTO {this._tableName} ");
+			queryStringBuilder.Append("(");
+
+			var properties = Utilities.GetObjectProiperties<Entity>();
+			var columnNames = new List<string>();
+			var values = new List<object>();
+
+			foreach (var property in properties)
+			{
+				if (EntityDataMapper.HasIdentityColumn(property))
+					continue;
+
+				columnNames.Add(EntityDataMapper.GetColumnName(property));
+				values.Add(ProcessValue(property.GetValue(entity)));
+			}
+
+			queryStringBuilder.AppendJoin(", ", columnNames);
+			queryStringBuilder.Append(") ");
+			queryStringBuilder.Append("VALUES (");
+			queryStringBuilder.AppendJoin(", ", values);
+			queryStringBuilder.Append(")");
+
+			this._query = queryStringBuilder.ToString().Trim();
+			this._isQueryBuilt = true;
 
 			return this;
 		}
@@ -93,8 +138,9 @@ namespace BuildHub.DataEngine.SQLQueries
 			this._tableName = string.Empty;
 			this._whereStatements.Clear();
 			this._lockType = LockTypes.None;
-			this._buildedQuery = string.Empty;
+			this._query = string.Empty;
 			this._topStatementCount = -1;
+			this._isQueryBuilt = false;
 
 			return this;
 		}
@@ -131,7 +177,14 @@ namespace BuildHub.DataEngine.SQLQueries
 
 		public override string ToString()
 		{
-			return this._buildedQuery;
+			if (!_isQueryBuilt)
+			{
+				Logger.LogError("Trying to use an non built query");
+				throw new NotBuiltQueryException();
+			}
+
+			Logger.LogDebug($"Table '{this._tableName}' generated a query '{this._query}'");
+			return this._query;
 		}
 	}
 }

@@ -1,11 +1,11 @@
 ﻿namespace BuildHub.DataEngine.Tables.Base
 {
-	using Entities;
-	using SQLQueries;
-	using DatabaseConnection;
-	using Microsoft.Data.SqlClient;
 	using BuildHub.Common.Logger;
-	using BuildHub.Common.Utilities;
+	using DatabaseConnection;
+	using Entities;
+	using Microsoft.Data.SqlClient;
+	using SQLQueries;
+	using System;
 
 	/// <summary>
 	/// Provides a base class for database table access, supporting retrieval of all entities of a specified type.
@@ -20,18 +20,16 @@
 		private readonly DatabaseConnectionPool _databaseConnectionPoolInstance;
 		private readonly DatabaseSource _databaseSource;
 
+		private bool _isConnectionLocal;
+
 		public string TableName { get; private set; }
 
 		protected BaseTable(string tableName, DatabaseSource databaseSource)
 		{
 			this._databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
 			this._databaseSource = databaseSource;
+			this._isConnectionLocal = false;
 			this.TableName = tableName;
-		}
-
-		private bool Initialize()
-		{
-			return true;
 		}
 
 		/// <summary>
@@ -41,6 +39,29 @@
 		private Guid GenerateGUID() => Guid.NewGuid();
 
 		/// <summary>
+		/// Resolves whether to use a context connection from the current thread or use a local one.
+		/// </summary>
+		/// <returns></returns>
+		private DatabaseConnection GetConnection()
+		{
+			DatabaseConnection databaseConnection;
+
+			var databaseConnectionContext = DatabaseContext.GetCurrentContext;
+			if (databaseConnectionContext.HasContexDatabaseConnection(this._databaseSource))
+			{
+				databaseConnection = databaseConnectionContext.GetConnection(this._databaseSource);
+				this._isConnectionLocal = false;
+			}
+			else
+			{
+				databaseConnection = this._databaseConnectionPoolInstance.GetDatabaseConnection(this._databaseSource);
+				this._isConnectionLocal = true;
+			}
+
+			return databaseConnection;
+		}
+
+		/// <summary>
 		/// Retrieves all entities from the underlying data source.
 		/// </summary>
 		/// <remarks>This method queries the entire table associated with the <see cref="Entity"/> type and returns
@@ -48,27 +69,27 @@
 		/// call.</remarks>
 		/// <returns>An <see cref="IEnumerable{T}"/> containing all <see cref="Entity"/> instances found in the data source. The
 		/// collection will be empty if no records are present.</returns>
-		public IEnumerable<Entity> GetAll()
+		public virtual IEnumerable<Entity> GetAll()
 		{
+			DatabaseConnection? databaseConnection = null;
+
 			try
 			{
-				using var databaseConnection = this._databaseConnectionPoolInstance.GetDatabaseConnection(this._databaseSource);
+				databaseConnection = this.GetConnection();
 
 				var query = new SQLQueryBuilder()
 					.From(this.TableName)
 					.BuildSelect();
 
-				Logger.LogDebug($"Table '{TableName}' generated a query '{query.ToString()}'");
-
 				SqlCommand sqlCommand = new SqlCommand(query.ToString(), databaseConnection.InternalConnection);
 				using var sqlReader = sqlCommand.ExecuteReader();
 
-				EntityDataMapper<Entity> entityDataMapper = new EntityDataMapper<Entity>(sqlReader);
+				var entityDataMapper = new EntityDataMapper(sqlReader);
 
 				var entities = new List<Entity>();
 				while (sqlReader.Read())
 				{
-					var entity = entityDataMapper.MaDataToEntity();
+					var entity = entityDataMapper.MaDataToEntity<Entity>();
 					entities.Add(entity);
 				}
 
@@ -79,10 +100,15 @@
 				Logger.LogError(exception, $"Retrieving records for table {TableName} failed.");
 				throw;
 			}
+			finally
+			{
+				if (this._isConnectionLocal && databaseConnection is not null)
+					databaseConnection.Dispose();
+			}
 		}
 		private string FormQueryByGuid(Guid guid)
 		{
-			ColumnMappingData primaryKeyMappingData = EntityDataMapper<Entity>.GetPrimaryKeyInfo();
+			ColumnMappingData primaryKeyMappingData = EntityDataMapper.GetPrimaryKeyMappingData<Entity>();
 			var query = new SQLQueryBuilder()
 				.From(this.TableName)
 				.Where(primaryKeyMappingData.ColumnDescription.ColumnName, guid)
@@ -93,27 +119,71 @@
 
 		public Entity GetByGuid(Guid guid)
 		{
+			DatabaseConnection? databaseConnection = null;
+
 			try
 			{
-				using var databaseConnection = this._databaseConnectionPoolInstance.GetDatabaseConnection(this._databaseSource);
+				databaseConnection = GetConnection();
 
 				var query = FormQueryByGuid(guid);
-				Logger.LogDebug($"Table '{TableName}' generated a query '{query}'");
-
 				SqlCommand sqlCommand = new SqlCommand(query, databaseConnection.InternalConnection);
+
 				using var sqlReader = sqlCommand.ExecuteReader();
+				var entityDataMapper = new EntityDataMapper(sqlReader);
 
-				EntityDataMapper<Entity> entityDataMapper = new EntityDataMapper<Entity>(sqlReader);
-
-				sqlReader.Read();
-				var entity = entityDataMapper.MaDataToEntity();
-
-				return entity;
+				if (sqlReader.Read())
+					return entityDataMapper.MaDataToEntity<Entity>();
+				else
+					return default;
 			}
 			catch (Exception exception)
 			{
-				Logger.LogError(exception, $"Retrieving records for table {TableName} failed.");
+				Logger.LogError(exception, $"Retrieving records for table: '{TableName}' failed with GUID: {guid}.");
 				throw;
+			}
+			finally
+			{
+				if (this._isConnectionLocal && databaseConnection is not null)
+					databaseConnection.Dispose();
+			}
+		}
+
+		public virtual bool Insert(Entity entity)
+		{
+			DatabaseConnection? databaseConnection = null;
+
+			try
+			{
+				databaseConnection = GetConnection();
+
+				if(entity is BaseEntity)
+				{
+					BaseEntity? baseEntity = entity as BaseEntity;
+
+					if(baseEntity?.Guid.ToString() == string.Empty)
+						baseEntity.Guid = this.GenerateGUID();
+				}
+
+				var insertQuery = new SQLQueryBuilder()
+					.From(this.TableName)
+					.BuildInsert<Entity>(entity);
+
+				SqlCommand sqlCommand = new SqlCommand(insertQuery.ToString(), databaseConnection.InternalConnection);
+
+				if(!this._isConnectionLocal)
+					sqlCommand.Transaction = DatabaseContext.GetCurrentContext?.TransactionContext?.InternalTransaction;
+
+				return sqlCommand.ExecuteNonQuery() > 0;
+			}
+			catch (Exception exception)
+			{
+				Logger.LogError(exception, $"Failed to insert a record for table: '{TableName}'.");
+				return false;
+			}
+			finally
+			{
+				if (this._isConnectionLocal && databaseConnection is not null)
+					databaseConnection.Dispose();
 			}
 		}
 	}

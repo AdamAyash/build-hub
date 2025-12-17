@@ -2,7 +2,7 @@
 
 namespace BuildHub.DataEngine.Entities
 {
-	internal sealed class ColumnMappingData
+	public sealed class ColumnMappingData
 	{
 		public ColumnDescription ColumnDescription { get; private set; }
 		public PropertyInfo PropertyInfo { get; private set; }

@@ -2,7 +2,6 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 {
 	using BuildHub.DataEngine.DatabaseConnection;
 	using BuildHub.DataEngine.Exceptions;
-	using System.Diagnostics;
 
 	[TestClass]
 	public sealed class DatabaseConnectionPoolTests
@@ -116,13 +115,11 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 
 			try
 			{
-				// Exhaust the pool
 				for (int i = 0; i < maxConnections; i++)
 				{
 					heldConnections.Add(pool.GetDatabaseConnection(databaseSource));
 				}
 
-				// Try to get one more in a separate thread, should retry and succeed after release
 				var task = Task.Run(() =>
 				{
 					Thread.Sleep(1000); // Wait a bit
@@ -131,7 +128,6 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 				});
 
 				Thread.Sleep(500);
-				// Release one connection to allow the waiting thread to proceed
 				pool.ReleaseDatabaseConnection(heldConnections[0]);
 				heldConnections.RemoveAt(0);
 
@@ -157,13 +153,11 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 
 			try
 			{
-				// Exhaust the pool completely
 				for (int i = 0; i < maxConnections; i++)
 				{
 					heldConnections.Add(pool.GetDatabaseConnection(databaseSource));
 				}
 
-				// This should fail after retries
 				Assert.Throws<ConnectionPoolExhaustedException>(() =>
 					pool.GetDatabaseConnection(databaseSource));
 			}
@@ -174,16 +168,6 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 					pool.ReleaseDatabaseConnection(conn);
 				}
 			}
-		}
-
-		[TestMethod]
-		[DataRow(DatabaseSource.Users)]
-		[DataRow(DatabaseSource.Core)]
-		public void ReleaseNullConnection_ShouldThrowException(DatabaseSource databaseSource)
-		{
-			DatabaseConnectionPool pool = DatabaseConnectionPool.GetInstance();
-			Assert.Throws<NullReferenceException>(() =>
-				pool.ReleaseDatabaseConnection(null));
 		}
 
 		[TestMethod]

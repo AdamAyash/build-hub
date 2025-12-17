@@ -1,5 +1,7 @@
 ﻿using BuildHub.Common.Utilities;
+using BuildHub.DataEngine.Exceptions;
 using BuildHub.DataEngine.SQLQueries;
+using UnitTests.DataEngineTests.Tables;
 
 namespace UnitTests.DataEngineTests.SQLQueries
 {
@@ -131,10 +133,49 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		public void TopClauseTest(int topClauseCount)
 		{
 			var queryBuilder = new SQLQueryBuilder()
-				.Top(10)
-				.From("USERS");
+				.Top(topClauseCount)
+				.From("USERS")
+				.BuildSelect();
 
 			Assert.AreEqual($"SELECT TOP {topClauseCount} * FROM USERS WITH(NOLOCK)", queryBuilder.ToString());
+		}
+
+		[TestMethod]
+		[DataRow("USERS")]
+		[DataRow("BUILDS")]
+		public void TryToUseNotBuiltQueryTest(string tableName)
+		{
+			var queryBuilder = new SQLQueryBuilder()
+			.From(tableName);
+
+			Assert.Throws<NotBuiltQueryException>(() => queryBuilder.ToString());
+		}
+
+		[TestMethod]
+		[DataRow("USERS")]
+		[DataRow("BUILDS")]
+		public void TryToBuildAQueryMoreThanOnceTest(string tableName)
+		{
+			var queryBuilder = new SQLQueryBuilder()
+			.From(tableName)
+			.BuildSelect();
+
+			Assert.Throws<QueryAlreadyBuiltException>(() => queryBuilder.BuildSelect());
+		}
+
+		[TestMethod]
+		public void InsertQueryTest()
+		{
+			var unitTest = new UnitTest();
+			unitTest.Name = "INSERT TEST";
+			unitTest.Guid = Guid.NewGuid();
+
+			var queryBuilder = new SQLQueryBuilder()
+				.From("UNIT_TESTS")
+				.BuildInsert<UnitTest>(unitTest);
+
+			var query = queryBuilder.ToString();
+			Assert.AreEqual($"INSERT INTO UNIT_TESTS (NAME, GUID) VALUES ('INSERT TEST', '{unitTest.Guid}')", query);
 		}
 	}
 }

@@ -1,24 +1,28 @@
 ﻿namespace BuildHub.DataEngine.Transactions
 {
 	using BuildHub.Common.Logger;
+	using BuildHub.Common.Utilities;
 	using DatabaseConnection;
 	using Microsoft.Data.SqlClient;
 
 	/// <summary>
-	/// 
+	/// A transaction wrapper class that will rollback automatically out of scope.
 	/// </summary>
 	public sealed class ScopedTransaction : ITransactionContext, IDisposable
 	{
-		private readonly DatabaseConnectionContext _databaseConnectionContext;
+		private readonly DatabaseContext _databaseContext;
 		private readonly DatabaseConnection _databaseConnection;
 		private readonly SqlTransaction _internalTransaction;
 		private readonly DatabaseSource _databaseSource;
 		private bool _isDisposed;
 
+		public SqlTransaction InternalTransaction {  get { return _internalTransaction; } }
+
 		public ScopedTransaction(DatabaseSource databaseSource = DatabaseSource.Core)
 		{
-			this._databaseConnectionContext = DatabaseConnectionContext.GetCurrentContext;
-			this._databaseConnection = _databaseConnectionContext.GetConnection(databaseSource);
+			this._databaseContext = DatabaseContext.GetCurrentContext;
+			this._databaseContext.TransactionContext = this;
+			this._databaseConnection = _databaseContext.GetConnection(databaseSource);
 			this._internalTransaction = this.StartTransaction();
 			this._databaseSource = databaseSource;
 			this._isDisposed = false;
@@ -27,11 +31,17 @@
 		}
 		private SqlTransaction StartTransaction()
 		{
+			if (_isDisposed)
+				throw new ObjectDisposedException(Utilities.GetTypeName(typeof(ScopedTransaction)));
+
 			return this._databaseConnection.InternalConnection.BeginTransaction();
 		}
 
 		public bool Commit()
 		{
+			if (_isDisposed)
+				throw new ObjectDisposedException(Utilities.GetTypeName(typeof(ScopedTransaction)));
+
 			try
 			{
 				this._internalTransaction.Commit();
@@ -47,6 +57,9 @@
 
 		public bool Rollback()
 		{
+			if (_isDisposed)
+				throw new ObjectDisposedException(Utilities.GetTypeName(typeof(ScopedTransaction)));
+
 			try
 			{
 				this._internalTransaction.Rollback();
@@ -87,7 +100,7 @@
 					{
 						//TODO throw
 					}
-					this._databaseConnectionContext.Dispose();
+					this._databaseContext.Dispose();
 				}
 
 				_isDisposed = true;
