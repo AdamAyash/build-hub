@@ -25,7 +25,7 @@
 			var databaseContext = DatabaseContext.GetCurrentContext;
 			DatabaseConnection databaseConnection1 = databaseContext.GetConnection(databaseSource);
 
-			Assert.IsTrue(databaseContext.HasContexDatabaseConnection(databaseSource));
+			Assert.IsTrue(databaseContext.HasContextDatabaseConnection(databaseSource));
 		}
 
 		[TestMethod]
@@ -35,28 +35,12 @@
 		{
 			var databaseContext = DatabaseContext.GetCurrentContext;
 			DatabaseConnection databaseConnection1 = databaseContext.GetConnection(databaseSource);
-			Assert.IsTrue(databaseContext.HasContexDatabaseConnection(databaseSource));
+			Assert.IsTrue(databaseContext.HasContextDatabaseConnection(databaseSource));
 
 			Parallel.Invoke(() =>
 			{
 				var databaseContext = DatabaseContext.GetCurrentContext;
-				Assert.IsFalse(databaseContext.HasContexDatabaseConnection(databaseSource));
-			});
-		}
-
-		[TestMethod]
-		[DataRow(DatabaseSource.Users)]
-		[DataRow(DatabaseSource.Core)]
-		public void GetDiffrentThreadContextTest(DatabaseSource databaseSource)
-		{
-			Parallel.Invoke(() =>
-			{
-				var databaseContext = DatabaseContext.GetCurrentContext;
-			});
-
-			Parallel.Invoke(() =>
-			{
-				var databaseContext = DatabaseContext.GetCurrentContext;
+				Assert.IsFalse(databaseContext.HasContextDatabaseConnection(databaseSource));
 			});
 		}
 	}

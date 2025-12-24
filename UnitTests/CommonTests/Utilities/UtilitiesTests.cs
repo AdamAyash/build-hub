@@ -14,13 +14,13 @@ namespace UnitTests.CommonTests.Utilities
 		}
 
 		[TestMethod]
-		public void GetEnumDescriptionTest()
+		public void Enum_Description_Should_Match()
 		{
 			Assert.AreEqual("TestDescription", Utilities.GetEnumDescription<TestEnumeration>(TestEnumeration.Test));
 		}
 
 		[TestMethod]
-		public void GetNotExistingEnumDescriptionTest()
+		public void Aseert_That_Enum_Without_Description_Returns_Empty_String()
 		{
 			Assert.AreEqual(string.Empty, Utilities.GetEnumDescription<TestEnumeration>(TestEnumeration.InvalidTest));
 		}

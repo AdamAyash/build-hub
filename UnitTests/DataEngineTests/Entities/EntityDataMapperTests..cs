@@ -9,13 +9,13 @@
 		[TestMethod]
 		public void GetColumnNameTest()
 		{
-			Assert.AreEqual("NAME", EntityDataMapper.GetColumnName<UnitTest>(x => x.Name));
+			Assert.AreEqual("NAME", EntityDataMapper.GetColumnInfo<UnitTest>(x => x.Name).ColumnName);
 		}
 
 		[TestMethod]
 		public void GetPrimaryKeyMappingDataTest()
 		{
-			Assert.AreEqual("GUID", EntityDataMapper.GetPrimaryKeyMappingData<UnitTest>().ColumnDescription.ColumnName);
+			Assert.AreEqual("GUID", EntityDataMapper.GetPrimaryKeyMappingData<UnitTest>().ColumnInfo.ColumnName);
 		}
 	}
 }

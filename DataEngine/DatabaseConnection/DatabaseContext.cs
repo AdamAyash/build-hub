@@ -14,6 +14,7 @@ namespace BuildHub.DataEngine.DatabaseConnection
 		private readonly DatabaseConnectionPool _databaseConnectionPool = DatabaseConnectionPool.GetInstance();
 		private readonly Dictionary<DatabaseSource, DatabaseConnection> _contextDatabaseConnections;
 		private bool _isDisposed = false;
+
 		public ITransactionContext? TransactionContext { get; set; }
 
 		private DatabaseContext()
@@ -35,7 +36,7 @@ namespace BuildHub.DataEngine.DatabaseConnection
 		/// </summary>
 		/// <param name="databaseSource">The database source to check for an existing connection.</param>
 		/// <returns><see langword="true"/> if a connection to the specified database source exists; otherwise</returns>
-		public bool HasContexDatabaseConnection(DatabaseSource databaseSource) => this._contextDatabaseConnections.ContainsKey(databaseSource);
+		public bool HasContextDatabaseConnection(DatabaseSource databaseSource) => this._contextDatabaseConnections.ContainsKey(databaseSource);
 
 		/// <summary>
 		/// Gets a connection for the specified database source, reusing if already exists in context
@@ -49,7 +50,7 @@ namespace BuildHub.DataEngine.DatabaseConnection
 
 			if (this._contextDatabaseConnections.TryGetValue(databaseSource, out var existingConnection))
 			{
-				DatabaseConnectionValidator databaseConnectionValidator = new(existingConnection);
+				DatabaseConnectionValidator databaseConnectionValidator = new(existingConnection, this.TransactionContext);
 				if(databaseConnectionValidator.TestDatabaseConnection())
 					return existingConnection;
 			}

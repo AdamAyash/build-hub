@@ -1,4 +1,5 @@
 ﻿using BuildHub.DataEngine.Exceptions;
+using Microsoft.Data.SqlClient;
 
 namespace UnitTests.DataEngineTests.Tables
 {
@@ -29,34 +30,16 @@ namespace UnitTests.DataEngineTests.Tables
 		}
 
 		[TestMethod]
-		[DataRow("5DC46FBF-5522-4D76-87D7-A148A4A0B419")]
-		public void GetByGuidTest(string guid)
-		{
-			var unitTestTable = new UnitTestsTable();
-			var unitTest = unitTestTable.GetByGuid(Guid.Parse(guid));
-
-			Assert.IsNotNull(unitTest);
-			Assert.IsGreaterThan(0, unitTest.Id);		
-		}
-
-		[TestMethod]
-		[DataRow("5DC46FBF-5522-4D76-87D7-A148A4A0B418")]
-		public void GetNotExistinUnitTestgByGuidTest(string guid)
-		{
-			var unitTestTable = new UnitTestsTable();
-			var unitTest = unitTestTable.GetByGuid(Guid.Parse(guid));
-
-			Assert.IsNull(unitTest);
-		}
-
-		[TestMethod]
 		public void InsertUnitTest()
 		{
 			var unitTest = new UnitTest();
 			unitTest.Name = "Insert Test";
 
 			var unitTestTable = new UnitTestsTable();
-			Assert.IsTrue(unitTestTable.Insert(unitTest));
+			unitTestTable.Insert(unitTest);
+
+			var dbUnitTest = unitTestTable.GetByCondition(unitTest => unitTest.Guid).First();
+			Assert.AreEqual(unitTest, dbUnitTest);
 		}
 
 		[TestMethod]
@@ -66,8 +49,8 @@ namespace UnitTests.DataEngineTests.Tables
 			unitTest.Name = "Insert Test";
 
 			var unitTestTable = new UnitTestsTable();
-			Assert.IsTrue(unitTestTable.Insert(unitTest));
-			Assert.IsFalse(unitTestTable.Insert(unitTest));
+			unitTestTable.Insert(unitTest);
+			Assert.Throws<SqlException>( () => unitTestTable.Insert(unitTest));
 		}
 	}
 }

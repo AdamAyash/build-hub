@@ -8,11 +8,11 @@
 	public class BaseEntity : IEntity
 	{
 		[Identity]
-		[ColumnDescription("ID")]
+		[ColumnInfo("ID")]
 		public int Id { get; private set; }
 
 		[PrimaryKey]
-		[ColumnDescription("GUID")]
+		[ColumnInfo("GUID")]
 		public Guid Guid { get; set; }
 
 		public BaseEntity()

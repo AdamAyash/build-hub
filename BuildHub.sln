@@ -1,16 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36705.20 d17.14
+# Visual Studio Version 18
+VisualStudioVersion = 18.1.11312.151 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API", "API\API.csproj", "{F8DB5826-399E-45A4-B48A-80CFADC5C13F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataEngine", "DataEngine\DataEngine.csproj", "{E69BE106-74D4-4B36-A8E2-D71CD4C4738B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "UnitTests\UnitTests.csproj", "{7F66EEA2-9B29-47E5-B04B-5836B5836DCE}"
-	ProjectSection(ProjectDependencies) = postProject
-		{62CE4BA6-0AD7-4CDA-925E-B4E7F746462B} = {62CE4BA6-0AD7-4CDA-925E-B4E7F746462B}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csproj", "{62CE4BA6-0AD7-4CDA-925E-B4E7F746462B}"
 EndProject
@@ -21,30 +18,27 @@ EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Core", "Databases\Core\Core.sqlproj", "{99057605-9754-4ECA-8B60-CC8848E0B575}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
-	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Databases", "Databases", "{C6996FAE-F5C3-4B33-9C1C-3B65F684C8E4}"
 EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Frontend", "Frontend\", "{BEC1AF4D-7070-47DE-541E-D6A8B557E3AB}"
 	ProjectSection(WebsiteProperties) = preProject
 		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.8"
-		Debug.AspNetCompiler.VirtualPath = "/localhost_55610"
+		Debug.AspNetCompiler.VirtualPath = "/localhost_58277"
 		Debug.AspNetCompiler.PhysicalPath = "Frontend\"
-		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_55610\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_58277\"
 		Debug.AspNetCompiler.Updateable = "true"
 		Debug.AspNetCompiler.ForceOverwrite = "true"
 		Debug.AspNetCompiler.FixedNames = "false"
 		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.VirtualPath = "/localhost_55610"
+		Release.AspNetCompiler.VirtualPath = "/localhost_58277"
 		Release.AspNetCompiler.PhysicalPath = "Frontend\"
-		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_55610\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_58277\"
 		Release.AspNetCompiler.Updateable = "true"
 		Release.AspNetCompiler.ForceOverwrite = "true"
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "55610"
+		VWDPort = "58277"
 		SlnRelativePath = "Frontend\"
 	EndProjectSection
 EndProject

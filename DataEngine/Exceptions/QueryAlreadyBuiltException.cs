@@ -3,7 +3,7 @@
 	public class QueryAlreadyBuiltException : Exception
 	{
 		public QueryAlreadyBuiltException()
-			: base("The specified qury has already been built.")
+			: base("The specified query has already been built.")
 		{
 		}
 	}

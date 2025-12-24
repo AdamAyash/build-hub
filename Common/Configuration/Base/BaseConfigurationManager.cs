@@ -74,10 +74,10 @@ namespace BuildHub.Common.Configuration.Base
 		/// <typeparam name="ConfigurationModelConfigurationModel>Type of the configuration</typeparam>
 		/// <param name="key"></param>
 		/// <returns>IEnumerable<ConfugurationSettingsModel></returns>
-		public IEnumerable<ConfigurationModel>? GetConfigurationModels<ConfigurationModel>(string key)
+		public IReadOnlyList<ConfigurationModel>? GetConfigurationModels<ConfigurationModel>(string key)
 			  where ConfigurationModel : IConfigurationModel
 		{
-			return _configuration!.GetSection(key).Get<IEnumerable<ConfigurationModel>>();
+			return _configuration!.GetSection(key).Get<IReadOnlyList<ConfigurationModel>>();
 		}
 	}
 }

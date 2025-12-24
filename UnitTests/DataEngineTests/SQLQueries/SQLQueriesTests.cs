@@ -23,7 +23,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 				.From(tableName)
 				.BuildSelect();
 
-			Assert.AreEqual($"SELECT * FROM {tableName} WITH(NOLOCK)", queryBuilder.ToString());
+			Assert.AreEqual($"SELECT * FROM {tableName} WITH(NOLOCK)", queryBuilder.GetQuery());
 		}
 
 		[TestMethod]
@@ -36,7 +36,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 				.Lock(lockType)
 				.BuildSelect();
 
-			Assert.AreEqual($"SELECT * FROM {tableName} WITH({Utilities.GetEnumDescription<LockTypes>(lockType)})", queryBuilder.ToString());
+			Assert.AreEqual($"SELECT * FROM {tableName} WITH({Utilities.GetEnumDescription<LockTypes>(lockType)})", queryBuilder.GetQuery());
 		}
 
 		[TestMethod]
@@ -54,7 +54,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 				.BuildSelect();
 
 			string compareOperator = Utilities.GetEnumDescription<CompareTypes>(compareTypes);
-			Assert.AreEqual($"SELECT * FROM {tableName} WITH(NOLOCK) WHERE {columnName} {compareOperator} {value}", queryBuilder.ToString());
+			Assert.AreEqual($"SELECT * FROM {tableName} WITH(NOLOCK) WHERE {columnName} {compareOperator} {value}", queryBuilder.GetQuery());
 		}
 
 		[TestMethod]
@@ -72,7 +72,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 				.BuildSelect();
 
 			string compareOperator = Utilities.GetEnumDescription<CompareTypes>(compareTypes);
-			Assert.AreEqual($"SELECT * FROM {tableName} WITH(NOLOCK) WHERE {columnName} {compareOperator} '{value}'", queryBuilder.ToString());
+			Assert.AreEqual($"SELECT * FROM {tableName} WITH(NOLOCK) WHERE {columnName} {compareOperator} '{value}'", queryBuilder.GetQuery());
 		}
 
 		[TestMethod]
@@ -100,10 +100,10 @@ namespace UnitTests.DataEngineTests.SQLQueries
 				.Where(columnName, compareTypes, new DateTime(year, month, day))
 				.BuildSelect();
 
-			string dateToStringFormat = Utilities.FormatDateTime(new DateTime(year, month, day));
+			string dateGetQueryFormat = Utilities.FormatDateTime(new DateTime(year, month, day));
 			string compareOperator = Utilities.GetEnumDescription<CompareTypes>(compareTypes);
 
-			Assert.AreEqual($"SELECT * FROM {tableName} WITH(NOLOCK) WHERE {columnName} {compareOperator} '{dateToStringFormat}'", queryBuilder.ToString());
+			Assert.AreEqual($"SELECT * FROM {tableName} WITH(NOLOCK) WHERE {columnName} {compareOperator} '{dateGetQueryFormat}'", queryBuilder.GetQuery());
 		}
 
 		[TestMethod]
@@ -119,7 +119,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 				.From("USERS")
 				.BuildSelect();
 
-			Assert.AreEqual("SELECT * FROM USERS WITH(NOLOCK)", newQueryBuilder.ToString());
+			Assert.AreEqual("SELECT * FROM USERS WITH(NOLOCK)", newQueryBuilder.GetQuery());
 		}
 
 
@@ -137,7 +137,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 				.From("USERS")
 				.BuildSelect();
 
-			Assert.AreEqual($"SELECT TOP {topClauseCount} * FROM USERS WITH(NOLOCK)", queryBuilder.ToString());
+			Assert.AreEqual($"SELECT TOP {topClauseCount} * FROM USERS WITH(NOLOCK)", queryBuilder.GetQuery());
 		}
 
 		[TestMethod]
@@ -148,7 +148,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 			var queryBuilder = new SQLQueryBuilder()
 			.From(tableName);
 
-			Assert.Throws<NotBuiltQueryException>(() => queryBuilder.ToString());
+			Assert.Throws<NotBuiltQueryException>(() => queryBuilder.GetQuery());
 		}
 
 		[TestMethod]
@@ -174,7 +174,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 				.From("UNIT_TESTS")
 				.BuildInsert<UnitTest>(unitTest);
 
-			var query = queryBuilder.ToString();
+			var query = queryBuilder.GetQuery();
 			Assert.AreEqual($"INSERT INTO UNIT_TESTS (NAME, GUID) VALUES ('INSERT TEST', '{unitTest.Guid}')", query);
 		}
 	}

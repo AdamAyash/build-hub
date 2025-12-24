@@ -1,11 +1,15 @@
 ﻿namespace BuildHub.DataEngine.Tables.Base
 {
-	using BuildHub.Common.Logger;
-	using DatabaseConnection;
+	#region
 	using Entities;
-	using Microsoft.Data.SqlClient;
 	using SQLQueries;
 	using System;
+	using DatabaseConnection;
+	using BuildHub.Common.Logger;
+	using System.Linq.Expressions;
+	using Microsoft.Data.SqlClient;
+	using BuildHub.DataEngine.Exceptions;
+	#endregion
 
 	/// <summary>
 	/// Provides a base class for database table access, supporting retrieval of all entities of a specified type.
@@ -21,6 +25,7 @@
 		private readonly DatabaseSource _databaseSource;
 
 		private bool _isConnectionLocal;
+		private DatabaseConnection? _databaseConnection;
 
 		public string TableName { get; private set; }
 
@@ -29,6 +34,7 @@
 			this._databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
 			this._databaseSource = databaseSource;
 			this._isConnectionLocal = false;
+			this._databaseConnection = null;
 			this.TableName = tableName;
 		}
 
@@ -42,23 +48,55 @@
 		/// Resolves whether to use a context connection from the current thread or use a local one.
 		/// </summary>
 		/// <returns></returns>
-		private DatabaseConnection GetConnection()
+		private DatabaseConnection GetDatabaseConnection()
 		{
-			DatabaseConnection databaseConnection;
-
 			var databaseConnectionContext = DatabaseContext.GetCurrentContext;
-			if (databaseConnectionContext.HasContexDatabaseConnection(this._databaseSource))
+			if (databaseConnectionContext.HasContextDatabaseConnection(this._databaseSource))
 			{
-				databaseConnection = databaseConnectionContext.GetConnection(this._databaseSource);
+				this._databaseConnection = databaseConnectionContext.GetConnection(this._databaseSource);
 				this._isConnectionLocal = false;
 			}
 			else
 			{
-				databaseConnection = this._databaseConnectionPoolInstance.GetDatabaseConnection(this._databaseSource);
+				this._databaseConnection = this._databaseConnectionPoolInstance.GetDatabaseConnection(this._databaseSource);
 				this._isConnectionLocal = true;
 			}
 
-			return databaseConnection;
+			return this._databaseConnection;
+		}
+
+		/// <summary>
+		/// Releases the database connection if it is locally owned by the current instance.
+		/// </summary>
+		/// <remarks>This method disposes of the database connection only if the connection was created and is managed
+		/// by this instance. It should be called to ensure that local resources are properly released when they are no longer
+		/// needed.</remarks>
+		private void ReleaseDatabaseConnection()
+		{
+			if (this._isConnectionLocal && this._databaseConnection is not null)
+				this._databaseConnection.Dispose();
+		}
+
+		/// <summary>
+		/// Forms a SQL SELECT query that retrieves an entity by its primary key using the specified GUID value.
+		/// </summary>
+		/// <param name="guid">The GUID value to match against the primary key column in the query.</param>
+		/// <returns>A string containing the SQL SELECT statement that filters by the specified GUID primary key.</returns>
+		private string GenerateSelectQueryByPrimaryKey(Entity entity, bool withLock = false)
+		{
+			ColumnMappingData primaryKeyMappingData = EntityDataMapper.GetPrimaryKeyMappingData<Entity>();
+
+			object? primaryKeyValue = EntityDataMapper.GetColumnValue<Entity>(entity, primaryKeyMappingData.PropertyInfo);
+			if(primaryKeyValue is null)
+				throw new ArgumentNullException("Null primary key value");
+
+			var query = new SQLQueryBuilder()
+				.From(this.TableName)
+				.Where(primaryKeyMappingData.ColumnInfo.ColumnName, primaryKeyValue)
+				.Lock(withLock ? LockTypes.Update : LockTypes.None)
+				.BuildSelect();
+
+			return query.GetQuery();
 		}
 
 		/// <summary>
@@ -71,25 +109,21 @@
 		/// collection will be empty if no records are present.</returns>
 		public virtual IEnumerable<Entity> GetAll()
 		{
-			DatabaseConnection? databaseConnection = null;
-
 			try
 			{
-				databaseConnection = this.GetConnection();
+				this._databaseConnection = this.GetDatabaseConnection();
 
-				var query = new SQLQueryBuilder()
+				var queryBuilder = new SQLQueryBuilder()
 					.From(this.TableName)
 					.BuildSelect();
 
-				SqlCommand sqlCommand = new SqlCommand(query.ToString(), databaseConnection.InternalConnection);
+				using SqlCommand sqlCommand = new SqlCommand(queryBuilder.GetQuery(), this._databaseConnection.InternalConnection);
 				using var sqlReader = sqlCommand.ExecuteReader();
-
-				var entityDataMapper = new EntityDataMapper(sqlReader);
 
 				var entities = new List<Entity>();
 				while (sqlReader.Read())
 				{
-					var entity = entityDataMapper.MaDataToEntity<Entity>();
+					var entity = EntityDataMapper.MapDataToEntity<Entity>(sqlReader);
 					entities.Add(entity);
 				}
 
@@ -102,88 +136,150 @@
 			}
 			finally
 			{
-				if (this._isConnectionLocal && databaseConnection is not null)
-					databaseConnection.Dispose();
+				this.ReleaseDatabaseConnection();
 			}
 		}
-		private string FormQueryByGuid(Guid guid)
+
+		public virtual Entity GetByGuid(Guid guid)
 		{
-			ColumnMappingData primaryKeyMappingData = EntityDataMapper.GetPrimaryKeyMappingData<Entity>();
-			var query = new SQLQueryBuilder()
-				.From(this.TableName)
-				.Where(primaryKeyMappingData.ColumnDescription.ColumnName, guid)
-				.BuildSelect();
-
-			return query.ToString();
-		}
-
-		public Entity GetByGuid(Guid guid)
-		{
-			DatabaseConnection? databaseConnection = null;
-
 			try
 			{
-				databaseConnection = GetConnection();
+				this._databaseConnection = this.GetDatabaseConnection();
 
-				var query = FormQueryByGuid(guid);
-				SqlCommand sqlCommand = new SqlCommand(query, databaseConnection.InternalConnection);
+				var primaryKeyColumnInfo = EntityDataMapper.GetPrimaryKeyMappingData<Entity>().ColumnInfo;
+				var queryBuilder = new SQLQueryBuilder()
+					.From(this.TableName)
+					.Where(primaryKeyColumnInfo.ColumnName, guid)
+					.BuildSelect();
 
+				using SqlCommand sqlCommand = new SqlCommand(queryBuilder.GetQuery(), this._databaseConnection.InternalConnection);
 				using var sqlReader = sqlCommand.ExecuteReader();
-				var entityDataMapper = new EntityDataMapper(sqlReader);
 
-				if (sqlReader.Read())
-					return entityDataMapper.MaDataToEntity<Entity>();
-				else
-					return default;
+				if (!sqlReader.Read())
+					throw new EntityDoesNotExistException();
+
+				return EntityDataMapper.MapDataToEntity<Entity>(sqlReader);
 			}
 			catch (Exception exception)
 			{
-				Logger.LogError(exception, $"Retrieving records for table: '{TableName}' failed with GUID: {guid}.");
+				Logger.LogError(exception, $"Retrieving records for table {TableName} failed.");
 				throw;
 			}
 			finally
 			{
-				if (this._isConnectionLocal && databaseConnection is not null)
-					databaseConnection.Dispose();
+				this.ReleaseDatabaseConnection();
 			}
 		}
 
-		public virtual bool Insert(Entity entity)
+		public virtual IEnumerable<Entity> GetByCondition(IQueryBuilder queryBuilder)
+		{
+			try
+			{
+				this._databaseConnection = this.GetDatabaseConnection();
+
+				using SqlCommand sqlCommand = new SqlCommand(queryBuilder.GetQuery(), this._databaseConnection.InternalConnection);
+				using var sqlReader = sqlCommand.ExecuteReader();
+
+				var entities = new List<Entity>();
+				while (sqlReader.Read())
+				{
+					var entity = EntityDataMapper.MapDataToEntity<Entity>(sqlReader);
+					entities.Add(entity);
+				}
+
+				return entities;
+			}
+			catch (Exception exception)
+			{
+				Logger.LogError(exception, $"Retrieving records for table {TableName} failed.");
+				throw;
+			}
+			finally
+			{
+				this.ReleaseDatabaseConnection();
+			}
+		}
+
+		public virtual void Insert(Entity entity)
 		{
 			DatabaseConnection? databaseConnection = null;
 
 			try
 			{
-				databaseConnection = GetConnection();
+				databaseConnection = GetDatabaseConnection(); 
 
 				if(entity is BaseEntity)
 				{
 					BaseEntity? baseEntity = entity as BaseEntity;
 
-					if(baseEntity?.Guid.ToString() == string.Empty)
+					if(baseEntity?.Guid == Guid.Empty)
 						baseEntity.Guid = this.GenerateGUID();
 				}
 
-				var insertQuery = new SQLQueryBuilder()
+				var queryBuilder = new SQLQueryBuilder()
 					.From(this.TableName)
-					.BuildInsert<Entity>(entity);
+					.BuildInsert(entity);
 
-				SqlCommand sqlCommand = new SqlCommand(insertQuery.ToString(), databaseConnection.InternalConnection);
+				using SqlCommand sqlCommand = new SqlCommand(queryBuilder.GetQuery(), databaseConnection.InternalConnection);
 
 				if(!this._isConnectionLocal)
 					sqlCommand.Transaction = DatabaseContext.GetCurrentContext?.TransactionContext?.InternalTransaction;
 
-				return sqlCommand.ExecuteNonQuery() > 0;
+				 sqlCommand.ExecuteNonQuery();
 			}
 			catch (Exception exception)
 			{
 				Logger.LogError(exception, $"Failed to insert a record for table: '{TableName}'.");
-				return false;
+				throw;
 			}
 			finally
 			{
-				if (this._isConnectionLocal && databaseConnection is not null)
-					databaseConnection.Dispose();
+				this.ReleaseDatabaseConnection();
+			}
+		}
+
+		public virtual void Update(Entity entity)
+		{
+			try
+			{
+				this._databaseConnection = GetDatabaseConnection();
+				var selectQuery = GenerateSelectQueryByPrimaryKey(entity, true);
+				using SqlCommand sqlCommand = new SqlCommand(selectQuery, this._databaseConnection.InternalConnection);
+
+				if (!this._isConnectionLocal)
+					sqlCommand.Transaction = DatabaseContext.GetCurrentContext?.TransactionContext?.InternalTransaction;
+
+				var sqlReader = sqlCommand.ExecuteReader();
+
+				Entity existingEntity;
+
+				if (sqlReader.Read())
+					existingEntity = EntityDataMapper.MapDataToEntity<Entity>(sqlReader);
+				else
+					throw new EntityDoesNotExistException();
+
+				if (entity is VersionedEntity)
+				{
+					VersionedEntity? existingVersionedEntity = existingEntity as VersionedEntity;
+					VersionedEntity? currentVersionedEntity = entity as VersionedEntity;
+
+					if (existingVersionedEntity is not null && currentVersionedEntity is not null)
+					{
+						if (existingVersionedEntity.Version != currentVersionedEntity.Version)
+							throw new InconsistentEntityVersionException();
+
+						currentVersionedEntity.Version++;
+					}
+				}
+			}
+			catch (Exception exception)
+			{
+				Logger.LogError(exception, $"Failed to update a record for table: '{TableName}'.");
+				throw;
+			}
+			finally
+			{
+				this.ReleaseDatabaseConnection();
 			}
 		}
 	}

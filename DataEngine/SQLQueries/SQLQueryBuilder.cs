@@ -1,20 +1,29 @@
-﻿using BuildHub.Common.Logger;
+﻿#region
+using BuildHub.Common.Logger;
 using BuildHub.Common.Utilities;
 using BuildHub.DataEngine.Entities;
 using BuildHub.DataEngine.Exceptions;
-using Microsoft.Extensions.Primitives;
-using System.Reflection;
 using System.Text;
+#endregion
 
 namespace BuildHub.DataEngine.SQLQueries
 {
 	using WhereCondition = Tuple<string, CompareTypes, object>;
+
+	/// <summary>
+	/// Provides a builder for constructing SQL SELECT and INSERT queries in a fluent, composable manner.
+	/// </summary>
+	/// <remarks>The SQLQueryBuilder enables the creation of parameterized SQL queries by chaining method calls to
+	/// specify the table, columns, WHERE conditions, locking behavior, and result limits. It is designed for scenarios
+	/// where dynamic query generation is required, such as data access layers or repository implementations. The builder
+	/// enforces correct usage by throwing exceptions if a query is built more than once without resetting. This class is
+	/// not thread-safe; each instance should be used by a single thread at a time.</remarks>
 	public sealed class SQLQueryBuilder : IQueryBuilder
 	{
 		private readonly List<WhereCondition> _whereStatements = new List<WhereCondition>();
 
-		private string _tableName;
-		private string _query;
+		private string _tableName = string.Empty;
+		private string _query = string.Empty;
 		private LockTypes _lockType;
 		private int _topStatementCount;
 
@@ -22,7 +31,7 @@ namespace BuildHub.DataEngine.SQLQueries
 
 		public SQLQueryBuilder() => this.Reset();
 
-		private string ProcessValue(object value)
+		private string ProcessValue(object? value)
 		{
 			if(value is string)
 				return Utilities.Stringify(value);
@@ -33,7 +42,7 @@ namespace BuildHub.DataEngine.SQLQueries
 			if(value is Guid)
 				return Utilities.Stringify(value);
 
-			return value.ToString() ?? string.Empty;
+			return value?.ToString() ?? string.Empty;
 		}
 
 		private bool ValidateQueryParameters(object value)
@@ -108,7 +117,7 @@ namespace BuildHub.DataEngine.SQLQueries
 			queryStringBuilder.Append($"INSERT INTO {this._tableName} ");
 			queryStringBuilder.Append("(");
 
-			var properties = Utilities.GetObjectProiperties<Entity>();
+			var properties = Utilities.GetObjectProperties<Entity>();
 			var columnNames = new List<string>();
 			var values = new List<object>();
 
@@ -117,7 +126,7 @@ namespace BuildHub.DataEngine.SQLQueries
 				if (EntityDataMapper.HasIdentityColumn(property))
 					continue;
 
-				columnNames.Add(EntityDataMapper.GetColumnName(property));
+				columnNames.Add(EntityDataMapper.GetColumnInfo(property).ColumnName);
 				values.Add(ProcessValue(property.GetValue(entity)));
 			}
 
@@ -175,7 +184,7 @@ namespace BuildHub.DataEngine.SQLQueries
 			return this;
 		}
 
-		public override string ToString()
+		public string GetQuery()
 		{
 			if (!_isQueryBuilt)
 			{

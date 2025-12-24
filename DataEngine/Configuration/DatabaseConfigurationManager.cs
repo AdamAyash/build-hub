@@ -1,6 +1,8 @@
-﻿using BuildHub.Common.Configuration.Base;
+﻿#region
+using BuildHub.Common.Configuration.Base;
 using BuildHub.DataEngine.Exceptions;
 using Microsoft.Extensions.Configuration;
+#endregion
 
 namespace BuildHub.DataEngine.Configuration
 {
@@ -58,7 +60,7 @@ namespace BuildHub.DataEngine.Configuration
 
 		private void LoadDatabaseConfigurations()
 		{
-			List<DatabaseConfiguration>? databaseConfigurations = GetConfigurationModels<DatabaseConfiguration>(_DATABASE_CONFIGURATIONS_KEY).ToList();
+			IReadOnlyList<DatabaseConfiguration>? databaseConfigurations = GetConfigurationModels<DatabaseConfiguration>(_DATABASE_CONFIGURATIONS_KEY);
 			if(databaseConfigurations is null)
 				throw new MissingDatabaseConfigurationException();
 

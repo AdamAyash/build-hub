@@ -1,4 +1,5 @@
 using BuildHub.Common.Logger;
+using BuildHub.DataEngine.Transactions;
 using Microsoft.Data.SqlClient;
 
 namespace BuildHub.DataEngine.DatabaseConnection
@@ -17,10 +18,13 @@ namespace BuildHub.DataEngine.DatabaseConnection
 		/// Database connection member
 		/// </summary>
 		private readonly DatabaseConnection _databaseConnection;
+		private readonly ITransactionContext? _transactionContext;
 
-		public DatabaseConnectionValidator(DatabaseConnection databaseConnection)
+		public DatabaseConnectionValidator(DatabaseConnection databaseConnection, 
+			ITransactionContext? transactionContext = null)
 		{
 			this._databaseConnection = databaseConnection;
+			this._transactionContext = transactionContext;
 		}
 
 		/// <summary>
@@ -37,6 +41,8 @@ namespace BuildHub.DataEngine.DatabaseConnection
 			try
 			{
 				var testQuery = new SqlCommand(_TEST_SQL_QUERY, _databaseConnection.InternalConnection);
+					testQuery.Transaction = _transactionContext?.InternalTransaction;
+
 				isSuccessful = Convert.ToInt32(testQuery.ExecuteScalar()) == 1;
 			}
 			catch (Exception exception)

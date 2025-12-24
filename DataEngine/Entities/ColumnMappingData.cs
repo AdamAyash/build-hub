@@ -4,12 +4,12 @@ namespace BuildHub.DataEngine.Entities
 {
 	public sealed class ColumnMappingData
 	{
-		public ColumnDescription ColumnDescription { get; private set; }
+		public ColumnInfo ColumnInfo { get; private set; }
 		public PropertyInfo PropertyInfo { get; private set; }
 
-		public ColumnMappingData(ColumnDescription columnDescription, PropertyInfo PropertyInfo)
+		public ColumnMappingData(ColumnInfo columnInfo, PropertyInfo PropertyInfo)
 		{
-			this.ColumnDescription = columnDescription;
+			this.ColumnInfo = columnInfo;
 			this.PropertyInfo = PropertyInfo;
 		}
 	}

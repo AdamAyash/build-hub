@@ -4,10 +4,10 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 	using BuildHub.DataEngine.Exceptions;
 
 	[TestClass]
+	[DoNotParallelize]
 	public sealed class DatabaseConnectionPoolTests
 	{
 		[TestMethod]
-		[DoNotParallelize]
 		public void GetInstanceTest()
 		{
 			DatabaseConnectionPool databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
@@ -223,7 +223,8 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 		public void TryToGetConnectionFromEmptyPool(DatabaseSource databaseSource)
 		{
 			DatabaseConnectionPool pool = DatabaseConnectionPool.GetInstance();
-			int maxConnections = pool.GetCurrentlyUsedConnectionsCount(databaseSource);
+			int maxConnections = pool.GetAvailableDatabaseConnectionsCount(databaseSource);
+
 			Parallel.For(0, maxConnections, x =>
 			{
 				var connection = pool.GetDatabaseConnection(databaseSource);

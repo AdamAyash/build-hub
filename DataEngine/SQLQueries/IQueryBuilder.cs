@@ -72,5 +72,12 @@ namespace BuildHub.DataEngine.SQLQueries
 		/// <param name="lockType">The type of lock to apply, represented by a value from the <see cref="LockTypes"/> enumeration.</param>
 		/// <returns>An instance of <see cref="IQueryBuilder"/> with the specified locking behavior applied.</returns>
 		IQueryBuilder Lock(LockTypes lockType);
+
+		
+		/// <summary>
+		/// Retrieves the SQL query string associated with the current context.
+		/// </summary>
+		/// <returns>A string containing the SQL query. The string is empty if no query is defined.</returns>
+		string GetQuery();
 	}
 }

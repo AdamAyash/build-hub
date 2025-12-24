@@ -13,14 +13,14 @@ namespace UnitTests.CommonTests.ConfigurationManager
 		}
 
 		[TestMethod]
-		public void GetInstanceTest()
+		public void Get_Instance()
 		{
 			ConfigurationManager configurationManager = ConfigurationManager.GetConfigurationManager();
 			Assert.IsNotNull(configurationManager);
 		}
 
 		[TestMethod]
-		public void GetTestConfigurationModelTest()
+		public void Try_To_Get_Test_Configuration_Model()
 		{
 			ConfigurationManager configurationManager = ConfigurationManager.GetConfigurationManager();
 			TestConfiguration? testConfigurationModel = configurationManager.GetConfigurationModel<TestConfiguration>("TestConfiguration");
@@ -29,7 +29,7 @@ namespace UnitTests.CommonTests.ConfigurationManager
 		}
 
 		[TestMethod]
-		public void GetTestConfigurationModelAndCompareValuesTest()
+		public void Try_To_Get_Test_Configuration_Model_And_Compare_If_Values_Match()
 		{
 			ConfigurationManager configurationManager = ConfigurationManager.GetConfigurationManager();
 			TestConfiguration? testConfigurationModel = configurationManager.GetConfigurationModel<TestConfiguration>("TestConfiguration");
@@ -38,7 +38,7 @@ namespace UnitTests.CommonTests.ConfigurationManager
 		}
 
 		[TestMethod]
-		public void GetNonExistingTestConfigurationModelTest()
+		public void Try_To_Get_Not_Existing_Config_And_Aseert_Its_Null()
 		{
 			ConfigurationManager configurationManager = ConfigurationManager.GetConfigurationManager();
 			TestConfiguration? testConfigurationModel = configurationManager.GetConfigurationModel<TestConfiguration>("NotExistingTestConfiguration");
@@ -47,7 +47,7 @@ namespace UnitTests.CommonTests.ConfigurationManager
 		}
 
 		[TestMethod]
-		public void GetTestConfigurationModels()
+		public void Get_Test_Configuration_List_And_Check_If_Number_Of_Configurations_Match()
 		{
 			ConfigurationManager configurationManager = ConfigurationManager.GetConfigurationManager();
 			IEnumerable<TestConfiguration>? testConfigurations = configurationManager.GetConfigurationModels<TestConfiguration>("TestConfigurations");
