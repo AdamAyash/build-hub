@@ -26,10 +26,10 @@ namespace UnitTests.CommonTests.Utilities
 		}
 
 		[TestMethod]
-		[DataRow("Buid")]
+		[DataRow("Build")]
 		[DataRow("User Password")]
 		[DataRow("Build -  Hub")]
-		public void StringifyTest(string text)
+		public void Stringify_And_Match(string text)
 		{
 			Assert.AreEqual<string>($"'{text}'", Utilities.Stringify(text));
 		}

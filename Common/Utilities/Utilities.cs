@@ -17,7 +17,7 @@ namespace BuildHub.Common.Utilities
 		/// <summary>
 		/// Retrieves a description attribute from an enumeration
 		/// </summary>
-		/// <typeparam name="EnumType">Type parameter for enums</typeparam>
+		/// <typeparam name="EnumType">Type parameter for enumerations</typeparam>
 		/// <param name="enumeration">Value of the enum</param>
 		/// <returns>string</returns>
 		public static string GetEnumDescription<EnumType>(Enum enumeration)
@@ -66,12 +66,11 @@ namespace BuildHub.Common.Utilities
 		/// <summary>
 		/// Retrieves the public properties of the specified type.
 		/// </summary>
-		/// <typeparam name="Object">The type whose public properties are to be retrieved.</typeparam>
+		/// <typeparam name="TObject">The type whose public properties are to be retrieved.</typeparam>
 		/// <returns>An <see cref="IEnumerable{PropertyInfo}"/> containing the public properties of the specified type. The collection
 		/// is empty if the type has no public properties.</returns>
-		public static IEnumerable<PropertyInfo> GetObjectProperties<Object>() 
-			=> typeof(Object).GetProperties(BindingFlags.Instance |
-				   BindingFlags.Public | BindingFlags.NonPublic).ToList().OrderBy(property => property.MetadataToken);
+		public static IEnumerable<PropertyInfo> GetObjectProperties<TObject>() 
+			=> typeof(TObject).GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).ToList().OrderBy(property => property.MetadataToken);
 
 		/// <summary>
 		/// Gets the value of a property using reflection
@@ -87,11 +86,11 @@ namespace BuildHub.Common.Utilities
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <typeparam name="Object"></typeparam>
+		/// <typeparam name="TObject"></typeparam>
 		/// <param name="expression"></param>
 		/// <returns></returns>
 		/// <exception cref="ArgumentException"></exception>
-		public static MemberExpression GetMemberExpression<Object>(Expression<Func<Object, object>> expression)
+		public static MemberExpression GetMemberExpression<TObject>(Expression<Func<TObject, object>> expression)
 		{
 			if (expression.Body is MemberExpression memberExpression)
 				return memberExpression;
@@ -105,10 +104,10 @@ namespace BuildHub.Common.Utilities
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <typeparam name="Object"></typeparam>
+		/// <typeparam name="TObject"></typeparam>
 		/// <param name="propertyExpression"></param>
 		/// <returns></returns>
-		public static PropertyInfo GetPropertyInfo<Object>(Expression<Func<Object, object>> propertyExpression)
+		public static PropertyInfo GetPropertyInfo<TObject>(Expression<Func<TObject, object>> propertyExpression)
 		{
 			var memberExpression = GetMemberExpression(propertyExpression);
 			var propertyInfo = (PropertyInfo)memberExpression.Member;

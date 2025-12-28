@@ -1,7 +1,9 @@
-﻿using BuildHub.Common.Utilities;
+﻿#region
+using BuildHub.Common.Utilities;
 using BuildHub.DataEngine.Exceptions;
 using BuildHub.DataEngine.SQLQueries;
 using UnitTests.DataEngineTests.Tables;
+#endregion
 
 namespace UnitTests.DataEngineTests.SQLQueries
 {
@@ -177,5 +179,6 @@ namespace UnitTests.DataEngineTests.SQLQueries
 			var query = queryBuilder.GetQuery();
 			Assert.AreEqual($"INSERT INTO UNIT_TESTS (NAME, GUID) VALUES ('INSERT TEST', '{unitTest.Guid}')", query);
 		}
+
 	}
 }

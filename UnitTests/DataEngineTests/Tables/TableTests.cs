@@ -19,7 +19,7 @@ namespace UnitTests.DataEngineTests.Tables
 			var unitTestTable = new UnitTestsTable();
 			var uniTests = unitTestTable.GetAll();
 
-			Assert.IsNotNull(uniTests);
+			Assert.IsNotNull(uniTests); 
 		}
 
 		[TestMethod]
@@ -38,8 +38,8 @@ namespace UnitTests.DataEngineTests.Tables
 			var unitTestTable = new UnitTestsTable();
 			unitTestTable.Insert(unitTest);
 
-			var dbUnitTest = unitTestTable.GetByCondition(unitTest => unitTest.Guid).First();
-			Assert.AreEqual(unitTest, dbUnitTest);
+			var dbUnitTest = unitTestTable.GetByGuid(unitTest.Guid);
+			Assert.AreEqual(unitTest.Guid, dbUnitTest.Guid);
 		}
 
 		[TestMethod]

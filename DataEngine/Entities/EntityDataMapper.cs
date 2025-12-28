@@ -1,10 +1,12 @@
-﻿using BuildHub.Common.Utilities;
+﻿#region
+using BuildHub.Common.Utilities;
 using BuildHub.DataEngine.Exceptions;
 using Microsoft.Data.SqlClient;
 using System.Collections.Concurrent;
 using System.Data;
 using System.Linq.Expressions;
 using System.Reflection;
+#endregion
 
 namespace BuildHub.DataEngine.Entities
 {
@@ -20,7 +22,8 @@ namespace BuildHub.DataEngine.Entities
 	public sealed class EntityDataMapper
 	{
 		/// <summary>
-		/// Caches the mapping information between entity types and their corresponding column metadata to improve lookup
+		/// Caches the mapping information between entity types
+		/// and their corresponding column metadata to improve lookup
 		/// performance.
 		/// </summary>
 		/// <remarks>This cache enables efficient retrieval of column mapping data for entity types, reducing repeated
@@ -145,6 +148,5 @@ namespace BuildHub.DataEngine.Entities
 		/// type. Cannot be null.</param>
 		/// <returns>The value of the specified property for the given entity, or null if the property value is null.</returns>
 		public static object? GetColumnValue<Entity>(Entity entity, PropertyInfo propertyInfo) => propertyInfo.GetValue(entity);
-
 	}
 }

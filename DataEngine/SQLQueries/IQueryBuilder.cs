@@ -3,7 +3,7 @@
 namespace BuildHub.DataEngine.SQLQueries
 {
 	/// <summary>
-	/// Defines an interface for building SQL queries in a fluent and composable manner.
+	/// Defines an interface for building SQL queries in a fluent and elegant manner.
 	/// </summary>
 	/// <remarks>This interface provides methods to construct SQL queries step-by-step, allowing for flexibility 
 	/// and readability in query generation. It supports specifying the SELECT clause, FROM clause,  WHERE conditions, and
@@ -24,6 +24,22 @@ namespace BuildHub.DataEngine.SQLQueries
 		/// </summary>
 		/// <returns>an insert statement</returns>
 		IQueryBuilder BuildInsert<Entity>(Entity entity) where Entity : IEntity;
+
+		/// <summary>
+		/// Creates an update query for the specified entity instance.
+		/// </summary>
+		/// <typeparam name="Entity">The type of the entity to update. Must implement <see cref="IEntity"/>.</typeparam>
+		/// <param name="entity">The entity instance containing the updated values to be applied. Cannot be null.</param>
+		/// <returns>An <see cref="IQueryBuilder"/> instance representing the update query for the specified entity.</returns>
+		IQueryBuilder BuildUpdate<Entity>(Entity entity) where Entity : IEntity;
+
+		/// <summary>
+		/// Builds a delete query for the specified entity instance.
+		/// </summary>
+		/// <typeparam name="Entity">The type of the entity to delete. Must implement <see cref="IEntity"/>.</typeparam>
+		/// <param name="entity">The entity instance to be deleted. Cannot be null.</param>
+		/// <returns>An <see cref="IQueryBuilder"/> instance representing the delete query for the specified entity.</returns>
+		IQueryBuilder BuildDelete<Entity>(Entity entity) where Entity : IEntity;
 
 		/// <summary>
 		/// Resets the query builder to its initial state, clearing any previously applied configurations.
@@ -72,7 +88,6 @@ namespace BuildHub.DataEngine.SQLQueries
 		/// <param name="lockType">The type of lock to apply, represented by a value from the <see cref="LockTypes"/> enumeration.</param>
 		/// <returns>An instance of <see cref="IQueryBuilder"/> with the specified locking behavior applied.</returns>
 		IQueryBuilder Lock(LockTypes lockType);
-
 		
 		/// <summary>
 		/// Retrieves the SQL query string associated with the current context.

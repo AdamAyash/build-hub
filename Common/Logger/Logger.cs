@@ -1,10 +1,12 @@
 ﻿namespace BuildHub.Common.Logger
 {
-	using BuildHub.Common.Application;
+	#region
 	using BuildHub.Common.Configuration;
 	using BuildHub.Common.Configuration.Base;
 	using Serilog;
 	using System.Diagnostics;
+	#endregion
+
 	using SerilogConfiguration = Serilog.LoggerConfiguration;
 
 	/// <summary>

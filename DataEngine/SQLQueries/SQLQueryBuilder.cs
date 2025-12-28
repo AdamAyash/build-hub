@@ -11,7 +11,7 @@ namespace BuildHub.DataEngine.SQLQueries
 	using WhereCondition = Tuple<string, CompareTypes, object>;
 
 	/// <summary>
-	/// Provides a builder for constructing SQL SELECT and INSERT queries in a fluent, composable manner.
+	/// Provides a builder for constructing SQL SELECT and INSERT queries in a fluent, elegant manner.
 	/// </summary>
 	/// <remarks>The SQLQueryBuilder enables the creation of parameterized SQL queries by chaining method calls to
 	/// specify the table, columns, WHERE conditions, locking behavior, and result limits. It is designed for scenarios
@@ -138,6 +138,46 @@ namespace BuildHub.DataEngine.SQLQueries
 
 			this._query = queryStringBuilder.ToString().Trim();
 			this._isQueryBuilt = true;
+
+			return this;
+		}
+
+		public IQueryBuilder BuildUpdate<Entity>(Entity entity)
+			where Entity : IEntity
+		{
+			if (this._isQueryBuilt)
+				throw new QueryAlreadyBuiltException();
+
+			StringBuilder queryStringBuilder = new StringBuilder();
+			queryStringBuilder.Append($"UPDATE {this._tableName} ");
+			queryStringBuilder.Append("SET ");
+
+			var properties = Utilities.GetObjectProperties<Entity>();
+			var updateStatements = new List<string>();
+
+			foreach (var property in properties)
+			{
+				if (EntityDataMapper.HasIdentityColumn(property))
+					continue;
+
+				var columnName = EntityDataMapper.GetColumnInfo(property).ColumnName;
+				var value = ProcessValue(property.GetValue(entity));
+				updateStatements.Add(columnName +  " = " + value);
+			}
+
+			queryStringBuilder.AppendJoin(", ", updateStatements);
+
+			this._query = queryStringBuilder.ToString().Trim();
+			this._isQueryBuilt = true;
+
+			return this;
+		}
+
+		public IQueryBuilder BuildDelete<Entity>(Entity entity)
+			where Entity : IEntity
+		{
+			if (this._isQueryBuilt)
+				throw new QueryAlreadyBuiltException();
 
 			return this;
 		}
