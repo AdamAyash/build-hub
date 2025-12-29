@@ -52,5 +52,20 @@ namespace UnitTests.DataEngineTests.Tables
 			unitTestTable.Insert(unitTest);
 			Assert.Throws<SqlException>( () => unitTestTable.Insert(unitTest));
 		}
+
+		[TestMethod]
+		public void UpdateUnitTest()
+		{
+			var unitTest = new UnitTest();
+			unitTest.Name = "Insert Test";
+
+			var unitTestTable = new UnitTestsTable();
+			unitTestTable.Insert(unitTest);
+
+
+			unitTest.Name = "UPDATED UNIT TEST";
+			unitTestTable.Update(unitTest);
+
+		}
 	}
 }

@@ -9,6 +9,7 @@
 	using System.Linq.Expressions;
 	using Microsoft.Data.SqlClient;
 	using BuildHub.DataEngine.Exceptions;
+	using BuildHub.Common.Utilities;
 	#endregion
 
 	/// <summary>
@@ -24,9 +25,15 @@
 		private readonly DatabaseConnectionPool _databaseConnectionPoolInstance;
 		private readonly DatabaseSource _databaseSource;
 
+		/// <summary>
+		/// Represents whether the connection is retrieved from context of not.
+		/// </summary>
 		private bool _isConnectionLocal;
 		private DatabaseConnection? _databaseConnection;
 
+		/// <summary>
+		/// Represents the table name
+		/// </summary>
 		public string TableName { get; private set; }
 
 		protected BaseTable(string tableName, DatabaseSource databaseSource)
@@ -216,6 +223,13 @@
 						baseEntity.Guid = this.GenerateGUID();
 				}
 
+				if (entity is VersionedEntity)
+				{
+					VersionedEntity? veriosnedEntity = entity as VersionedEntity;
+					veriosnedEntity.UpdatedAt = Utilities.GetCurrentDateTime;
+					veriosnedEntity.CreatedAt = Utilities.GetCurrentDateTime;
+				}
+
 				var queryBuilder = new SQLQueryBuilder()
 					.From(this.TableName)
 					.BuildInsert(entity);
@@ -243,6 +257,7 @@
 			try
 			{
 				this._databaseConnection = GetDatabaseConnection();
+
 				var selectQuery = GenerateSelectQueryByPrimaryKey(entity, true);
 				using SqlCommand sqlCommand = new SqlCommand(selectQuery, this._databaseConnection.InternalConnection);
 
@@ -269,8 +284,18 @@
 							throw new InconsistentEntityVersionException();
 
 						currentVersionedEntity.Version++;
+						currentVersionedEntity.UpdatedAt = Utilities.GetCurrentDateTime;
 					}
 				}
+
+				sqlReader.Close();
+
+				var updateQueryBuilder = new SQLQueryBuilder()
+					.From(this.TableName)
+					.BuildUpdate<Entity>(entity);
+
+				sqlCommand.CommandText = updateQueryBuilder.GetQuery();
+				sqlCommand.ExecuteNonQuery();
 			}
 			catch (Exception exception)
 			{

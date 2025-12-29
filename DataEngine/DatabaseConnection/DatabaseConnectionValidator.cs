@@ -41,7 +41,7 @@ namespace BuildHub.DataEngine.DatabaseConnection
 			try
 			{
 				var testQuery = new SqlCommand(_TEST_SQL_QUERY, _databaseConnection.InternalConnection);
-					testQuery.Transaction = _transactionContext?.InternalTransaction;
+				testQuery.Transaction = _transactionContext?.InternalTransaction;
 
 				isSuccessful = Convert.ToInt32(testQuery.ExecuteScalar()) == 1;
 			}

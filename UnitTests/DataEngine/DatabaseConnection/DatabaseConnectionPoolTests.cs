@@ -41,7 +41,7 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 		[DataRow(-1)]
 		[DataRow(-2)]
 		[DataRow(-3)]
-		public void Get_connection_should_throw_key_not_found_exception_for_invalid_database_source(int falseDatabaseSource)
+		public void Get_Connection_Should_Throw_Key_Not_Found_Exception_For_Invalid_Database_Source(int falseDatabaseSource)
 		{
 			DatabaseConnectionPool databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
 			Assert.Throws<KeyNotFoundException>(() => databaseConnectionPoolInstance.GetDatabaseConnection((DatabaseSource)falseDatabaseSource));

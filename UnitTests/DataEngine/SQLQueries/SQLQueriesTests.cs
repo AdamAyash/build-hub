@@ -2,6 +2,7 @@
 using BuildHub.Common.Utilities;
 using BuildHub.DataEngine.Exceptions;
 using BuildHub.DataEngine.SQLQueries;
+using System.Reflection.Metadata;
 using UnitTests.DataEngineTests.Tables;
 #endregion
 
@@ -10,16 +11,11 @@ namespace UnitTests.DataEngineTests.SQLQueries
 	[TestClass]
 	public class SQLQueriesTests
 	{
-		private class TestClass
-		{
-			public int Id { get; set; }
-			public int Value { get; set; }
-		}
-
 		[TestMethod]
 		[DataRow("USERS")]
 		[DataRow("BUILDS")]
-		public void GenerateSimpleSelectStatementTest(string tableName)
+		[DataRow("UNIT_TESTS")]
+		public void Build_Select_Should_Generate_Correct_Simple_Query(string tableName)
 		{
 			var queryBuilder = new SQLQueryBuilder()
 				.From(tableName)
@@ -81,11 +77,11 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		[DataRow("USERS", "AGE", CompareTypes.Equal)]
 		public void GenerateWhereStatementWithInvalidTypesTest(string tableName, string columnName, CompareTypes compareTypes)
 		{
-			var testObject = new TestClass();
+			var anonymousInvalidType = new { typeName = "Invalid Type" };
 
 			var queryBuilder = new SQLQueryBuilder()
 				.From(tableName)
-				.Where(columnName, compareTypes, testObject);
+				.Where(columnName, compareTypes, anonymousInvalidType);
 
 			Assert.Throws<ArgumentException>(() => queryBuilder.BuildSelect());
 		}
@@ -132,7 +128,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		[DataRow(230)]
 		[DataRow(60)]
 		[DataRow(6 )]
-		public void TopClauseTest(int topClauseCount)
+		public void Test_Top_Clause_Is_Generated_Correctly(int topClauseCount)
 		{
 			var queryBuilder = new SQLQueryBuilder()
 				.Top(topClauseCount)
@@ -145,7 +141,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		[TestMethod]
 		[DataRow("USERS")]
 		[DataRow("BUILDS")]
-		public void TryToUseNotBuiltQueryTest(string tableName)
+		public void Assert_That_Not_Built_Query_Throws_Exception(string tableName)
 		{
 			var queryBuilder = new SQLQueryBuilder()
 			.From(tableName);
@@ -156,17 +152,59 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		[TestMethod]
 		[DataRow("USERS")]
 		[DataRow("BUILDS")]
-		public void TryToBuildAQueryMoreThanOnceTest(string tableName)
+		public void Assert_That_Build_Select_Has_No_Affect_If_Called_Twice(string tableName)
 		{
 			var queryBuilder = new SQLQueryBuilder()
 			.From(tableName)
 			.BuildSelect();
 
-			Assert.Throws<QueryAlreadyBuiltException>(() => queryBuilder.BuildSelect());
+			Assert.AreEqual(queryBuilder.GetQuery(), queryBuilder.BuildSelect().GetQuery());
 		}
 
 		[TestMethod]
-		public void InsertQueryTest()
+		[DataRow("USERS")]
+		[DataRow("BUILDS")]
+		public void Assert_That_Build_Insert_Has_No_Affect_If_Called_Twice(string tableName)
+		{
+			var unitTest = new UnitTest();
+
+			var queryBuilder = new SQLQueryBuilder()
+			.From(tableName)
+			.BuildInsert<UnitTest>(unitTest);
+
+			Assert.AreEqual(queryBuilder.GetQuery(), queryBuilder.BuildInsert<UnitTest>(unitTest).GetQuery());
+		}
+
+		[TestMethod]
+		[DataRow("USERS")]
+		[DataRow("BUILDS")]
+		public void Assert_That_Build_Update_Has_No_Affect_If_Called_Twice(string tableName)
+		{
+			var unitTest = new UnitTest();
+
+			var queryBuilder = new SQLQueryBuilder()
+			.From(tableName)
+			.BuildUpdate<UnitTest>(unitTest);
+
+			Assert.AreEqual(queryBuilder.GetQuery(), queryBuilder.BuildUpdate<UnitTest>(unitTest).GetQuery());
+		}
+
+		[TestMethod]
+		[DataRow("USERS")]
+		[DataRow("BUILDS")]
+		public void Assert_That_Build_Delete_Has_No_Affect_If_Called_Twice(string tableName)
+		{
+			var unitTest = new UnitTest();
+
+			var queryBuilder = new SQLQueryBuilder()
+			.From(tableName)
+			.BuildDelete<UnitTest>(unitTest);
+
+			Assert.AreEqual(queryBuilder.GetQuery(), queryBuilder.BuildDelete<UnitTest>(unitTest).GetQuery());
+		}
+
+		[TestMethod]
+		public void Test_Build_Insert()
 		{
 			var unitTest = new UnitTest();
 			unitTest.Name = "INSERT TEST";
@@ -180,5 +218,19 @@ namespace UnitTests.DataEngineTests.SQLQueries
 			Assert.AreEqual($"INSERT INTO UNIT_TESTS (NAME, GUID) VALUES ('INSERT TEST', '{unitTest.Guid}')", query);
 		}
 
+		[TestMethod]
+		public void Test_Build_Update()
+		{
+			var unitTest = new UnitTest();
+			unitTest.Name = "UPDATE TEST";
+			unitTest.Guid = Guid.NewGuid();
+
+			var queryBuilder = new SQLQueryBuilder()
+				.From("UNIT_TESTS")
+				.BuildUpdate<UnitTest>(unitTest);
+
+			var query = queryBuilder.GetQuery();
+			Assert.AreEqual($"UPDATE UNIT_TESTS SET NAME = 'UPDATE TEST' WHERE GUID = '{unitTest.Guid}'", query);
+		}
 	}
 }

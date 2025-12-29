@@ -9,7 +9,7 @@
 		[TestMethod]
 		[DataRow(DatabaseSource.Users)]
 		[DataRow(DatabaseSource.Core)]
-		public void test_connection_should_return_false_when_connection_string_is_empty(DatabaseSource databaseSource)
+		public void Test_Connection_Should_Return_False_When_Connection_String_Is_Empty(DatabaseSource databaseSource)
 		{
 			var databaseConnection = new DatabaseConnection(databaseSource, "");
 			var databaseConnectionValidator = new DatabaseConnectionValidator(databaseConnection);
@@ -20,7 +20,7 @@
 		[TestMethod]
 		[DataRow(DatabaseSource.Users)]
 		[DataRow(DatabaseSource.Core)]
-		public void test_connection_should_return_true_when_connection_is_valid(DatabaseSource databaseSource)
+		public void Test_Connection_Should_Return_True_When_Connection_Is_Valid(DatabaseSource databaseSource)
 		{
 			var pool = DatabaseConnectionPool.GetInstance();
 			using var databaseConnection = pool.GetDatabaseConnection(databaseSource);
@@ -32,7 +32,7 @@
 		[TestMethod]
 		[DataRow(DatabaseSource.Users)]
 		[DataRow(DatabaseSource.Core)]
-		public void test_connection_should_return_false_when_connection_is_closed(DatabaseSource databaseSource)
+		public void Test_Connection_Should_Return_False_When_Connection_Is_Closed(DatabaseSource databaseSource)
 		{
 			var pool = DatabaseConnectionPool.GetInstance();
 			var databaseConnection = pool.GetDatabaseConnection(databaseSource);
@@ -46,7 +46,7 @@
 		[TestMethod]
 		[DataRow(DatabaseSource.Users)]
 		[DataRow(DatabaseSource.Core)]
-		public void test_connection_with_transaction_context_should_return_true_when_valid(DatabaseSource databaseSource)
+		public void Test_Connection_With_Transaction_Context_Should_Return_True_When_Valid(DatabaseSource databaseSource)
 		{
 			var pool = DatabaseConnectionPool.GetInstance();
 			using var databaseConnection = pool.GetDatabaseConnection(databaseSource);
@@ -60,7 +60,7 @@
 		[TestMethod]
 		[DataRow(DatabaseSource.Users)]
 		[DataRow(DatabaseSource.Core)]
-		public void test_connection_with_null_transaction_context_should_return_true_when_valid(DatabaseSource databaseSource)
+		public void Test_Connection_With_Null_Transaction_Context_Should_Return_True_When_Valid(DatabaseSource databaseSource)
 		{
 			var pool = DatabaseConnectionPool.GetInstance();
 			using var databaseConnection = pool.GetDatabaseConnection(databaseSource);
@@ -73,7 +73,7 @@
 		[TestMethod]
 		[DataRow(DatabaseSource.Users)]
 		[DataRow(DatabaseSource.Core)]
-		public void test_connection_should_handle_multiple_consecutive_validations(DatabaseSource databaseSource)
+		public void Test_Connection_Should_Handle_Multiple_Consecutive_Validations(DatabaseSource databaseSource)
 		{
 			var pool = DatabaseConnectionPool.GetInstance();
 			using var databaseConnection = pool.GetDatabaseConnection(databaseSource);
@@ -88,7 +88,7 @@
 		[TestMethod]
 		[DataRow(DatabaseSource.Users)]
 		[DataRow(DatabaseSource.Core)]
-		public void test_connection_should_return_false_after_connection_is_disposed(DatabaseSource databaseSource)
+		public void Test_Connection_Should_Return_False_After_Connection_Is_Disposed(DatabaseSource databaseSource)
 		{
 			var pool = DatabaseConnectionPool.GetInstance();
 			var databaseConnection = pool.GetDatabaseConnection(databaseSource);
@@ -105,7 +105,7 @@
 		}
 
 		[TestMethod]
-		public void validator_should_accept_connection_with_invalid_database_source()
+		public void Validator_Should_Accept_Connection_With_Invalid_Database_Source()
 		{
 			// Testing that validator handles edge case of invalid enum value
 			var databaseConnection = new DatabaseConnection((DatabaseSource)999, "");
@@ -117,7 +117,7 @@
 		[TestMethod]
 		[DataRow(DatabaseSource.Users)]
 		[DataRow(DatabaseSource.Core)]
-		public void test_connection_with_disposed_transaction_should_handle_gracefully(DatabaseSource databaseSource)
+		public void Test_Connection_With_Disposed_Transaction_Should_Handle_Gracefully(DatabaseSource databaseSource)
 		{
 			var pool = DatabaseConnectionPool.GetInstance();
 			using var databaseConnection = pool.GetDatabaseConnection(databaseSource);

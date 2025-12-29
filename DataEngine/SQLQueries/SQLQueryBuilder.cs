@@ -3,12 +3,13 @@ using BuildHub.Common.Logger;
 using BuildHub.Common.Utilities;
 using BuildHub.DataEngine.Entities;
 using BuildHub.DataEngine.Exceptions;
+using System.Data;
 using System.Text;
 #endregion
 
 namespace BuildHub.DataEngine.SQLQueries
 {
-	using WhereCondition = Tuple<string, CompareTypes, object>;
+	using WhereCondition = Tuple<string, CompareTypes, object?>;
 
 	/// <summary>
 	/// Provides a builder for constructing SQL SELECT and INSERT queries in a fluent, elegant manner.
@@ -45,9 +46,9 @@ namespace BuildHub.DataEngine.SQLQueries
 			return value?.ToString() ?? string.Empty;
 		}
 
-		private bool ValidateQueryParameters(object value)
+		private bool ValidateQueryParameters(object? value)
 		{
-			Type type = value.GetType();
+			Type? type = value?.GetType();
 
 			if (type != typeof(Int16)		&&
 				type != typeof(Int32) 		&&
@@ -63,30 +64,25 @@ namespace BuildHub.DataEngine.SQLQueries
 			return true;
 		}
 
-		public IQueryBuilder BuildSelect()
+		/// <summary>
+		/// Generate the where statements.
+		/// </summary>
+		/// <param name="queryStringBuilder"></param>
+		/// <returns></returns>
+		/// <exception cref="ArgumentException"></exception>
+		private void GenerateWhereStatements(StringBuilder queryStringBuilder)
 		{
-			if (this._isQueryBuilt)
-				throw new QueryAlreadyBuiltException();
-
-			StringBuilder queryStringBuilder = new StringBuilder();
-			if(_topStatementCount > -1)
-				queryStringBuilder.Append($"SELECT TOP {_topStatementCount} * FROM {this._tableName} " );
-			else
-				queryStringBuilder.Append($"SELECT * FROM {this._tableName} ");
-
-			queryStringBuilder.Append($"WITH({Utilities.GetEnumDescription<LockTypes>(this._lockType)})");
-
-			if(_whereStatements.Count > 0)
+			if (_whereStatements.Count > 0)
 			{
-				queryStringBuilder.Append(" WHERE ");
 				var whereStatements = new List<string>();
+				queryStringBuilder.Append(" WHERE ");
 
-				foreach(var statement in this._whereStatements)
+				foreach (var statement in this._whereStatements)
 				{
 					string completedCondition = string.Empty;
 					string columnName = statement.Item1;
 					string compareOperator = Utilities.GetEnumDescription<CompareTypes>(statement.Item2);
-					object value = statement.Item3;
+					object? value = statement?.Item3;
 
 					if (!this.ValidateQueryParameters(value))
 					{
@@ -100,6 +96,20 @@ namespace BuildHub.DataEngine.SQLQueries
 
 				queryStringBuilder.AppendJoin(" AND ", whereStatements);
 			}
+		}
+
+		public IQueryBuilder BuildSelect()
+		{
+			this._query = string.Empty;
+
+			StringBuilder queryStringBuilder = new StringBuilder();
+			if(_topStatementCount > -1)
+				queryStringBuilder.Append($"SELECT TOP {_topStatementCount} * FROM {this._tableName} " );
+			else
+				queryStringBuilder.Append($"SELECT * FROM {this._tableName} ");
+
+			queryStringBuilder.Append($"WITH({Utilities.GetEnumDescription<LockTypes>(this._lockType)})");
+			this.GenerateWhereStatements(queryStringBuilder);
 
 			_query = queryStringBuilder.ToString().Trim();
 			_isQueryBuilt = true;
@@ -110,8 +120,7 @@ namespace BuildHub.DataEngine.SQLQueries
 		public IQueryBuilder BuildInsert<Entity>(Entity entity) 
 			where Entity : IEntity
 		{
-			if (this._isQueryBuilt)
-				throw new QueryAlreadyBuiltException();
+			this._query = string.Empty;
 
 			StringBuilder queryStringBuilder = new StringBuilder();
 			queryStringBuilder.Append($"INSERT INTO {this._tableName} ");
@@ -141,12 +150,10 @@ namespace BuildHub.DataEngine.SQLQueries
 
 			return this;
 		}
-
 		public IQueryBuilder BuildUpdate<Entity>(Entity entity)
 			where Entity : IEntity
 		{
-			if (this._isQueryBuilt)
-				throw new QueryAlreadyBuiltException();
+			this._query = string.Empty;
 
 			StringBuilder queryStringBuilder = new StringBuilder();
 			queryStringBuilder.Append($"UPDATE {this._tableName} ");
@@ -155,10 +162,22 @@ namespace BuildHub.DataEngine.SQLQueries
 			var properties = Utilities.GetObjectProperties<Entity>();
 			var updateStatements = new List<string>();
 
+			bool hasPrimaryKeyColumn = false;
+			object? primaryKeyValue = null;
+
 			foreach (var property in properties)
 			{
 				if (EntityDataMapper.HasIdentityColumn(property))
+				{
 					continue;
+				}
+
+				if (EntityDataMapper.HasPrimaryKeyColumn(property))
+				{
+					hasPrimaryKeyColumn = true;
+					primaryKeyValue = property.GetValue(entity);
+					continue;
+				}
 
 				var columnName = EntityDataMapper.GetColumnInfo(property).ColumnName;
 				var value = ProcessValue(property.GetValue(entity));
@@ -166,6 +185,12 @@ namespace BuildHub.DataEngine.SQLQueries
 			}
 
 			queryStringBuilder.AppendJoin(", ", updateStatements);
+
+			if(!hasPrimaryKeyColumn)
+				throw new MissingPrimaryKeyException();
+
+			Where(EntityDataMapper.GetPrimaryKeyMappingData<Entity>().ColumnInfo.ColumnName, primaryKeyValue);
+			this.GenerateWhereStatements(queryStringBuilder);
 
 			this._query = queryStringBuilder.ToString().Trim();
 			this._isQueryBuilt = true;
@@ -176,8 +201,18 @@ namespace BuildHub.DataEngine.SQLQueries
 		public IQueryBuilder BuildDelete<Entity>(Entity entity)
 			where Entity : IEntity
 		{
-			if (this._isQueryBuilt)
-				throw new QueryAlreadyBuiltException();
+			this._query = string.Empty;
+
+			StringBuilder queryStringBuilder = new StringBuilder();
+			queryStringBuilder.Append($"DELETE FROM {this._tableName} ");
+
+			ColumnMappingData columnMappingData = EntityDataMapper.GetPrimaryKeyMappingData<Entity>();
+
+			Where(columnMappingData.ColumnInfo.ColumnName, columnMappingData.PropertyInfo.GetValue(entity));
+			this.GenerateWhereStatements(queryStringBuilder);
+
+			this._query = queryStringBuilder.ToString().Trim();
+			this._isQueryBuilt = true;
 
 			return this;
 		}
@@ -206,13 +241,13 @@ namespace BuildHub.DataEngine.SQLQueries
 			return this;
 		}
 
-		public IQueryBuilder Where(string columnName, CompareTypes compareType, object value)
+		public IQueryBuilder Where(string columnName, CompareTypes compareType, object? value)
 		{
 			this._whereStatements.Add(new WhereCondition(columnName.ToUpper(), compareType, value));
 			return this; 
 		}
 
-		public IQueryBuilder Where(string columnName, object value)
+		public IQueryBuilder Where(string columnName, object? value)
 		{
 			this._whereStatements.Add(new WhereCondition(columnName, CompareTypes.Equal, value));
 			return this;

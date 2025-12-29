@@ -69,7 +69,7 @@ namespace BuildHub.DataEngine.SQLQueries
 		/// <param name="value"></param>
 		/// <returns></returns>
 		///
-		IQueryBuilder Where(string columnName, CompareTypes compareType, object value);
+		IQueryBuilder Where(string columnName, CompareTypes compareType, object? value);
 
 		/// <summary>
 		/// Adds a condition to the query that filters results based on the specified column and value.
@@ -77,7 +77,7 @@ namespace BuildHub.DataEngine.SQLQueries
 		/// <param name="columnName">The name of the column to apply the condition to. Cannot be null or empty.</param>
 		/// <param name="value">The value to compare against the specified column. Typically used for equality checks.</param>
 		/// <returns>An instance of <see cref="IQueryBuilder"/> with the condition applied, allowing for further query customization.</returns>
-		IQueryBuilder Where(string columnName, object value);
+		IQueryBuilder Where(string columnName, object? value);
 
 		/// <summary>
 		/// Specifies the locking behavior to be applied to the query.

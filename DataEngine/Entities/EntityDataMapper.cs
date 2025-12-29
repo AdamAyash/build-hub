@@ -140,6 +140,14 @@ namespace BuildHub.DataEngine.Entities
 		public static bool HasIdentityColumn(PropertyInfo property) => property.GetCustomAttribute<Identity>() is not null;
 
 		/// <summary>
+		/// Determines whether the specified property is marked with the primary key attribute, indicating that it represents a
+		/// primary column.
+		/// </summary>
+		/// <param name="property"></param>
+		/// <returns></returns>
+		public static bool HasPrimaryKeyColumn(PropertyInfo property) => property.GetCustomAttribute<PrimaryKey>() is not null;
+
+		/// <summary>
 		/// Retrieves the value of the specified property from the given entity instance.
 		/// </summary>
 		/// <typeparam name="Entity">The type of the entity from which to retrieve the property value.</typeparam>
