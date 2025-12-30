@@ -29,6 +29,7 @@
 
 			Logger.LogDebug($"Transaction was successfully started for database {databaseSource}");
 		}
+
 		private SqlTransaction StartTransaction()
 		{
 			if (_isDisposed)

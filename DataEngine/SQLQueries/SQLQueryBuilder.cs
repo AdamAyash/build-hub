@@ -204,7 +204,7 @@ namespace BuildHub.DataEngine.SQLQueries
 			this._query = string.Empty;
 
 			StringBuilder queryStringBuilder = new StringBuilder();
-			queryStringBuilder.Append($"DELETE FROM {this._tableName} ");
+			queryStringBuilder.Append($"DELETE FROM {this._tableName}");
 
 			ColumnMappingData columnMappingData = EntityDataMapper.GetPrimaryKeyMappingData<Entity>();
 

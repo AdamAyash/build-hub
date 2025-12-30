@@ -9,7 +9,7 @@ using UnitTests.DataEngineTests.Tables;
 namespace UnitTests.DataEngineTests.SQLQueries
 {
 	[TestClass]
-	public class SQLQueriesTests
+	public class SQLQueryBuilderTests
 	{
 		[TestMethod]
 		[DataRow("USERS")]
@@ -92,7 +92,6 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		public void GenerateWhereStatementWithDateTimeTest(string tableName, string columnName, CompareTypes compareTypes
 			, int year, int month, int day)
 		{
-
 			var queryBuilder = new SQLQueryBuilder()
 				.From(tableName)
 				.Where(columnName, compareTypes, new DateTime(year, month, day))
@@ -105,7 +104,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		}
 
 		[TestMethod]
-		public void ResetSQLQueryBuilderTest()
+		public void Reset_Query_Should_Erase_Current_State_Of_The_Query()
 		{
 			var queryBuilder = new SQLQueryBuilder()
 				.From("Builds")
@@ -211,8 +210,8 @@ namespace UnitTests.DataEngineTests.SQLQueries
 			unitTest.Guid = Guid.NewGuid();
 
 			var queryBuilder = new SQLQueryBuilder()
-				.From("UNIT_TESTS")
-				.BuildInsert<UnitTest>(unitTest);
+				.Top()
+				.Where()
 
 			var query = queryBuilder.GetQuery();
 			Assert.AreEqual($"INSERT INTO UNIT_TESTS (NAME, GUID) VALUES ('INSERT TEST', '{unitTest.Guid}')", query);
@@ -231,6 +230,21 @@ namespace UnitTests.DataEngineTests.SQLQueries
 
 			var query = queryBuilder.GetQuery();
 			Assert.AreEqual($"UPDATE UNIT_TESTS SET NAME = 'UPDATE TEST' WHERE GUID = '{unitTest.Guid}'", query);
+		}
+
+		[TestMethod]
+		public void Test_Build_Delete()
+		{
+			var unitTest = new UnitTest();
+			unitTest.Name = "DELETE TEST";
+			unitTest.Guid = Guid.NewGuid();
+
+			var queryBuilder = new SQLQueryBuilder()
+				.From("UNIT_TESTS")
+				.BuildDelete<UnitTest>(unitTest);
+
+			var query = queryBuilder.GetQuery();
+			Assert.AreEqual($"DELETE FROM UNIT_TESTS WHERE GUID = '{unitTest.Guid}'", query);
 		}
 	}
 }

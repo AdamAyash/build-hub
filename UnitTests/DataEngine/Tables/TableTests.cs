@@ -1,4 +1,6 @@
 ﻿using BuildHub.DataEngine.Exceptions;
+using BuildHub.DataEngine.Transactions;
+using Microsoft.CodeAnalysis;
 using Microsoft.Data.SqlClient;
 
 namespace UnitTests.DataEngineTests.Tables
@@ -32,6 +34,8 @@ namespace UnitTests.DataEngineTests.Tables
 		[TestMethod]
 		public void InsertUnitTest()
 		{
+			using var transaction = new ScopedTransaction();
+
 			var unitTest = new UnitTest();
 			unitTest.Name = "Insert Test";
 

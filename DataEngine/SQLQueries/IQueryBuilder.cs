@@ -1,7 +1,7 @@
-﻿using BuildHub.DataEngine.Entities;
-
-namespace BuildHub.DataEngine.SQLQueries
+﻿namespace BuildHub.DataEngine.SQLQueries
 {
+	using Entities;
+
 	/// <summary>
 	/// Defines an interface for building SQL queries in a fluent and elegant manner.
 	/// </summary>

@@ -177,7 +177,6 @@
 				this.ReleaseDatabaseConnection();
 			}
 		}
-
 		public virtual IEnumerable<Entity> GetByCondition(IQueryBuilder queryBuilder)
 		{
 			try
@@ -226,8 +225,12 @@
 				if (entity is VersionedEntity)
 				{
 					VersionedEntity? veriosnedEntity = entity as VersionedEntity;
-					veriosnedEntity.UpdatedAt = Utilities.GetCurrentDateTime;
-					veriosnedEntity.CreatedAt = Utilities.GetCurrentDateTime;
+
+					if (veriosnedEntity is not null)
+					{
+						veriosnedEntity.UpdatedAt = Utilities.GetCurrentDateTime;
+						veriosnedEntity.CreatedAt = Utilities.GetCurrentDateTime;
+					}
 				}
 
 				var queryBuilder = new SQLQueryBuilder()
