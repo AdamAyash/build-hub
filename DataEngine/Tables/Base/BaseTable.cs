@@ -19,8 +19,8 @@
 	/// represent specific database tables. It encapsulates common functionality for interacting with a database table,
 	/// such as retrieving all entities. </para> <para> The class manages the table name and database source, and uses a
 	/// shared database connection pool for efficient resource management. </para></remarks>
-	/// <typeparam name="Entity">The type of entity represented by the table. Must implement <see cref="IEntity"/>.</typeparam>
-	public abstract class BaseTable<Entity> where Entity : IEntity
+	/// <typeparam name="TEntity">The type of entity represented by the table. Must implement <see cref="IEntity"/>.</typeparam>
+	public abstract class BaseTable<TEntity> where TEntity : IEntity
 	{
 		private readonly DatabaseConnectionPool _databaseConnectionPoolInstance;
 		private readonly DatabaseSource _databaseSource;
@@ -89,11 +89,11 @@
 		/// </summary>
 		/// <param name="guid">The GUID value to match against the primary key column in the query.</param>
 		/// <returns>A string containing the SQL SELECT statement that filters by the specified GUID primary key.</returns>
-		private string GenerateSelectQueryByPrimaryKey(Entity entity, bool withLock = false)
+		private string GenerateSelectQueryByPrimaryKey(TEntity entity, bool withLock = false)
 		{
-			ColumnMappingData primaryKeyMappingData = EntityDataMapper.GetPrimaryKeyMappingData<Entity>();
+			ColumnMappingData primaryKeyMappingData = EntityDataMapper.GetPrimaryKeyMappingData<TEntity>();
 
-			object? primaryKeyValue = EntityDataMapper.GetColumnValue<Entity>(entity, primaryKeyMappingData.PropertyInfo);
+			object? primaryKeyValue = EntityDataMapper.GetColumnValue<TEntity>(entity, primaryKeyMappingData.PropertyInfo);
 			if(primaryKeyValue is null)
 				throw new ArgumentNullException("Null primary key value");
 
@@ -109,12 +109,12 @@
 		/// <summary>
 		/// Retrieves all entities from the underlying data source.
 		/// </summary>
-		/// <remarks>This method queries the entire table associated with the <see cref="Entity"/> type and returns
+		/// <remarks>This method queries the entire table associated with the <see cref="TEntity"/> type and returns
 		/// all records as entity objects. The returned collection reflects the state of the data source at the time of the
 		/// call.</remarks>
-		/// <returns>An <see cref="IEnumerable{T}"/> containing all <see cref="Entity"/> instances found in the data source. The
+		/// <returns>An <see cref="IEnumerable{T}"/> containing all <see cref="TEntity"/> instances found in the data source. The
 		/// collection will be empty if no records are present.</returns>
-		public virtual IEnumerable<Entity> GetAll()
+		public virtual IEnumerable<TEntity> GetAll()
 		{
 			try
 			{
@@ -127,10 +127,10 @@
 				using SqlCommand sqlCommand = new SqlCommand(queryBuilder.GetQuery(), this._databaseConnection.InternalConnection);
 				using var sqlReader = sqlCommand.ExecuteReader();
 
-				var entities = new List<Entity>();
+				var entities = new List<TEntity>();
 				while (sqlReader.Read())
 				{
-					var entity = EntityDataMapper.MapDataToEntity<Entity>(sqlReader);
+					var entity = EntityDataMapper.MapDataToEntity<TEntity>(sqlReader);
 					entities.Add(entity);
 				}
 
@@ -147,13 +147,13 @@
 			}
 		}
 
-		public virtual Entity GetByGuid(Guid guid)
+		public virtual TEntity GetByGuid(Guid guid)
 		{
 			try
 			{
 				this._databaseConnection = this.GetDatabaseConnection();
 
-				var primaryKeyColumnInfo = EntityDataMapper.GetPrimaryKeyMappingData<Entity>().ColumnInfo;
+				var primaryKeyColumnInfo = EntityDataMapper.GetPrimaryKeyMappingData<TEntity>().ColumnInfo;
 				var queryBuilder = new SQLQueryBuilder()
 					.From(this.TableName)
 					.Where(primaryKeyColumnInfo.ColumnName, guid)
@@ -165,7 +165,7 @@
 				if (!sqlReader.Read())
 					throw new EntityDoesNotExistException();
 
-				return EntityDataMapper.MapDataToEntity<Entity>(sqlReader);
+				return EntityDataMapper.MapDataToEntity<TEntity>(sqlReader);
 			}
 			catch (Exception exception)
 			{
@@ -177,7 +177,7 @@
 				this.ReleaseDatabaseConnection();
 			}
 		}
-		public virtual IEnumerable<Entity> GetByCondition(IQueryBuilder queryBuilder)
+		public virtual IEnumerable<TEntity> GetByCondition(IQueryBuilder queryBuilder)
 		{
 			try
 			{
@@ -186,10 +186,10 @@
 				using SqlCommand sqlCommand = new SqlCommand(queryBuilder.GetQuery(), this._databaseConnection.InternalConnection);
 				using var sqlReader = sqlCommand.ExecuteReader();
 
-				var entities = new List<Entity>();
+				var entities = new List<TEntity>();
 				while (sqlReader.Read())
 				{
-					var entity = EntityDataMapper.MapDataToEntity<Entity>(sqlReader);
+					var entity = EntityDataMapper.MapDataToEntity<TEntity>(sqlReader);
 					entities.Add(entity);
 				}
 
@@ -206,7 +206,7 @@
 			}
 		}
 
-		public virtual void Insert(Entity entity)
+		public virtual void Insert(TEntity entity)
 		{
 			DatabaseConnection? databaseConnection = null;
 
@@ -255,7 +255,7 @@
 			}
 		}
 
-		public virtual void Update(Entity entity)
+		public virtual void Update(TEntity entity)
 		{
 			try
 			{
@@ -269,10 +269,10 @@
 
 				var sqlReader = sqlCommand.ExecuteReader();
 
-				Entity existingEntity;
+				TEntity existingEntity;
 
 				if (sqlReader.Read())
-					existingEntity = EntityDataMapper.MapDataToEntity<Entity>(sqlReader);
+					existingEntity = EntityDataMapper.MapDataToEntity<TEntity>(sqlReader);
 				else
 					throw new EntityDoesNotExistException();
 
@@ -295,7 +295,7 @@
 
 				var updateQueryBuilder = new SQLQueryBuilder()
 					.From(this.TableName)
-					.BuildUpdate<Entity>(entity);
+					.BuildUpdate<TEntity>(entity);
 
 				sqlCommand.CommandText = updateQueryBuilder.GetQuery();
 				sqlCommand.ExecuteNonQuery();

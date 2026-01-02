@@ -33,9 +33,9 @@ namespace BuildHub.Common.Utilities
 		/// <summary>
 		/// Retrieves all values of the specified enumeration type.
 		/// </summary>
-		/// <typeparam name="EnumType">The enumeration type whose values are to be retrieved. This type must be an enumeration.</typeparam>
+		/// <typeparam name="TEnumType">The enumeration type whose values are to be retrieved. This type must be an enumeration.</typeparam>
 		/// <returns>An <see cref="IEnumerable{T}"/> containing all values of the specified enumeration type.</returns>
-		public static IEnumerable<EnumType> GetEnumValues<EnumType>() => Enum.GetValues(typeof(EnumType)).Cast<EnumType>();
+		public static IEnumerable<TEnumType> GetEnumValues<TEnumType>() => Enum.GetValues(typeof(TEnumType)).Cast<TEnumType>();
 
 		/// <summary>
 		/// Retrieves the system date time
