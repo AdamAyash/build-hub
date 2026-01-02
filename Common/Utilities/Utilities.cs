@@ -17,11 +17,11 @@ namespace BuildHub.Common.Utilities
 		/// <summary>
 		/// Retrieves a description attribute from an enumeration
 		/// </summary>
-		/// <typeparam name="EnumType">Type parameter for enumerations</typeparam>
+		/// <typeparam name="TEnumType">Type parameter for enumerations</typeparam>
 		/// <param name="enumeration">Value of the enum</param>
 		/// <returns>string</returns>
-		public static string GetEnumDescription<EnumType>(Enum enumeration)
-			where EnumType : Enum
+		public static string GetEnumDescription<TEnumType>(Enum enumeration)
+			where TEnumType : Enum
 		{
 			DescriptionAttribute? descriptionAttribute = enumeration.GetType()?.GetField(enumeration.ToString())
 				?.GetCustomAttributes(typeof(DescriptionAttribute), false)
@@ -47,7 +47,8 @@ namespace BuildHub.Common.Utilities
 		/// </summary>
 		/// <param name="dateTime">The <see cref="DateTime"/> value to format.</param>
 		/// <returns>A string representation of the <paramref name="dateTime"/> value in the predefined format.</returns>
-		public static string FormatDateTime(DateTime dateTime, string dateFormat = _DATE_TIME_FORMAT) => dateTime.ToString(dateFormat);
+		public static string FormatDateTime(DateTime dateTime, string dateFormat = _DATE_TIME_FORMAT) 
+			=> dateTime.ToString(dateFormat);
 
 		/// <summary>
 		/// Surrounds the given value with single quotes
