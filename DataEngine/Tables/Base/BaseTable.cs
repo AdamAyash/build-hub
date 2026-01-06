@@ -2,25 +2,26 @@
 {
 	#region
 	using Entities;
-	using SQLQueries;
+	using Queries;
 	using System;
 	using DatabaseConnection;
 	using BuildHub.Common.Logger;
 	using System.Linq.Expressions;
 	using Microsoft.Data.SqlClient;
-	using BuildHub.DataEngine.Exceptions;
 	using BuildHub.Common.Utilities;
+	using BuildHub.DataEngine.Exceptions.Entities;
+	using Microsoft.IdentityModel.Tokens;
 	#endregion
 
 	/// <summary>
 	/// Provides a base class for database table access, supporting retrieval of all entities of a specified type.
 	/// </summary>
-	/// <remarks><para> <see cref="BaseTable{Entity}"/> is intended to be inherited by concrete table classes that
+	/// <remarks><para> <see cref="BaseTable{TEntity}"/> is intended to be inherited by concrete table classes that
 	/// represent specific database tables. It encapsulates common functionality for interacting with a database table,
 	/// such as retrieving all entities. </para> <para> The class manages the table name and database source, and uses a
 	/// shared database connection pool for efficient resource management. </para></remarks>
-	/// <typeparam name="Entity">The type of entity represented by the table. Must implement <see cref="IEntity"/>.</typeparam>
-	public abstract class BaseTable<Entity> where Entity : IEntity
+	/// <typeparam name="TEntity">The type of entity represented by the table. Must implement <see cref="IEntity"/>.</typeparam>
+	public abstract class BaseTable<TEntity> where TEntity : IEntity
 	{
 		private readonly DatabaseConnectionPool _databaseConnectionPoolInstance;
 		private readonly DatabaseSource _databaseSource;
@@ -36,13 +37,22 @@
 		/// </summary>
 		public string TableName { get; private set; }
 
-		protected BaseTable(string tableName, DatabaseSource databaseSource)
+		protected BaseTable(DatabaseSource databaseSource = DatabaseSource.Core)
 		{
 			this._databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
 			this._databaseSource = databaseSource;
 			this._isConnectionLocal = false;
 			this._databaseConnection = null;
-			this.TableName = tableName;
+
+			try
+			{
+				this.TableName = EntityDataMapper.GetTableName<TEntity>();
+			}
+			catch (MissingTableNameException exception)
+			{
+				Logger.LogError(exception, $"Entity doesn't have a table name defined.");
+				throw;
+			}
 		}
 
 		/// <summary>
@@ -89,52 +99,61 @@
 		/// </summary>
 		/// <param name="guid">The GUID value to match against the primary key column in the query.</param>
 		/// <returns>A string containing the SQL SELECT statement that filters by the specified GUID primary key.</returns>
-		private string GenerateSelectQueryByPrimaryKey(Entity entity, bool withLock = false)
+		private string GenerateSelectQueryByPrimaryKey(TEntity entity, bool withLock = false)
 		{
-			ColumnMappingData primaryKeyMappingData = EntityDataMapper.GetPrimaryKeyMappingData<Entity>();
+			ColumnMappingData primaryKeyMappingData = EntityDataMapper.GetPrimaryKeyMappingData<TEntity>();
 
-			object? primaryKeyValue = EntityDataMapper.GetColumnValue<Entity>(entity, primaryKeyMappingData.PropertyInfo);
+			object? primaryKeyValue = EntityDataMapper.GetColumnValue<TEntity>(entity, primaryKeyMappingData.PropertyInfo);
 			if(primaryKeyValue is null)
 				throw new ArgumentNullException("Null primary key value");
 
-			var query = new SQLQueryBuilder()
+			var internalQueryBuilder = new InternalQueryBuilder()
 				.From(this.TableName)
 				.Where(primaryKeyMappingData.ColumnInfo.ColumnName, primaryKeyValue)
 				.Lock(withLock ? LockTypes.Update : LockTypes.None)
 				.BuildSelect();
 
-			return query.GetQuery();
+			return internalQueryBuilder.GetQuery();
 		}
 
 		/// <summary>
 		/// Retrieves all entities from the underlying data source.
 		/// </summary>
-		/// <remarks>This method queries the entire table associated with the <see cref="Entity"/> type and returns
+		/// <remarks>This method queries the entire table associated with the <see cref="TEntity"/> type and returns
 		/// all records as entity objects. The returned collection reflects the state of the data source at the time of the
 		/// call.</remarks>
-		/// <returns>An <see cref="IEnumerable{T}"/> containing all <see cref="Entity"/> instances found in the data source. The
+		/// <returns>An <see cref="IEnumerable{T}"/> containing all <see cref="TEntity"/> instances found in the data source. The
 		/// collection will be empty if no records are present.</returns>
-		public virtual IEnumerable<Entity> GetAll()
+		public virtual IEnumerable<TEntity> GetAll()
 		{
 			try
 			{
 				this._databaseConnection = this.GetDatabaseConnection();
 
-				var queryBuilder = new SQLQueryBuilder()
+				var internalQueryBuilder = new InternalQueryBuilder()
 					.From(this.TableName)
 					.BuildSelect();
 
-				using SqlCommand sqlCommand = new SqlCommand(queryBuilder.GetQuery(), this._databaseConnection.InternalConnection);
-				using var sqlReader = sqlCommand.ExecuteReader();
+				using SqlCommand selectCommand = new SqlCommand(internalQueryBuilder.GetQuery(), this._databaseConnection.InternalConnection);
 
-				var entities = new List<Entity>();
+				if (!this._isConnectionLocal)
+					selectCommand.Transaction = DatabaseContext.GetCurrentContext?.TransactionContext?.InternalTransaction;
+
+				using var sqlReader = selectCommand.ExecuteReader();
+
+				var entities = new List<TEntity>();
 				while (sqlReader.Read())
 				{
-					var entity = EntityDataMapper.MapDataToEntity<Entity>(sqlReader);
+					var entity = EntityDataMapper.MapDataToEntity<TEntity>(sqlReader);
 					entities.Add(entity);
 				}
 
 				return entities;
+			}
+			catch (MissingColumnDescriptionException missingColumnDescriptionException)
+			{
+				Logger.LogError(missingColumnDescriptionException, $"Failed to map entity because of missing column description.");
+				throw;
 			}
 			catch (Exception exception)
 			{
@@ -147,53 +166,74 @@
 			}
 		}
 
-		public virtual Entity GetByGuid(Guid guid)
+		public virtual TEntity? GetByGuid(Guid guid)
 		{
 			try
 			{
 				this._databaseConnection = this.GetDatabaseConnection();
 
-				var primaryKeyColumnInfo = EntityDataMapper.GetPrimaryKeyMappingData<Entity>().ColumnInfo;
-				var queryBuilder = new SQLQueryBuilder()
+				var primaryKeyColumnInfo = EntityDataMapper.GetPrimaryKeyMappingData<TEntity>().ColumnInfo;
+				var queryBuilder = new InternalQueryBuilder()
 					.From(this.TableName)
 					.Where(primaryKeyColumnInfo.ColumnName, guid)
 					.BuildSelect();
 
-				using SqlCommand sqlCommand = new SqlCommand(queryBuilder.GetQuery(), this._databaseConnection.InternalConnection);
-				using var sqlReader = sqlCommand.ExecuteReader();
+				using SqlCommand selectCommand = new SqlCommand(queryBuilder.GetQuery(), this._databaseConnection.InternalConnection);
+				if (!this._isConnectionLocal)
+					selectCommand.Transaction = DatabaseContext.GetCurrentContext?.TransactionContext?.InternalTransaction;
+
+				using var sqlReader = selectCommand.ExecuteReader();
 
 				if (!sqlReader.Read())
-					throw new EntityDoesNotExistException();
+					return default(TEntity);
 
-				return EntityDataMapper.MapDataToEntity<Entity>(sqlReader);
+				return EntityDataMapper.MapDataToEntity<TEntity>(sqlReader);
+			}
+			catch (MissingColumnDescriptionException missingColumnDescriptionException)
+			{
+				Logger.LogError(missingColumnDescriptionException, $"Failed to map entity because of missing column description.");
+				throw;
 			}
 			catch (Exception exception)
 			{
 				Logger.LogError(exception, $"Retrieving records for table {TableName} failed.");
-				throw;
+				return default(TEntity);
 			}
 			finally
 			{
 				this.ReleaseDatabaseConnection();
 			}
 		}
-		public virtual IEnumerable<Entity> GetByCondition(IQueryBuilder queryBuilder)
+
+		public virtual IEnumerable<TEntity> GetByCondition(QueryBuilder queryBuilder)
 		{
 			try
 			{
 				this._databaseConnection = this.GetDatabaseConnection();
 
-				using SqlCommand sqlCommand = new SqlCommand(queryBuilder.GetQuery(), this._databaseConnection.InternalConnection);
-				using var sqlReader = sqlCommand.ExecuteReader();
+				var internalQueryBuilder = new InternalQueryBuilder(queryBuilder)
+					.From(this.TableName)
+					.BuildSelect();
 
-				var entities = new List<Entity>();
+				using SqlCommand selectCommand = new SqlCommand(internalQueryBuilder.GetQuery(), this._databaseConnection.InternalConnection);
+				if (!this._isConnectionLocal)
+					selectCommand.Transaction = DatabaseContext.GetCurrentContext?.TransactionContext?.InternalTransaction;
+
+				using var sqlReader = selectCommand.ExecuteReader();
+
+				var entities = new List<TEntity>();
 				while (sqlReader.Read())
 				{
-					var entity = EntityDataMapper.MapDataToEntity<Entity>(sqlReader);
+					var entity = EntityDataMapper.MapDataToEntity<TEntity>(sqlReader);
 					entities.Add(entity);
 				}
 
 				return entities;
+			}
+			catch(MissingColumnDescriptionException missingColumnDescriptionException)
+			{
+				Logger.LogError(missingColumnDescriptionException, $"Failed to map entity because of missing column description.");
+				throw;
 			}
 			catch (Exception exception)
 			{
@@ -206,7 +246,66 @@
 			}
 		}
 
-		public virtual void Insert(Entity entity)
+		/// <summary>
+		/// Retrieves a collection of entities that match a specified condition based on the values of a given entity.
+		/// </summary>
+		/// <remarks>The method uses the value of the property specified by <paramref name="condition"/> from the
+		/// provided <paramref name="entity"/> to filter records in the underlying data source. The comparison is performed
+		/// against the corresponding column in the database. This method does not track changes to the returned
+		/// entities.</remarks>
+		/// <param name="entity">The entity whose property value is used to evaluate the condition. The value of the property specified by
+		/// <paramref name="condition"/> will be extracted from this entity and used in the query.</param>
+		/// <param name="condition">An expression that selects the property of <typeparamref name="TEntity"/> to use as the condition for filtering
+		/// results. The property referenced in this expression determines which column is compared in the query.</param>
+		/// <returns>An <see cref="IEnumerable{TEntity}"/> containing all entities from the data source that match the specified
+		/// condition. Returns an empty collection if no entities satisfy the condition.</returns>
+		public virtual IEnumerable<TEntity> GetByCondition(TEntity entity, 
+			Expression<Func<TEntity, object>> condition, CompareTypes compareType = CompareTypes.Equal)
+		{
+			try
+			{
+				this._databaseConnection = this.GetDatabaseConnection();
+
+				var columnInfo = EntityDataMapper.GetColumnInfo<TEntity>(condition);
+				var value = condition.Compile()(entity);
+
+				var internalQueryBuilder = new InternalQueryBuilder()
+					.From(this.TableName)
+					.Where(columnInfo.ColumnName, compareType, value)
+					.BuildSelect();
+
+				using SqlCommand selectCommand = new SqlCommand(internalQueryBuilder.GetQuery(), this._databaseConnection.InternalConnection);
+				if (!this._isConnectionLocal)
+					selectCommand.Transaction = DatabaseContext.GetCurrentContext?.TransactionContext?.InternalTransaction;
+
+				using var sqlReader = selectCommand.ExecuteReader();
+
+				var entities = new List<TEntity>();
+				while (sqlReader.Read())
+				{
+					var currentEntity = EntityDataMapper.MapDataToEntity<TEntity>(sqlReader);
+					entities.Add(currentEntity);
+				}
+
+				return entities;
+			}
+			catch (MissingColumnDescriptionException missingColumnDescriptionException)
+			{
+				Logger.LogError(missingColumnDescriptionException, $"Failed to map entity because of missing column description.");
+				throw;
+			}
+			catch (Exception exception)
+			{
+				Logger.LogError(exception, $"Retrieving records for table {TableName} failed.");
+				throw;
+			}
+			finally
+			{
+				this.ReleaseDatabaseConnection();
+			}
+		}
+
+		public virtual bool Insert(TEntity entity)
 		{
 			DatabaseConnection? databaseConnection = null;
 
@@ -233,46 +332,46 @@
 					}
 				}
 
-				var queryBuilder = new SQLQueryBuilder()
+				var internalQueryBuilder = new InternalQueryBuilder()
 					.From(this.TableName)
 					.BuildInsert(entity);
 
-				using SqlCommand sqlCommand = new SqlCommand(queryBuilder.GetQuery(), databaseConnection.InternalConnection);
+				using SqlCommand insertCommand = new SqlCommand(internalQueryBuilder.GetQuery(), databaseConnection.InternalConnection);
 
 				if(!this._isConnectionLocal)
-					sqlCommand.Transaction = DatabaseContext.GetCurrentContext?.TransactionContext?.InternalTransaction;
+					insertCommand.Transaction = DatabaseContext.GetCurrentContext?.TransactionContext?.InternalTransaction;
 
-				 sqlCommand.ExecuteNonQuery();
+				 insertCommand.ExecuteNonQuery();
+				return true;
 			}
 			catch (Exception exception)
 			{
 				Logger.LogError(exception, $"Failed to insert a record for table: '{TableName}'.");
-				throw;
+				return false;
 			}
 			finally
 			{
 				this.ReleaseDatabaseConnection();
 			}
 		}
-
-		public virtual void Update(Entity entity)
+		public virtual bool Update(TEntity entity)
 		{
 			try
 			{
 				this._databaseConnection = GetDatabaseConnection();
 
 				var selectQuery = GenerateSelectQueryByPrimaryKey(entity, true);
-				using SqlCommand sqlCommand = new SqlCommand(selectQuery, this._databaseConnection.InternalConnection);
+				using SqlCommand updateCommand = new SqlCommand(selectQuery, this._databaseConnection.InternalConnection);
 
 				if (!this._isConnectionLocal)
-					sqlCommand.Transaction = DatabaseContext.GetCurrentContext?.TransactionContext?.InternalTransaction;
+					updateCommand.Transaction = DatabaseContext.GetCurrentContext?.TransactionContext?.InternalTransaction;
 
-				var sqlReader = sqlCommand.ExecuteReader();
+				var sqlReader = updateCommand.ExecuteReader();
 
-				Entity existingEntity;
+				TEntity existingEntity;
 
 				if (sqlReader.Read())
-					existingEntity = EntityDataMapper.MapDataToEntity<Entity>(sqlReader);
+					existingEntity = EntityDataMapper.MapDataToEntity<TEntity>(sqlReader);
 				else
 					throw new EntityDoesNotExistException();
 
@@ -293,22 +392,61 @@
 
 				sqlReader.Close();
 
-				var updateQueryBuilder = new SQLQueryBuilder()
+				var updateQueryBuilder = new InternalQueryBuilder()
 					.From(this.TableName)
-					.BuildUpdate<Entity>(entity);
+					.BuildUpdate<TEntity>(entity);
 
-				sqlCommand.CommandText = updateQueryBuilder.GetQuery();
-				sqlCommand.ExecuteNonQuery();
+				updateCommand.CommandText = updateQueryBuilder.GetQuery();
+				updateCommand.ExecuteNonQuery();
 			}
 			catch (Exception exception)
 			{
 				Logger.LogError(exception, $"Failed to update a record for table: '{TableName}'.");
-				throw;
+				return false;
 			}
 			finally
 			{
 				this.ReleaseDatabaseConnection();
 			}
+
+			return true;
+		}
+
+		/// <summary>
+		/// Deletes the specified entity from the database.
+		/// </summary>
+		/// <remarks>This method attempts to remove the provided entity from the underlying table. If the entity does
+		/// not exist or an error occurs during deletion, the method returns <see langword="false"/>.</remarks>
+		/// <param name="entity">The entity to delete. Must not be <c>null</c>; the entity should contain a valid primary key value.</param>
+		/// <returns><see langword="true"/> if the entity was successfully deleted; otherwise, <see langword="false"/>.</returns>
+		public bool Delete(TEntity entity)
+		{
+			try
+			{
+				this._databaseConnection = GetDatabaseConnection();
+
+				var primaryKeyColumnInfo = EntityDataMapper.GetPrimaryKeyMappingData<TEntity>().ColumnInfo;
+				var internalQueryBuilder = new InternalQueryBuilder()
+					.From(this.TableName)
+					.BuildDelete<TEntity>(entity);
+
+				using SqlCommand deleteCommand = new SqlCommand(internalQueryBuilder.GetQuery(),
+					this._databaseConnection.InternalConnection);
+
+				if (!this._isConnectionLocal)
+					deleteCommand.Transaction = DatabaseContext.GetCurrentContext?.TransactionContext?.InternalTransaction;
+			}
+			catch (Exception exception)
+			{
+				Logger.LogError(exception, $"Failed to delete a record for table: '{TableName}'.");
+				return false;
+			}
+			finally
+			{
+				this.ReleaseDatabaseConnection();
+			}
+
+			return true;
 		}
 	}
 }

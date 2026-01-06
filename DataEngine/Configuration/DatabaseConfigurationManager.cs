@@ -1,7 +1,7 @@
 ﻿#region
 using BuildHub.Common.Configuration.Base;
-using BuildHub.DataEngine.Exceptions;
 using Microsoft.Extensions.Configuration;
+using BuildHub.DataEngine.Exceptions.DatabaseConnection;
 #endregion
 
 namespace BuildHub.DataEngine.Configuration

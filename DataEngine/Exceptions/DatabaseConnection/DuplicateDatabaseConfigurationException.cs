@@ -1,4 +1,4 @@
-﻿namespace BuildHub.DataEngine.Exceptions
+﻿namespace BuildHub.DataEngine.Exceptions.DatabaseConnection
 {
 	public sealed class DuplicateDatabaseConfigurationException : Exception
 	{

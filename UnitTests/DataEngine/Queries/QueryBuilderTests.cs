@@ -1,15 +1,14 @@
 ﻿#region
 using BuildHub.Common.Utilities;
-using BuildHub.DataEngine.Exceptions;
-using BuildHub.DataEngine.SQLQueries;
-using System.Reflection.Metadata;
+using BuildHub.DataEngine.Exceptions.Queries;
+using BuildHub.DataEngine.Queries;
 using UnitTests.DataEngineTests.Tables;
 #endregion
 
 namespace UnitTests.DataEngineTests.SQLQueries
 {
 	[TestClass]
-	public class SQLQueryBuilderTests
+	public class QueryBuilderTests
 	{
 		[TestMethod]
 		[DataRow("USERS")]
@@ -17,7 +16,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		[DataRow("UNIT_TESTS")]
 		public void Build_Select_Should_Generate_Correct_Simple_Query(string tableName)
 		{
-			var queryBuilder = new SQLQueryBuilder()
+			var queryBuilder = new InternalQueryBuilder()
 				.From(tableName)
 				.BuildSelect();
 
@@ -29,7 +28,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		[DataRow("BUILDS", LockTypes.Update)]
 		public void GenerateSimpleSelectStatementWithDifrentLockTypesTest(string tableName, LockTypes lockType)
 		{
-			var queryBuilder = new SQLQueryBuilder()
+			var queryBuilder = new InternalQueryBuilder()
 				.From(tableName)
 				.Lock(lockType)
 				.BuildSelect();
@@ -44,9 +43,9 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		[DataRow("BUILDS", "BUILD_COUNT", CompareTypes.LessThanOrEqual, 400)]
 		[DataRow("BUILDS", "BUILD_COUNT", CompareTypes.LessThan, 12)]
 		[DataRow("BUILDS", "BUILD_COUNT", CompareTypes.GreaterThanOrEqual, 56)]
-		public void GenerateSimpleSelectStatementWithDifferentWhereStatementsOnlyNumbersTest(string tableName, string columnName, CompareTypes compareTypes, object value)
+		public void Generate_Simple_Select_Statement_With_Different_Where_Statements_Only_Numbers_Test(string tableName, string columnName, CompareTypes compareTypes, object value)
 		{
-			var queryBuilder = new SQLQueryBuilder()
+			var queryBuilder = new InternalQueryBuilder()
 				.From(tableName)
 				.Where(columnName, compareTypes, value)
 				.BuildSelect();
@@ -64,7 +63,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		[DataRow("BUILDS", "BUILD_NAME", CompareTypes.GreaterThanOrEqual, "Build")]
 		public void GenerateSimpleSelectStatementWithDifferentWhereStatementsOnlyStringsTest(string tableName, string columnName, CompareTypes compareTypes, object value)
 		{
-			var queryBuilder = new SQLQueryBuilder()
+			var queryBuilder = new InternalQueryBuilder()
 				.From(tableName)
 				.Where(columnName, compareTypes, value)
 				.BuildSelect();
@@ -79,7 +78,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		{
 			var anonymousInvalidType = new { typeName = "Invalid Type" };
 
-			var queryBuilder = new SQLQueryBuilder()
+			var queryBuilder = new InternalQueryBuilder()
 				.From(tableName)
 				.Where(columnName, compareTypes, anonymousInvalidType);
 
@@ -92,7 +91,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		public void GenerateWhereStatementWithDateTimeTest(string tableName, string columnName, CompareTypes compareTypes
 			, int year, int month, int day)
 		{
-			var queryBuilder = new SQLQueryBuilder()
+			var queryBuilder = new InternalQueryBuilder()
 				.From(tableName)
 				.Where(columnName, compareTypes, new DateTime(year, month, day))
 				.BuildSelect();
@@ -106,7 +105,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		[TestMethod]
 		public void Reset_Query_Should_Erase_Current_State_Of_The_Query()
 		{
-			var queryBuilder = new SQLQueryBuilder()
+			var queryBuilder = new InternalQueryBuilder()
 				.From("Builds")
 				.Where("BuildCount", CompareTypes.GreaterThan, 100)
 				.Where("BuildName", CompareTypes.NotEqual, "Test Build");
@@ -129,7 +128,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		[DataRow(6 )]
 		public void Test_Top_Clause_Is_Generated_Correctly(int topClauseCount)
 		{
-			var queryBuilder = new SQLQueryBuilder()
+			var queryBuilder = new InternalQueryBuilder()
 				.Top(topClauseCount)
 				.From("USERS")
 				.BuildSelect();
@@ -142,7 +141,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		[DataRow("BUILDS")]
 		public void Assert_That_Not_Built_Query_Throws_Exception(string tableName)
 		{
-			var queryBuilder = new SQLQueryBuilder()
+			var queryBuilder = new InternalQueryBuilder()
 			.From(tableName);
 
 			Assert.Throws<NotBuiltQueryException>(() => queryBuilder.GetQuery());
@@ -153,7 +152,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		[DataRow("BUILDS")]
 		public void Assert_That_Build_Select_Has_No_Affect_If_Called_Twice(string tableName)
 		{
-			var queryBuilder = new SQLQueryBuilder()
+			var queryBuilder = new InternalQueryBuilder()
 			.From(tableName)
 			.BuildSelect();
 
@@ -167,7 +166,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		{
 			var unitTest = new UnitTest();
 
-			var queryBuilder = new SQLQueryBuilder()
+			var queryBuilder = new InternalQueryBuilder()
 			.From(tableName)
 			.BuildInsert<UnitTest>(unitTest);
 
@@ -181,7 +180,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		{
 			var unitTest = new UnitTest();
 
-			var queryBuilder = new SQLQueryBuilder()
+			var queryBuilder = new InternalQueryBuilder()
 			.From(tableName)
 			.BuildUpdate<UnitTest>(unitTest);
 
@@ -195,7 +194,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		{
 			var unitTest = new UnitTest();
 
-			var queryBuilder = new SQLQueryBuilder()
+			var queryBuilder = new InternalQueryBuilder()
 			.From(tableName)
 			.BuildDelete<UnitTest>(unitTest);
 
@@ -209,12 +208,13 @@ namespace UnitTests.DataEngineTests.SQLQueries
 			unitTest.Name = "INSERT TEST";
 			unitTest.Guid = Guid.NewGuid();
 
-			var queryBuilder = new SQLQueryBuilder()
-				.Top()
-				.Where()
+			var queryBuilder = new InternalQueryBuilder()
+				.From("UNIT_TESTS")
+				.BuildInsert<UnitTest>(unitTest);
 
 			var query = queryBuilder.GetQuery();
-			Assert.AreEqual($"INSERT INTO UNIT_TESTS (NAME, GUID) VALUES ('INSERT TEST', '{unitTest.Guid}')", query);
+			Assert.AreEqual($"INSERT INTO UNIT_TESTS (NAME, GUID, VERSION, CREATED_AT, UPDATED_AT) " +
+				$"VALUES ('INSERT TEST', '{unitTest.Guid}', 0, '{unitTest.CreatedAt}', '{unitTest.UpdatedAt}')", query);
 		}
 
 		[TestMethod]
@@ -224,7 +224,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 			unitTest.Name = "UPDATE TEST";
 			unitTest.Guid = Guid.NewGuid();
 
-			var queryBuilder = new SQLQueryBuilder()
+			var queryBuilder = new InternalQueryBuilder()
 				.From("UNIT_TESTS")
 				.BuildUpdate<UnitTest>(unitTest);
 
@@ -239,12 +239,26 @@ namespace UnitTests.DataEngineTests.SQLQueries
 			unitTest.Name = "DELETE TEST";
 			unitTest.Guid = Guid.NewGuid();
 
-			var queryBuilder = new SQLQueryBuilder()
+			var queryBuilder = new InternalQueryBuilder()
 				.From("UNIT_TESTS")
 				.BuildDelete<UnitTest>(unitTest);
 
 			var query = queryBuilder.GetQuery();
 			Assert.AreEqual($"DELETE FROM UNIT_TESTS WHERE GUID = '{unitTest.Guid}'", query);
+		}
+
+		[TestMethod]
+		public void Client_SQL_Builder_Should_Transfer_Its_State_To_Internal_Builder()
+		{
+			var sqlQueryBuider = new QueryBuilder()
+			.Where("BUILD_COUNT", CompareTypes.GreaterThan, 100)
+			.Where("BUILD_NAME", CompareTypes.NotEqual, "Test Build");
+
+			var queryBuilder = new InternalQueryBuilder(sqlQueryBuider)
+				.From("BUILDS")
+				.BuildSelect();
+
+			Assert.AreEqual("SELECT * FROM BUILDS WITH(NOLOCK) WHERE BUILD_COUNT > 100 AND BUILD_NAME <> 'Test Build'", queryBuilder.GetQuery());
 		}
 	}
 }

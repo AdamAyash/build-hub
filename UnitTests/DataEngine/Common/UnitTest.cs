@@ -2,6 +2,7 @@
 
 namespace UnitTests.DataEngineTests.Tables
 {
+	[TableName("UNIT_TESTS")]
 	internal class UnitTest : VersionedEntity
 	{
 		[ColumnInfo("NAME")]

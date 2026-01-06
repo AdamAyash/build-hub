@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace BuildHub.DataEngine.Exceptions
+namespace BuildHub.DataEngine.Exceptions.Entities
 {
 	public class MissingColumnDescriptionException : Exception
 	{

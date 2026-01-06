@@ -102,7 +102,7 @@ namespace BuildHub.Common.Utilities
 		}
 
 		/// <summary>
-		/// 
+		/// Gets a Property info object from an expression
 		/// </summary>
 		/// <typeparam name="TObject"></typeparam>
 		/// <param name="propertyExpression"></param>

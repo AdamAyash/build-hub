@@ -2,8 +2,8 @@
 {
 	using BuildHub.Common.Logger;
 	using BuildHub.Common.Utilities;
-	using DatabaseConnection;
 	using Microsoft.Data.SqlClient;
+	using DatabaseConnection;
 
 	/// <summary>
 	/// A transaction wrapper class that will rollback automatically out of scope.
@@ -30,6 +30,12 @@
 			Logger.LogDebug($"Transaction was successfully started for database {databaseSource}");
 		}
 
+		/// <summary>
+		/// Starts a new database transaction on the underlying connection.
+		/// </summary>
+		/// <returns>A <see cref="SqlTransaction"/> object representing the newly started transaction. The caller is responsible for
+		/// committing or rolling back the transaction as appropriate.</returns>
+		/// <exception cref="ObjectDisposedException">Thrown if the current instance has been disposed.</exception>
 		private SqlTransaction StartTransaction()
 		{
 			if (_isDisposed)
@@ -38,6 +44,15 @@
 			return this._databaseConnection.InternalConnection.BeginTransaction();
 		}
 
+		/// <summary>
+		/// Commits the current transaction and releases associated resources.
+		/// </summary>
+		/// <remarks>After calling this method, the transaction is finalized and the underlying database context is
+		/// disposed.  This method should be called once per transaction scope. Subsequent calls after disposal will result in
+		/// an exception.</remarks>
+		/// <returns><see langword="true"/> if the transaction is committed successfully; otherwise, <see langword="false"/> if an
+		/// error occurs during commit.</returns>
+		/// <exception cref="ObjectDisposedException">Thrown if the transaction has already been disposed.</exception>
 		public bool Commit()
 		{
 			if (_isDisposed)
@@ -52,10 +67,21 @@
 				Logger.LogError(exception, $"Commit transaction failed.");
 				return false;
 			}
+			finally
+			{
+				this._databaseContext.Dispose();
+			}
 
 			return true;
 		}
 
+		/// <summary>
+		/// Rolls back the current transaction and releases associated resources.
+		/// </summary>
+		/// <remarks>After calling this method, the transaction and its underlying resources are disposed and cannot
+		/// be used again.</remarks>
+		/// <returns><see langword="true"/> if the transaction was successfully rolled back; otherwise, <see langword="false"/>.</returns>
+		/// <exception cref="ObjectDisposedException">Thrown if the transaction has already been disposed.</exception>
 		public bool Rollback()
 		{
 			if (_isDisposed)
@@ -69,6 +95,10 @@
 			{
 				Logger.LogError(exception, $"Commit transaction failed.");
 				return false;
+			}
+			finally
+			{
+				this._databaseContext.Dispose();
 			}
 
 			return true;
@@ -99,8 +129,9 @@
 				{
 					if(!this.Rollback())
 					{
-						//TODO throw
+						throw new InvalidOperationException();
 					}
+
 					this._databaseContext.Dispose();
 				}
 

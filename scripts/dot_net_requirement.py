@@ -1,4 +1,5 @@
 import subprocess
+from globals import REQUIRED_DOT_NET_VERSION
 from utils import load_animation
 
 def __get_dotnet_version():
@@ -19,8 +20,8 @@ def __get_dotnet_version():
 def validate_dotnet_version():
     version = __get_dotnet_version()
     print(f"Current .NET version: {version}")
-    if float(version[:3]) >= 9.0:
+    if float(version[:3]) >= REQUIRED_DOT_NET_VERSION:
        return True
     else:
-         print("Build-Hub requires .NET 4.8 or higher.")
+         print("Build-Hub requires .NET {REQUIRED_DOT_NET_VERSION} or higher.")
          return False

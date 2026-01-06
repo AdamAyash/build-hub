@@ -7,48 +7,27 @@ from input import prompt_with_default
 
 
 class DatabaseConnectionStringBuilder:
-    """
-    Enhanced database connection string builder with validation,
-    security features, and better error handling.
-    """
     
     connectionStringEnvironmentVariablePrefix = "ConnectionStrings__"
     connectionString = ""
     
     def __init__(self, databaseKey: str, databaseName: str):
-        """
-        Initialize the connection string builder.
-        
-        Args:
-            databaseKey: Key for the environment variable
-            databaseName: Human-readable database name
-        """
+      
         self.databaseKey = databaseKey
         self.databaseName = databaseName
         self.logger = logging.getLogger(__name__)
         
     def build(self) -> str:
-        """
-        Build the connection string through user input.
-        
-        Returns:
-            The built connection string
-            
-        Raises:
-            ValueError: If validation fails
-            KeyboardInterrupt: If user cancels
-        """
+      
         print(f"🔧 Building connection string for {self.databaseName}...")
         print("─" * 60)
         
         try:
-            # Get connection parameters with validation
             dataSource = self._get_data_source()
             initialCatalog = self._get_catalog()
             userID = self._get_user_id()
             password = self._get_password()
             
-            # Offer Windows Authentication as alternative
             use_windows_auth = self._prompt_windows_auth()
             
             if use_windows_auth:
@@ -66,7 +45,6 @@ class DatabaseConnectionStringBuilder:
                     f"Password={password};"
                 )
             
-            # Add optional parameters
             self._add_parameters()
             
             print("\n✅ Connection string built successfully")
@@ -85,7 +63,6 @@ class DatabaseConnectionStringBuilder:
             raise
     
     def _get_data_source(self) -> str:
-        """Get and validate data source."""
         while True:
             dataSource = input("📍 Data source (e.g., localhost, server.domain.com): ").strip()
             
@@ -106,7 +83,6 @@ class DatabaseConnectionStringBuilder:
             return dataSource
     
     def _get_catalog(self) -> str:
-        """Get and validate catalog/database name."""
         while True:
             catalog = input("📊 Database catalog/name: ").strip()
             
@@ -117,7 +93,6 @@ class DatabaseConnectionStringBuilder:
             return catalog
     
     def _get_user_id(self) -> str:
-        """Get and validate user ID."""
         while True:
             userId = input("👤 User ID: ").strip()
             
@@ -143,7 +118,6 @@ class DatabaseConnectionStringBuilder:
             return password
 
     def _prompt_windows_auth(self) -> bool:
-        """Ask if user wants to use Windows Authentication."""
         if os.name != 'nt':
             return False
             
@@ -182,7 +156,6 @@ class DatabaseConnectionStringBuilder:
             self.connectionString += "MultipleActiveResultSets=True;"
     
     def _save_connection_string(self):
-        """Save connection string to environment variable with enhanced prompts."""
         print("\n" + "─" * 60)
         print("💾 SAVE TO ENVIRONMENT VARIABLE")
         print("─" * 60)
@@ -250,12 +223,6 @@ class DatabaseConnectionStringBuilder:
             raise
     
     def test_connection(self) -> bool:
-        """
-        Test the database connection (optional method for future use).
-        
-        Returns:
-            True if connection successful, False otherwise
-        """
         # This could be implemented with pyodbc or other database drivers
         # Left as a placeholder for future enhancement
         self.logger.info("Connection test not implemented yet")

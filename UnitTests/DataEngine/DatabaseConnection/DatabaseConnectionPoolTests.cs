@@ -1,7 +1,7 @@
 namespace UnitTests.DataEngineTests.DatabaseConnection
 {
 	using BuildHub.DataEngine.DatabaseConnection;
-	using BuildHub.DataEngine.Exceptions;
+	using BuildHub.DataEngine.Exceptions.DatabaseConnection;
 
 	[TestClass]
 	[DoNotParallelize]

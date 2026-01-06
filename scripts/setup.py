@@ -1,30 +1,25 @@
-"""
-Build-Hub Setup Script
-"""
+import subprocess
 import sys
 import time
 import logging
-from typing import Optional, Dict, Any, List
-from dataclasses import dataclass
+from typing import Optional, List
 from enum import Enum
 
+from dataclasses import dataclass
 from dot_net_requirement import validate_dotnet_version
 from database_connection_string_builder import DatabaseConnectionStringBuilder
-from utils import section, success, warning, error, step, divider
-
+from input import prompt_with_default
+from utils import load_animation, section, success, warning, error, step, divider
 
 class SetupStatus(Enum):
-    """Status codes for setup operations."""
     PENDING = "pending"
     RUNNING = "running"
     SUCCESS = "success"
     FAILED = "failed"
     SKIPPED = "skipped"
 
-
 @dataclass
 class SetupStep:
-    """Represents a single setup step."""
     name: str
     description: str
     function: callable
@@ -32,6 +27,7 @@ class SetupStep:
     status: SetupStatus = SetupStatus.PENDING
     error: Optional[str] = None
     duration: float = 0.0
+    required: bool = False
 
 
 class BuildHubSetup:
@@ -42,7 +38,7 @@ class BuildHubSetup:
         self._register_steps()
         
     def setup_logging(self):
-        log_file = 'buildhub_setup.log'
+        log_file = 'setup.log'
         
         file_handler = logging.FileHandler(log_file, mode='a')
         file_handler.setFormatter(
@@ -61,24 +57,29 @@ class BuildHubSetup:
         self.logger.info("="*60)
     
     def _register_steps(self):
-        """Register all setup steps in order."""
         self.steps = [
             SetupStep(
                 name="dotnet_validation",
                 description="Validating .NET installation",
                 function=self._validate_dotnet,
-                critical=True
+                critical=True,
+                required = True
             ),
             SetupStep(
-                name="database_setup",
+                name="initialize_database_connections",
                 description="Setting up database connections",
-                function=self._setup_databases,
+                function=self._setup_database_connections,
+                critical=True
+            ),
+             SetupStep(
+                name="create_or_update_databases",
+                description="Create or update databases",
+                function=self._create_or_update_databases,
                 critical=True
             ),
         ]
     
     def _validate_dotnet(self) -> bool:
-        """Validate .NET version."""
         try:
             self.logger.info("Validating .NET version")
             result = validate_dotnet_version()
@@ -93,8 +94,7 @@ class BuildHubSetup:
             self.logger.error(f".NET validation failed: {str(e)}")
             raise
     
-    def _setup_databases(self) -> bool:
-        """Setup database connections."""
+    def _setup_database_connections(self) -> bool:
         try:
             self.logger.info("Setting up database connections")
             print()
@@ -114,12 +114,23 @@ class BuildHubSetup:
         except Exception as e:
             self.logger.error(f"Failed to setup database: {str(e)}")
             raise
-    
+        
+    def _create_or_update_databases(self) -> bool:
+            load_animation("Creating/Updating databases...")
+            
+            return True
+
     def _run_step(self, step: SetupStep) -> bool:
-        """Execute a single setup step with error handling."""
+        
         step.status = SetupStatus.RUNNING
         start_time = time.time()
         
+        if not step.required: 
+            confirmation = prompt_with_default( "Do you wish to proceed with this step? (Y/n)", "y")
+            if confirmation is not "Y" or not "y":
+                step.status = SetupStatus.SKIPPED
+                return True;
+    
         try:
             self.logger.debug(f"Starting step: {step.name}")
             result = step.function()
@@ -153,6 +164,7 @@ class BuildHubSetup:
         total_time = sum(step.duration for step in self.steps)
         successful = sum(1 for step in self.steps if step.status == SetupStatus.SUCCESS)
         failed = sum(1 for step in self.steps if step.status == SetupStatus.FAILED)
+        skipped = sum(1 for step in self.steps if step.status == SetupStatus.SKIPPED)
         
         print("\n" + "=" * 60)
         print("📊 SETUP SUMMARY")

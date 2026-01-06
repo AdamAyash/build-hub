@@ -1,9 +1,3 @@
-#!/usr/bin/env python3
-"""
-Python Requirements Validator
-Validates and installs required Python packages with enhanced error handling and user experience.
-"""
-
 import sys
 import subprocess
 import importlib
@@ -14,7 +8,6 @@ from enum import Enum
 
 
 class InstallStatus(Enum):
-    """Status of package installation."""
     ALREADY_INSTALLED = "already_installed"
     INSTALLED = "installed"
     SKIPPED = "skipped"
@@ -23,9 +16,8 @@ class InstallStatus(Enum):
 
 @dataclass
 class PackageRequirement:
-    """Represents a Python package requirement."""
     name: str
-    import_name: Optional[str] = None  # If different from package name
+    import_name: Optional[str] = None  
     min_version: Optional[str] = None
     required: bool = True
     description: Optional[str] = None
@@ -36,22 +28,11 @@ class PackageRequirement:
 
 
 class PythonRequirementsValidator:
-    """
-    Enhanced validator for Python package requirements.
-    Handles installation, version checking, and provides detailed feedback.
-    """
     
     def __init__(self, requirements: Optional[List[PackageRequirement]] = None, 
                  auto_install: bool = False,
                  verbose: bool = False):
-        """
-        Initialize the validator.
-        
-        Args:
-            requirements: List of package requirements
-            auto_install: Skip confirmation prompts
-            verbose: Enable verbose output
-        """
+       
         self.requirements = requirements or self._default_requirements()
         self.auto_install = auto_install
         self.verbose = verbose
@@ -59,7 +40,6 @@ class PythonRequirementsValidator:
         self.logger = self._setup_logging()
     
     def _setup_logging(self) -> logging.Logger:
-        """Setup logging configuration."""
         logger = logging.getLogger(__name__)
         
         if not logger.handlers:
@@ -72,12 +52,11 @@ class PythonRequirementsValidator:
         return logger
     
     def _default_requirements(self) -> List[PackageRequirement]:
-        """Return default package requirements for Build-Hub."""
         return [
             PackageRequirement(
                 name="colorama",
                 description="Terminal colors and formatting",
-                required=True
+                required=False
             ),
             PackageRequirement(
                 name="rich",
@@ -87,14 +66,12 @@ class PythonRequirementsValidator:
         ]
     
     def _print_header(self):
-        """Print validation header."""
         print("\n" + "=" * 60)
         print("🐍 PYTHON REQUIREMENTS VALIDATION")
         print("=" * 60)
         print("Checking required Python packages...\n")
     
     def _print_summary(self):
-        """Print validation summary."""
         already_installed = sum(1 for s in self.results.values() if s == InstallStatus.ALREADY_INSTALLED)
         installed = sum(1 for s in self.results.values() if s == InstallStatus.INSTALLED)
         skipped = sum(1 for s in self.results.values() if s == InstallStatus.SKIPPED)
@@ -114,7 +91,6 @@ class PythonRequirementsValidator:
         print("=" * 60)
     
     def _check_python_version(self) -> bool:
-        """Check if Python version meets requirements."""
         min_version = (3, 7)
         current_version = sys.version_info[:2]
         
@@ -130,7 +106,6 @@ class PythonRequirementsValidator:
         return True
     
     def _check_pip_available(self) -> bool:
-        """Check if pip is available."""
         try:
             result = subprocess.run(
                 [sys.executable, "-m", "pip", "--version"],
@@ -156,19 +131,9 @@ class PythonRequirementsValidator:
             return False
     
     def _is_package_installed(self, package: PackageRequirement) -> Tuple[bool, Optional[str]]:
-        """
-        Check if a package is installed.
-        
-        Args:
-            package: Package requirement to check
-            
-        Returns:
-            Tuple of (is_installed, version)
-        """
         try:
             module = importlib.import_module(package.import_name)
             
-            # Try to get version
             version = None
             for attr in ['__version__', 'version', 'VERSION']:
                 if hasattr(module, attr):
@@ -186,15 +151,6 @@ class PythonRequirementsValidator:
             return False, None
     
     def _install_package(self, package: PackageRequirement) -> bool:
-        """
-        Install a package using pip.
-        
-        Args:
-            package: Package to install
-            
-        Returns:
-            True if installation successful, False otherwise
-        """
         package_spec = package.name
         if package.min_version:
             package_spec = f"{package.name}>={package.min_version}"
@@ -237,15 +193,6 @@ class PythonRequirementsValidator:
             return False
     
     def _prompt_install(self, package: PackageRequirement) -> bool:
-        """
-        Prompt user to install a package.
-        
-        Args:
-            package: Package to install
-            
-        Returns:
-            True if user wants to install, False otherwise
-        """
         if self.auto_install:
             return True
         
@@ -267,15 +214,6 @@ class PythonRequirementsValidator:
                 print("   Please answer 'y' or 'n'")
     
     def _validate_package(self, package: PackageRequirement) -> InstallStatus:
-        """
-        Validate a single package requirement.
-        
-        Args:
-            package: Package to validate
-            
-        Returns:
-            InstallStatus enum value
-        """
         # Check if already installed
         is_installed, version = self._is_package_installed(package)
         
@@ -317,12 +255,6 @@ class PythonRequirementsValidator:
             return InstallStatus.FAILED
     
     def validate_all(self) -> bool:
-        """
-        Validate all requirements.
-        
-        Returns:
-            True if all required packages are available, False otherwise
-        """
         self._print_header()
         
         # Pre-flight checks
@@ -337,7 +269,6 @@ class PythonRequirementsValidator:
         
         print()
         
-        # Validate each package
         all_required_met = True
         
         for package in self.requirements:
@@ -359,27 +290,15 @@ class PythonRequirementsValidator:
         return all_required_met
     
     def validate_and_exit(self):
-        """Validate requirements and exit if any required packages are missing."""
         if not self.validate_all():
             sys.exit(1)
-
 
 def validate_python_requirements(
     requirements: Optional[List[PackageRequirement]] = None,
     auto_install: bool = False,
     verbose: bool = False
 ) -> bool:
-    """
-    Convenience function to validate Python requirements.
     
-    Args:
-        requirements: List of package requirements (uses defaults if None)
-        auto_install: Skip confirmation prompts
-        verbose: Enable verbose output
-        
-    Returns:
-        True if all required packages are available, False otherwise
-    """
     validator = PythonRequirementsValidator(
         requirements=requirements,
         auto_install=auto_install,
@@ -389,7 +308,6 @@ def validate_python_requirements(
 
 
 def main():
-    """Main entry point when run as a script."""
     import argparse
     
     parser = argparse.ArgumentParser(

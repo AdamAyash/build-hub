@@ -10,11 +10,13 @@ namespace BuildHub.DataEngine.DatabaseConnection
 	{
 		public SqlConnection InternalConnection { get; private set; }
 		public DatabaseSource DatabaseSource { get; private set; }
+		public bool IsConnectionPooled { get; internal set; }
 
 		public DatabaseConnection(DatabaseSource databaseSource, string connectionString)
 		{
 			this.InternalConnection = new SqlConnection(connectionString);
 			this.DatabaseSource = databaseSource;
+			this.IsConnectionPooled = true;
 		}
 
 		~DatabaseConnection() => Dispose(false);
@@ -50,8 +52,11 @@ namespace BuildHub.DataEngine.DatabaseConnection
 		/// <param name="disposing"></param>
 		protected virtual void Dispose(bool disposing)
 		{
-			if (disposing)
+			if (disposing && !this.IsConnectionPooled)
+			{
 				DatabaseConnectionPool.GetInstance().ReleaseDatabaseConnection(this);
+				this.IsConnectionPooled = true;
+			}
 		}
 	}
 }

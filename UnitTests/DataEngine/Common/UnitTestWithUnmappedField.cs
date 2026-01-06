@@ -6,11 +6,11 @@ namespace UnitTests.DataEngineTests.Tables
 	internal sealed class UnitTestsWithUnmappedFieldTable: BaseTable<UnitTestWithUnmappedField>
 	{
 		public UnitTestsWithUnmappedFieldTable()
-			:  base("UNIT_TESTS", DatabaseSource.Core)
 		{
 		}
 	}
 
+	[TableName("UNIT_TESTS")]
 	internal class UnitTestWithUnmappedField : BaseEntity
 	{
 		public int UnitTestUnmappedProperty { get; set; }

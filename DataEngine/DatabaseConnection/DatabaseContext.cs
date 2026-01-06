@@ -1,8 +1,7 @@
-﻿using BuildHub.Common.Utilities;
-using BuildHub.DataEngine.Transactions;
-
-namespace BuildHub.DataEngine.DatabaseConnection
+﻿namespace BuildHub.DataEngine.DatabaseConnection
 {
+	using Transactions;
+
 	/// <summary>
 	/// Manages thread-local database connections for the current async/thread context
 	/// </summary>
@@ -45,13 +44,10 @@ namespace BuildHub.DataEngine.DatabaseConnection
 		/// <returns>DatabaseConnection</returns>
 		public DatabaseConnection GetConnection(DatabaseSource databaseSource)
 		{
-			if(_isDisposed)
-				throw new ObjectDisposedException(Utilities.GetTypeName(typeof(DatabaseContext)));
-
 			if (this._contextDatabaseConnections.TryGetValue(databaseSource, out var existingConnection))
 			{
 				DatabaseConnectionValidator databaseConnectionValidator = new(existingConnection, this.TransactionContext);
-				if(databaseConnectionValidator.TestDatabaseConnection())
+				if (databaseConnectionValidator.TestDatabaseConnection())
 					return existingConnection;
 			}
 
@@ -63,7 +59,7 @@ namespace BuildHub.DataEngine.DatabaseConnection
 
 		private void ClearContext()
 		{
-			foreach(var databaseConnection in this._contextDatabaseConnections.Values)
+			foreach (var databaseConnection in this._contextDatabaseConnections.Values)
 				databaseConnection.Dispose();
 		}
 
@@ -75,13 +71,8 @@ namespace BuildHub.DataEngine.DatabaseConnection
 
 		private void Dispose(bool disposing)
 		{
-			if (!_isDisposed)
-			{
-				if (disposing)
-					this.ClearContext();
-
-				_isDisposed = true;
-			}
+			if (disposing)
+				this.ClearContext();
 		}
 	}
 }

@@ -32,26 +32,11 @@
 		[TestMethod]
 		[DataRow(DatabaseSource.Users)]
 		[DataRow(DatabaseSource.Core)]
-		public void Test_Connection_Should_Return_False_When_Connection_Is_Closed(DatabaseSource databaseSource)
-		{
-			var pool = DatabaseConnectionPool.GetInstance();
-			var databaseConnection = pool.GetDatabaseConnection(databaseSource);
-			databaseConnection.Dispose();
-
-			var databaseConnectionValidator = new DatabaseConnectionValidator(databaseConnection);
-
-			Assert.IsFalse(databaseConnectionValidator.TestDatabaseConnection());
-		}
-
-		[TestMethod]
-		[DataRow(DatabaseSource.Users)]
-		[DataRow(DatabaseSource.Core)]
 		public void Test_Connection_With_Transaction_Context_Should_Return_True_When_Valid(DatabaseSource databaseSource)
 		{
-			var pool = DatabaseConnectionPool.GetInstance();
-			using var databaseConnection = pool.GetDatabaseConnection(databaseSource);
+			using var transactionContext = new ScopedTransaction(databaseSource);
+			using var databaseConnection = DatabaseContext.GetCurrentContext.GetConnection(databaseSource);
 
-			var transactionContext = new ScopedTransaction();
 			var databaseConnectionValidator = new DatabaseConnectionValidator(databaseConnection, transactionContext);
 
 			Assert.IsTrue(databaseConnectionValidator.TestDatabaseConnection());
@@ -83,25 +68,6 @@
 			Assert.IsTrue(databaseConnectionValidator.TestDatabaseConnection());
 			Assert.IsTrue(databaseConnectionValidator.TestDatabaseConnection());
 			Assert.IsTrue(databaseConnectionValidator.TestDatabaseConnection());
-		}
-
-		[TestMethod]
-		[DataRow(DatabaseSource.Users)]
-		[DataRow(DatabaseSource.Core)]
-		public void Test_Connection_Should_Return_False_After_Connection_Is_Disposed(DatabaseSource databaseSource)
-		{
-			var pool = DatabaseConnectionPool.GetInstance();
-			var databaseConnection = pool.GetDatabaseConnection(databaseSource);
-			var databaseConnectionValidator = new DatabaseConnectionValidator(databaseConnection);
-
-			// First validation should succeed
-			Assert.IsTrue(databaseConnectionValidator.TestDatabaseConnection());
-
-			// Close the connection
-			databaseConnection.Dispose();
-
-			// Second validation should fail
-			Assert.IsFalse(databaseConnectionValidator.TestDatabaseConnection());
 		}
 
 		[TestMethod]

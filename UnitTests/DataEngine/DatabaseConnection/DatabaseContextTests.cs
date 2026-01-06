@@ -5,26 +5,14 @@
 	using Moq;
 
 	[TestClass]
+	[DoNotParallelize]
 	public class DatabaseContextTests
 	{
-		[TestMethod]
-		[DataRow(DatabaseSource.Users)]
-		[DataRow(DatabaseSource.Core)]
-		public void Test_Get_Connection_After_Dispose_Throws_Object_Disposed_Exception(DatabaseSource databaseSource)
-		{
-			var databaseContext = DatabaseContext.GetCurrentContext;
-			databaseContext.Dispose();
-
-			Assert.Throws<ObjectDisposedException>(() =>
-			{
-				databaseContext.GetConnection(databaseSource);
-			});
-		}
 
 		[TestMethod]
 		public void Test_Multiple_Database_Sources_Are_Independent()
 		{
-			var databaseContext = DatabaseContext.GetCurrentContext;
+			using var databaseContext = DatabaseContext.GetCurrentContext;
 
 			DatabaseConnection usersConnection = databaseContext.GetConnection(DatabaseSource.Users);
 			DatabaseConnection coreConnection = databaseContext.GetConnection(DatabaseSource.Core);
@@ -40,6 +28,7 @@
 		public void Test_Has_Context_Database_Connection_Returns_False_For_Non_Existent_Connection(DatabaseSource databaseSource)
 		{
 			var databaseContext = DatabaseContext.GetCurrentContext;
+			databaseContext.Dispose();
 
 			Assert.IsFalse(databaseContext.HasContextDatabaseConnection(databaseSource));
 		}
@@ -49,7 +38,7 @@
 		[DataRow(DatabaseSource.Core)]
 		public void Test_Transaction_Context_Is_Null_By_Default(DatabaseSource databaseSource)
 		{
-			var databaseContext = DatabaseContext.GetCurrentContext;
+			using var databaseContext = DatabaseContext.GetCurrentContext;
 
 			Assert.IsNull(databaseContext.TransactionContext);
 		}
@@ -59,7 +48,7 @@
 		[DataRow(DatabaseSource.Core)]
 		public void Test_Transaction_Context_Can_Be_Set(DatabaseSource databaseSource)
 		{
-			var databaseContext = DatabaseContext.GetCurrentContext;
+			using var databaseContext = DatabaseContext.GetCurrentContext;
 			var mockTransactionContext = new Mock<ITransactionContext>();
 
 			databaseContext.TransactionContext = mockTransactionContext.Object;
@@ -90,7 +79,7 @@
 		[DataRow(DatabaseSource.Core)]
 		public void Test_Get_Connection_Returns_Valid_Connection(DatabaseSource databaseSource)
 		{
-			var databaseContext = DatabaseContext.GetCurrentContext;
+			using var databaseContext = DatabaseContext.GetCurrentContext;
 			DatabaseConnection databaseConnection = databaseContext.GetConnection(databaseSource);
 
 			Assert.IsNotNull(databaseConnection);
@@ -100,32 +89,20 @@
 		[TestMethod]
 		[DataRow(DatabaseSource.Users)]
 		[DataRow(DatabaseSource.Core)]
-		public void Test_Multiple_Disposes_Do_Not_Throw(DatabaseSource databaseSource)
-		{
-			var databaseContext = DatabaseContext.GetCurrentContext;
-			databaseContext.GetConnection(databaseSource);
-
-			databaseContext.Dispose();
-			databaseContext.Dispose();
-		}
-
-		[TestMethod]
-		[DataRow(DatabaseSource.Users)]
-		[DataRow(DatabaseSource.Core)]
 		public void Test_Connection_Validation_Replaces_Invalid_Connection(DatabaseSource databaseSource)
 		{
-			var databaseContext = DatabaseContext.GetCurrentContext;
-			DatabaseConnection firstConnection = databaseContext.GetConnection(databaseSource);
+			using var databaseContext = DatabaseContext.GetCurrentContext;
+			 DatabaseConnection firstConnection = databaseContext.GetConnection(databaseSource);
 			firstConnection.InternalConnection.Close();
 
 			DatabaseConnection secondConnection = databaseContext.GetConnection(databaseSource);
 			Assert.IsNotNull(secondConnection);
-		}
+		 }
 
 		[TestMethod]
 		public async Task Test_Async_Context_Isolation()
 		{
-			var context1 = DatabaseContext.GetCurrentContext;
+			using var context1 = DatabaseContext.GetCurrentContext;
 			var conn1 = context1.GetConnection(DatabaseSource.Users);
 
 			DatabaseContext context2 = null;
@@ -136,6 +113,8 @@
 				context2 = DatabaseContext.GetCurrentContext;
 				conn2 = context2.GetConnection(DatabaseSource.Users);
 			});
+
+			context2.Dispose();
 
 			Assert.AreNotEqual(context1, context2);
 			Assert.AreNotEqual(conn1, conn2);

@@ -1,4 +1,4 @@
-namespace BuildHub.DataEngine.Exceptions
+namespace BuildHub.DataEngine.Exceptions.DatabaseConnection
 {
 	/// <summary>
 	/// Exception describing the scenario where a database configuration is missing.

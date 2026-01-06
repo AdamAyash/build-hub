@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace BuildHub.DataEngine.SQLQueries
+namespace BuildHub.DataEngine.Queries
 {
 	public enum CompareTypes
 	{

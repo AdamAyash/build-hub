@@ -1,6 +1,7 @@
 ﻿#region
 using BuildHub.Common.Utilities;
 using BuildHub.DataEngine.Exceptions;
+using BuildHub.DataEngine.Exceptions.Entities;
 using Microsoft.Data.SqlClient;
 using System.Collections.Concurrent;
 using System.Data;
@@ -37,15 +38,15 @@ namespace BuildHub.DataEngine.Entities
 		/// <remarks>The mapping is based on cached column-property associations for performance. The SqlDataReader
 		/// must be positioned on a valid row before calling this method. Only properties with corresponding columns in the
 		/// data reader will be set.</remarks>
-		/// <typeparam name="Entity">The type of entity to create and populate. Must implement the IEntity interface.</typeparam>
+		/// <typeparam name="TEntity">The type of entity to create and populate. Must implement the IEntity interface.</typeparam>
 		/// <param name="sqlDataReader">The SqlDataReader positioned at the row to map to the entity. Must not be null.</param>
 		/// <returns>An instance of the specified entity type with properties set to the corresponding column values from the
 		/// SqlDataReader.</returns>
-		public static Entity MapDataToEntity<Entity>(SqlDataReader sqlDataReader)
-			where Entity : IEntity
+		public static TEntity MapDataToEntity<TEntity>(SqlDataReader sqlDataReader)
+			where TEntity : IEntity
 		{
-			Type entityType = typeof(Entity);
-			Entity entity = Activator.CreateInstance<Entity>();
+			Type entityType = typeof(TEntity);
+			TEntity entity = Activator.CreateInstance<TEntity>();
 
 			if (_entityColumnMappingCache.ContainsKey(entityType))
 			{
@@ -60,7 +61,7 @@ namespace BuildHub.DataEngine.Entities
 			{
 				var entityColumnMappingList = new List<ColumnMappingData>();
 
-				var properties = Utilities.GetObjectProperties<Entity>();
+				var properties = Utilities.GetObjectProperties<TEntity>();
 				foreach (PropertyInfo property in properties)
 				{
 					ColumnInfo? columnInfo = GetColumnInfo(property);
@@ -92,20 +93,31 @@ namespace BuildHub.DataEngine.Entities
 			return columnDescription;
 		}
 
+		public static string GetTableName<TEntity>() where TEntity : IEntity
+		{
+			Type entityType = typeof(TEntity);
+
+			TableName? tableName = entityType.GetCustomAttribute<TableName>();
+			if (tableName is null)
+				throw new MissingTableNameException(entityType);
+
+			return tableName.Name;
+		}
+
 		/// <summary>
 		/// Retrieves column metadata for the specified property of an entity type.
 		/// </summary>
 		/// <remarks>Use this method to obtain database column information for a strongly-typed property of an entity.
 		/// This approach provides compile-time safety and avoids errors from using string property names.</remarks>
-		/// <typeparam name="Entity">The entity type that contains the property for which to retrieve column information. Must implement <see
+		/// <typeparam name="TEntity">The entity type that contains the property for which to retrieve column information. Must implement <see
 		/// cref="IEntity"/>.</typeparam>
 		/// <param name="propertyExpressions">An expression that identifies the property of the entity type. Typically provided as a lambda expression, such as
 		/// <c>x => x.PropertyName</c>.</param>
 		/// <returns>A <see cref="ColumnInfo"/> object containing metadata about the specified property.</returns>
-		public static ColumnInfo GetColumnInfo<Entity>(Expression<Func<Entity, object>> propertyExpressions)
-			 where Entity : IEntity
+		public static ColumnInfo GetColumnInfo<TEntity>(Expression<Func<TEntity, object>> propertyExpressions)
+			 where TEntity : IEntity
 		{
-			PropertyInfo propertyInfo = Utilities.GetPropertyInfo<Entity>(propertyExpressions);
+			PropertyInfo propertyInfo = Utilities.GetPropertyInfo<TEntity>(propertyExpressions);
 
 			return GetColumnInfo(propertyInfo);
 		}
@@ -116,14 +128,14 @@ namespace BuildHub.DataEngine.Entities
 		/// <remarks>Use this method to obtain metadata about the primary key column for an entity type, which is
 		/// typically required for database operations such as updates or deletes. The entity type must have exactly one
 		/// property marked with the <see cref="PrimaryKey"/> attribute.</remarks>
-		/// <typeparam name="Entity">The type of the entity for which to retrieve primary key mapping data. Must implement <see cref="IEntity"/>.</typeparam>
+		/// <typeparam name="TEntity">The type of the entity for which to retrieve primary key mapping data. Must implement <see cref="IEntity"/>.</typeparam>
 		/// <returns>A <see cref="ColumnMappingData"/> instance representing the mapping information for the primary key property of
 		/// the specified entity type.</returns>
 		/// <exception cref="MissingPrimaryKeyException">Thrown if the specified entity type does not define a property marked with the <see cref="PrimaryKey"/> attribute.</exception>
-		public static ColumnMappingData GetPrimaryKeyMappingData<Entity>()
-			where Entity : IEntity
+		public static ColumnMappingData GetPrimaryKeyMappingData<TEntity>()
+			where TEntity : IEntity
 		{
-			List<PropertyInfo> properties = Utilities.GetObjectProperties<Entity>().ToList();
+			List<PropertyInfo> properties = Utilities.GetObjectProperties<TEntity>().ToList();
 			PropertyInfo? primaryKeyProperty = properties.Find(property => property.GetCustomAttributes<PrimaryKey>().Count() > 0);
 			if (primaryKeyProperty is null)
 				throw new MissingPrimaryKeyException();
@@ -150,11 +162,11 @@ namespace BuildHub.DataEngine.Entities
 		/// <summary>
 		/// Retrieves the value of the specified property from the given entity instance.
 		/// </summary>
-		/// <typeparam name="Entity">The type of the entity from which to retrieve the property value.</typeparam>
+		/// <typeparam name="TEntity">The type of the entity from which to retrieve the property value.</typeparam>
 		/// <param name="entity">The instance of the entity containing the property. Cannot be null.</param>
 		/// <param name="propertyInfo">The property metadata that identifies which property value to retrieve. Must refer to a property of the entity
 		/// type. Cannot be null.</param>
 		/// <returns>The value of the specified property for the given entity, or null if the property value is null.</returns>
-		public static object? GetColumnValue<Entity>(Entity entity, PropertyInfo propertyInfo) => propertyInfo.GetValue(entity);
+		public static object? GetColumnValue<TEntity>(TEntity entity, PropertyInfo propertyInfo) => propertyInfo.GetValue(entity);
 	}
 }

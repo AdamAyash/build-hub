@@ -9,6 +9,7 @@ namespace BuildHub.DataEngine.DatabaseConnection
 	using Common.Logger;
 
 	using DatabaseConfigurationsMap = Dictionary<DatabaseSource, Configuration.DatabaseConfiguration>;
+	using BuildHub.DataEngine.Exceptions.DatabaseConnection;
 
 	/// <summary>
 	/// Database connection pool singleton, initializing and managing a number of database connections.
@@ -33,6 +34,12 @@ namespace BuildHub.DataEngine.DatabaseConnection
 		/// <remarks>This field is intended to be used as a locking mechanism to ensure thread safety when accessing
 		/// or modifying shared data. Always use this object with a <c>lock</c> statement to avoid race conditions.</remarks>
 		private readonly object _mutex = new object();
+
+		/// <summary>
+		/// A semaphore objec3t how many threads could, request a connection.
+		/// </summary>
+		private SemaphoreSlim _semaphore;
+
 		private bool _isDisposed;
 
 		private DatabaseConnectionPool()
@@ -128,12 +135,7 @@ namespace BuildHub.DataEngine.DatabaseConnection
 					throw new ConnectionPoolExhaustedException(databaseSource);
 				}
 
-				DatabaseConnectionValidator databaseConnectionValidator = new(databaseConnection);
-				if (!databaseConnectionValidator.TestDatabaseConnection())
-				{
-					//TODO EXCEPTION
-				}
-
+				databaseConnection.IsConnectionPooled = false;
 				return databaseConnection;
 			}
 		}
@@ -259,6 +261,11 @@ namespace BuildHub.DataEngine.DatabaseConnection
 
 			foreach (DatabaseConfiguration databaseConfiguration in _databaseConfigurationsMap.Values)
 				InitializeConnections(databaseConfiguration);
+
+			int minPoolConnections = _databaseConfigurationsMap.Values.Min(config => config.MinPoolConnections);
+			int maxPoolConnections = _databaseConfigurationsMap.Values.Max(config => config.MaxPoolConnections);
+
+			this._semaphore = new SemaphoreSlim(minPoolConnections, maxPoolConnections);
 
 			Logger.LogInformation("Database connection pool initialized.");
 		}

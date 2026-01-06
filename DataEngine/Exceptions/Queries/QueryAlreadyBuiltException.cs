@@ -1,4 +1,4 @@
-﻿namespace BuildHub.DataEngine.Exceptions
+﻿namespace BuildHub.DataEngine.Exceptions.Queries
 {
 	public class QueryAlreadyBuiltException : Exception
 	{
