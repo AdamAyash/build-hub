@@ -5,6 +5,7 @@ using UnitTests.DataEngineTests.Tables;
 namespace UnitTests.DataEngine.Transactions
 {
 	[TestClass]
+	[TestCategory("Integration")]
 	public class ScopedTransactionsTests
 	{
 		[TestMethod]

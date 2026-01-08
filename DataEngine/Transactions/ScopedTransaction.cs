@@ -14,6 +14,7 @@
 		private readonly DatabaseConnection _databaseConnection;
 		private readonly SqlTransaction _internalTransaction;
 		private readonly DatabaseSource _databaseSource;
+		private bool _isTransactionFinished;
 		private bool _isDisposed;
 
 		public SqlTransaction InternalTransaction {  get { return _internalTransaction; } }
@@ -25,6 +26,7 @@
 			this._databaseConnection = _databaseContext.GetConnection(databaseSource);
 			this._internalTransaction = this.StartTransaction();
 			this._databaseSource = databaseSource;
+			this._isTransactionFinished = false;
 			this._isDisposed = false;
 
 			Logger.LogDebug($"Transaction was successfully started for database {databaseSource}");
@@ -54,8 +56,8 @@
 		/// error occurs during commit.</returns>
 		/// <exception cref="ObjectDisposedException">Thrown if the transaction has already been disposed.</exception>
 		public bool Commit()
-		{
-			if (_isDisposed)
+		{ 
+			if (_isDisposed) 
 				throw new ObjectDisposedException(Utilities.GetTypeName(typeof(ScopedTransaction)));
 
 			try
@@ -72,6 +74,7 @@
 				this._databaseContext.Dispose();
 			}
 
+			this._isTransactionFinished = true;
 			return true;
 		}
 
@@ -101,6 +104,8 @@
 				this._databaseContext.Dispose();
 			}
 
+			this._isTransactionFinished = true;
+
 			return true;
 		}
 
@@ -127,7 +132,7 @@
 			{
 				if (disposing)
 				{
-					if(!this.Rollback())
+					if(!this._isTransactionFinished && !this.Rollback())
 					{
 						throw new InvalidOperationException();
 					}
