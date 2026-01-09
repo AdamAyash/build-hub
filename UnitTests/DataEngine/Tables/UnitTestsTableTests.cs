@@ -5,6 +5,7 @@ using UnitTests.DataEngine.Common;
 namespace UnitTests.DataEngineTests.Tables
 {
 	[TestClass]
+	[TestCategory("Integration")]
 	public class UnitTestsTableTests
 	{
 		[TestMethod]

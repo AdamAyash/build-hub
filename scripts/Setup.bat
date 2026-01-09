@@ -27,7 +27,7 @@ if %errorlevel% equ 0 (
 ) else (
     echo.
     echo ============================================================
-    echo Setup failed - check buildhub_setup.log for details
+    echo Setup failed - check setup.log for details
     echo ============================================================
 )
 

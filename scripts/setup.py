@@ -7,7 +7,6 @@ from enum import Enum
 
 from dataclasses import dataclass
 from dot_net_requirement import validate_dotnet_version
-from database_connection_string_builder import DatabaseConnectionStringBuilder
 from input import prompt_with_default
 from utils import load_animation, section, success, warning, error, step, divider
 
@@ -65,14 +64,8 @@ class BuildHubSetup:
                 critical=True,
                 required = True
             ),
-            SetupStep(
-                name="initialize_database_connections",
-                description="Setting up database connections",
-                function=self._setup_database_connections,
-                critical=True
-            ),
              SetupStep(
-                name="create_or_update_databases",
+                name="install_or_update_sql_package",
                 description="Create or update databases",
                 function=self._create_or_update_databases,
                 critical=True
@@ -85,7 +78,7 @@ class BuildHubSetup:
             result = validate_dotnet_version()
             
             if result:
-                self.logger.info("✓ .NET version validated")
+                self.logger.info(".NET version validated")
                 return True
             else:
                 raise Exception(".NET version does not meet requirements")
@@ -93,20 +86,6 @@ class BuildHubSetup:
         except Exception as e:
             self.logger.error(f".NET validation failed: {str(e)}")
             raise
-    
-    def _setup_database_connections(self) -> bool:
-        try:
-            self.logger.info("Setting up database connections")
-            print()
-            
-            builder = DatabaseConnectionStringBuilder("BuildHubUsers", "Users database")
-            builder.build()
-
-            builder = DatabaseConnectionStringBuilder("BuildHubCore", "Core database")
-            builder.build()
-            
-            self.logger.info("✓ Database configured successfully")
-            return True
             
         except KeyboardInterrupt:
             self.logger.warning("Setup interrupted by user")
@@ -117,6 +96,7 @@ class BuildHubSetup:
         
     def _create_or_update_databases(self) -> bool:
             load_animation("Creating/Updating databases...")
+            
             
             return True
 
@@ -160,7 +140,6 @@ class BuildHubSetup:
                 return True
     
     def _print_summary(self):
-        """Print setup summary."""
         total_time = sum(step.duration for step in self.steps)
         successful = sum(1 for step in self.steps if step.status == SetupStatus.SUCCESS)
         failed = sum(1 for step in self.steps if step.status == SetupStatus.FAILED)
@@ -191,11 +170,10 @@ class BuildHubSetup:
         print("=" * 60)
     
     def run(self) -> bool:
-        """Execute the complete setup process."""
         section("Build-Hub Setup Starting")
         
         setup_successful = True
-        interrupted = False
+        interrupted = False 
         
         try:
             for i, step_obj in enumerate(self.steps, 1):
@@ -237,6 +215,7 @@ class BuildHubSetup:
 def main():
     import argparse
     
+    sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(description="Build-Hub Setup Script")
     parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose output')
     args = parser.parse_args()

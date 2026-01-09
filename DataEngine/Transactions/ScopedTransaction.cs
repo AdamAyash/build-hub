@@ -56,8 +56,8 @@
 		/// error occurs during commit.</returns>
 		/// <exception cref="ObjectDisposedException">Thrown if the transaction has already been disposed.</exception>
 		public bool Commit()
-		{
-			if (_isDisposed)
+		{ 
+			if (_isDisposed) 
 				throw new ObjectDisposedException(Utilities.GetTypeName(typeof(ScopedTransaction)));
 
 			try
@@ -105,6 +105,7 @@
 			}
 
 			this._isTransactionFinished = true;
+
 			return true;
 		}
 

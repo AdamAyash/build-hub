@@ -4,6 +4,7 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 	using BuildHub.DataEngine.Exceptions.DatabaseConnection;
 
 	[TestClass]
+	[TestCategory("Integration")]
 	[DoNotParallelize]
 	public sealed class DatabaseConnectionPoolTests
 	{
