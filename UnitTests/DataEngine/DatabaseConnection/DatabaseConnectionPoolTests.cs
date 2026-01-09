@@ -15,8 +15,7 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 		}
 
 		[TestMethod]
-		[DataRow(DatabaseSource.Users)]
-		[DataRow(DatabaseSource.Core)]
+		[DataRow(DatabaseSource.UnitTests)]
 		public void Get_connection_should_return_open_connection_for_valid_database_source(DatabaseSource databaseSource)
 		{
 			DatabaseConnectionPool databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
@@ -26,8 +25,7 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 		}
 
 		[TestMethod]
-		[DataRow(DatabaseSource.Users)]
-		[DataRow(DatabaseSource.Core)]
+		[DataRow(DatabaseSource.UnitTests)]
 		public void Release_connection_should_keep_connection_open_and_return_to_pool(DatabaseSource databaseSource)
 		{
 			DatabaseConnectionPool databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
@@ -48,8 +46,7 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 		}
 
 		[TestMethod]
-		[DataRow(DatabaseSource.Users)]
-		[DataRow(DatabaseSource.Core)]
+		[DataRow(DatabaseSource.UnitTests)]
 		public void Get_Available_Connections_Count_Should_Return_Positive_Number(DatabaseSource databaseSource)
 		{
 			DatabaseConnectionPool databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
@@ -57,8 +54,7 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 		}
 
 		[TestMethod]
-		[DataRow(DatabaseSource.Users)]
-		[DataRow(DatabaseSource.Core)]
+		[DataRow(DatabaseSource.UnitTests)]
 		public void Dispose_Connection_Should_Decrease_Currently_Used_Connections_Count(DatabaseSource databaseSource)
 		{
 			DatabaseConnectionPool databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
@@ -72,8 +68,7 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 		}
 
 		[TestMethod]
-		[DataRow(DatabaseSource.Users)]
-		[DataRow(DatabaseSource.Core)]
+		[DataRow(DatabaseSource.UnitTests)]
 		public void Get_Connections_Concurrently_Should_Return_Valid_Connections(DatabaseSource databaseSource)
 		{
 			DatabaseConnectionPool databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
@@ -88,8 +83,7 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 		}
 
 		[TestMethod]
-		[DataRow(DatabaseSource.Users)]
-		[DataRow(DatabaseSource.Core)]
+		[DataRow(DatabaseSource.UnitTests)]
 		public void Get_Connections_Exceeding_Pool_Size_Concurrently_Should_Handle_Gracefully(DatabaseSource databaseSource)
 		{
 			DatabaseConnectionPool databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
@@ -105,8 +99,7 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 		}
 
 		[TestMethod]
-		[DataRow(DatabaseSource.Users)]
-		[DataRow(DatabaseSource.Core)]
+		[DataRow(DatabaseSource.UnitTests)]
 		public void Exhausted_Pool_With_Retry_Should_Eventually_Get_Connection_When_Released(DatabaseSource databaseSource)
 		{
 			DatabaseConnectionPool pool = DatabaseConnectionPool.GetInstance();
@@ -143,8 +136,7 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 		}
 
 		[TestMethod]
-		[DataRow(DatabaseSource.Users)]
-		[DataRow(DatabaseSource.Core)]
+		[DataRow(DatabaseSource.UnitTests)]
 		public void Exhausted_Pool_Exceeding_Max_Retries_Should_Throw_Pool_Exhausted_Exception(DatabaseSource databaseSource)
 		{
 			DatabaseConnectionPool pool = DatabaseConnectionPool.GetInstance();
@@ -171,8 +163,7 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 		}
 
 		[TestMethod]
-		[DataRow(DatabaseSource.Users)]
-		[DataRow(DatabaseSource.Core)]
+		[DataRow(DatabaseSource.UnitTests)]
 		public void Release_Connection_Twice_Should_Not_Corrupt_Pool_Count(DatabaseSource databaseSource)
 		{
 			DatabaseConnectionPool pool = DatabaseConnectionPool.GetInstance();
@@ -197,8 +188,7 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 		}
 
 		[TestMethod]
-		[DataRow(DatabaseSource.Users)]
-		[DataRow(DatabaseSource.Core)]
+		[DataRow(DatabaseSource.UnitTests)]
 		public void Get_Currently_Used_Connections_Count_Should_Reflect_Actual_Usage(DatabaseSource databaseSource)
 		{
 			DatabaseConnectionPool pool = DatabaseConnectionPool.GetInstance();
@@ -218,8 +208,7 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 		}
 
 		[TestMethod]
-		[DataRow(DatabaseSource.Users)]
-		[DataRow(DatabaseSource.Core)]
+		[DataRow(DatabaseSource.UnitTests)]
 		public void Get_Connection_From_Exhausted_Pool_Should_Throw_Pool_Exhausted_Exception(DatabaseSource databaseSource)
 		{
 			DatabaseConnectionPool pool = DatabaseConnectionPool.GetInstance();

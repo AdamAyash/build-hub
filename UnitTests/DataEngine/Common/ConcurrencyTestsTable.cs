@@ -1,11 +1,10 @@
 ﻿using BuildHub.DataEngine.Tables.Base;
-using UnitTests.DataEngineTests.Tables;
 
 namespace UnitTests.DataEngine.Common
 {
-	internal sealed class UnitTestsTable : BaseTable<UnitTest>
+	internal class ConcurrencyTestsTable : BaseTable<ConcurrencyTest>
 	{
-		public UnitTestsTable()
+		public ConcurrencyTestsTable()
 			: base(DatabaseSource.UnitTests)
 		{
 		}

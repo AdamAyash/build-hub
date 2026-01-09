@@ -5,14 +5,13 @@
 	/// <summary>
 	/// Manages thread-local database connections for the current async/thread context
 	/// </summary>
-	public sealed class DatabaseContext : IDisposable
+	public sealed class DatabaseContext
 	{
 		private static readonly ThreadLocal<DatabaseContext> _currentThreadLocalDatabaseConnection
 			= new ThreadLocal<DatabaseContext>(() => new DatabaseContext());
 
 		private readonly DatabaseConnectionPool _databaseConnectionPool = DatabaseConnectionPool.GetInstance();
 		private readonly Dictionary<DatabaseSource, DatabaseConnection> _contextDatabaseConnections;
-		private bool _isDisposed = false;
 
 		public ITransactionContext? TransactionContext { get; set; }
 
@@ -22,8 +21,6 @@
 			this._contextDatabaseConnections = new Dictionary<DatabaseSource, DatabaseConnection>();
 			this.TransactionContext = null;
 		}
-
-		~DatabaseContext() => Dispose(false);
 
 		/// <summary>
 		/// Gets the current connection context for this async flow
@@ -57,22 +54,13 @@
 			return newConnection;
 		}
 
-		private void ClearContext()
+		public void ClearContext()
 		{
 			foreach (var databaseConnection in this._contextDatabaseConnections.Values)
 				databaseConnection.Dispose();
-		}
 
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		private void Dispose(bool disposing)
-		{
-			if (disposing)
-				this.ClearContext();
+			this.TransactionContext = null;
+			this._contextDatabaseConnections.Clear();
 		}
 	}
 }

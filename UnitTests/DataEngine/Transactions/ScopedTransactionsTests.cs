@@ -10,7 +10,7 @@ namespace UnitTests.DataEngine.Transactions
 		[TestMethod]
 		public void Assert_Commit_Returns_True()
 		{
-			using var transaction = new ScopedTransaction();
+			using var transaction = new ScopedTransaction(DatabaseSource.UnitTests);
 			var unitTestTable = new UnitTestsTable();
 
 			var unitTest = new UnitTest();
@@ -23,7 +23,7 @@ namespace UnitTests.DataEngine.Transactions
 		[TestMethod]
 		public void Assert_That_Rollback_Rollbacks_The_Inserted_Unit_Test()
 		{
-			using var transaction = new ScopedTransaction();
+			using var transaction = new ScopedTransaction(DatabaseSource.UnitTests);
 			var unitTestTable = new UnitTestsTable();
 
 			var unitTest = new UnitTest();
@@ -45,7 +45,7 @@ namespace UnitTests.DataEngine.Transactions
 			{
 				unitTest.Name = "Transaction out of scope test";
 
-				using var scopedTransaction = new ScopedTransaction();
+				using var scopedTransaction = new ScopedTransaction(DatabaseSource.UnitTests);
 				Assert.IsTrue(unitTestTable.Insert(unitTest));
 			}
 
@@ -55,7 +55,7 @@ namespace UnitTests.DataEngine.Transactions
 		[TestMethod]
 		public void Calling_Rollback_Twice_Reurns_False()
 		{
-			using var transaction = new ScopedTransaction();
+			using var transaction = new ScopedTransaction(DatabaseSource.UnitTests);
 			var unitTestTable = new UnitTestsTable();
 
 			var unitTest = new UnitTest();
@@ -71,7 +71,7 @@ namespace UnitTests.DataEngine.Transactions
 		[TestMethod]
 		public void Calling_Commit_Twice_Reurns_False()
 		{
-			using var transaction = new ScopedTransaction();
+			using var transaction = new ScopedTransaction(DatabaseSource.UnitTests);
 			var unitTestTable = new UnitTestsTable();
 
 			var unitTest = new UnitTest();
@@ -82,6 +82,47 @@ namespace UnitTests.DataEngine.Transactions
 
 			Assert.IsTrue(transaction.Commit());
 			Assert.IsFalse(transaction.Commit());
+		}
+
+		[TestMethod]
+		public void Assert_That_Scoped_Transaction_Commit_Works_For_More_Than_One_Tables()
+		{
+			using var transaction = new ScopedTransaction(DatabaseSource.UnitTests);
+			var unitTestTable = new UnitTestsTable();
+
+			var unitTest = new UnitTest();
+			unitTest.Name = "Insert with transaction";
+
+			Assert.IsTrue(unitTestTable.Insert(unitTest));
+
+			var concurrencyTable = new ConcurrencyTestsTable();
+			var concurrencyTest = new ConcurrencyTest();
+			concurrencyTest.Name = "ConcurrencyTest";
+
+			Assert.IsTrue(concurrencyTable.Insert(concurrencyTest));
+			Assert.IsTrue(transaction.Commit());
+		}
+
+		[TestMethod]
+		public void Assert_That_Scoped_Transaction_Rollbacks_For_More_Than_One_Tables()
+		{
+			using var transaction = new ScopedTransaction(DatabaseSource.UnitTests);
+			var unitTestTable = new UnitTestsTable();
+
+			var unitTest = new UnitTest();
+			unitTest.Name = "Insert with transaction";
+
+			Assert.IsTrue(unitTestTable.Insert(unitTest));
+
+			var concurrencyTable = new ConcurrencyTestsTable();
+			var concurrencyTest = new ConcurrencyTest();
+			concurrencyTest.Name = "ConcurrencyTest";
+
+			Assert.IsTrue(concurrencyTable.Insert(concurrencyTest));
+			Assert.IsTrue(transaction.Rollback());
+
+			Assert.IsNull(unitTestTable.GetByGuid(unitTest.Guid));
+			Assert.IsNull(concurrencyTable.GetByGuid(concurrencyTest.Guid));
 		}
 	}
 }

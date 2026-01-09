@@ -7,8 +7,7 @@
 	public class DatabaseConnectionValidatorTests
 	{
 		[TestMethod]
-		[DataRow(DatabaseSource.Users)]
-		[DataRow(DatabaseSource.Core)]
+		[DataRow(DatabaseSource.UnitTests)]
 		public void Test_Connection_Should_Return_False_When_Connection_String_Is_Empty(DatabaseSource databaseSource)
 		{
 			var databaseConnection = new DatabaseConnection(databaseSource, "");
@@ -18,8 +17,7 @@
 		}
 
 		[TestMethod]
-		[DataRow(DatabaseSource.Users)]
-		[DataRow(DatabaseSource.Core)]
+		[DataRow(DatabaseSource.UnitTests)]
 		public void Test_Connection_Should_Return_True_When_Connection_Is_Valid(DatabaseSource databaseSource)
 		{
 			var pool = DatabaseConnectionPool.GetInstance();
@@ -30,8 +28,7 @@
 		}
 
 		[TestMethod]
-		[DataRow(DatabaseSource.Users)]
-		[DataRow(DatabaseSource.Core)]
+		[DataRow(DatabaseSource.UnitTests)]
 		public void Test_Connection_With_Transaction_Context_Should_Return_True_When_Valid(DatabaseSource databaseSource)
 		{
 			using var transactionContext = new ScopedTransaction(databaseSource);
@@ -43,8 +40,7 @@
 		}
 
 		[TestMethod]
-		[DataRow(DatabaseSource.Users)]
-		[DataRow(DatabaseSource.Core)]
+		[DataRow(DatabaseSource.UnitTests)]
 		public void Test_Connection_With_Null_Transaction_Context_Should_Return_True_When_Valid(DatabaseSource databaseSource)
 		{
 			var pool = DatabaseConnectionPool.GetInstance();
@@ -56,8 +52,7 @@
 		}
 
 		[TestMethod]
-		[DataRow(DatabaseSource.Users)]
-		[DataRow(DatabaseSource.Core)]
+		[DataRow(DatabaseSource.UnitTests)]
 		public void Test_Connection_Should_Handle_Multiple_Consecutive_Validations(DatabaseSource databaseSource)
 		{
 			var pool = DatabaseConnectionPool.GetInstance();
@@ -81,8 +76,7 @@
 		}
 
 		[TestMethod]
-		[DataRow(DatabaseSource.Users)]
-		[DataRow(DatabaseSource.Core)]
+		[DataRow(DatabaseSource.UnitTests)]
 		public void Test_Connection_With_Disposed_Transaction_Should_Handle_Gracefully(DatabaseSource databaseSource)
 		{
 			var pool = DatabaseConnectionPool.GetInstance();

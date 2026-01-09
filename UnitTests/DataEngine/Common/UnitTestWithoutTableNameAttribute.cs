@@ -6,6 +6,7 @@ namespace UnitTests.DataEngine.Common
 	internal sealed class UnitTestWithoutTableNameAttributeTable : BaseTable<UnitTestWithoutTableNameAttribute>
 	{
 		public UnitTestWithoutTableNameAttributeTable()
+			: base(DatabaseSource.UnitTests)
 		{
 		}
 	}
