@@ -5,7 +5,7 @@ namespace UnitTests.DataEngine.Common
 	internal class ConcurrencyTestsTable : BaseTable<ConcurrencyTest>
 	{
 		public ConcurrencyTestsTable()
-			: base(DatabaseSource.UnitTests)
+			: base(DatabaseSource.IntegrationTests)
 		{
 		}
 	}

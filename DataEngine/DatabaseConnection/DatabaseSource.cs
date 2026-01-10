@@ -11,6 +11,6 @@ public enum DatabaseSource
 	[Required]
 	Users = 1,
 
-	[Description("BuildHubUnitTests")]
-	UnitTests
+	[Description("BuildHubIntegrationTests")]
+	IntegrationTests
 }

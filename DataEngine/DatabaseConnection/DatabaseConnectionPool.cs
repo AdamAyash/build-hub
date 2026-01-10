@@ -4,7 +4,6 @@ using Microsoft.IdentityModel.Protocols.Configuration;
 namespace BuildHub.DataEngine.DatabaseConnection
 {
 	using DataEngine.Configuration;
-	using Exceptions;
 	using Common.Utilities;
 	using Common.Logger;
 

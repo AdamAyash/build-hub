@@ -25,7 +25,7 @@
 		}
 
 		[TestMethod]
-		[DataRow(DatabaseSource.UnitTests)]
+		[DataRow(DatabaseSource.IntegrationTests)]
 		public void Test_Has_Context_Database_Connection_Returns_False_For_Non_Existent_Connection(DatabaseSource databaseSource)
 		{
 			var databaseContext = DatabaseContext.GetCurrentContext;
@@ -35,7 +35,7 @@
 		}
 
 		[TestMethod]
-		[DataRow(DatabaseSource.UnitTests)]
+		[DataRow(DatabaseSource.IntegrationTests)]
 		public void Test_Transaction_Context_Is_Null_By_Default(DatabaseSource databaseSource)
 		{
 			var databaseContext = DatabaseContext.GetCurrentContext;
@@ -45,7 +45,7 @@
 		}
 
 		[TestMethod]
-		[DataRow(DatabaseSource.UnitTests)]
+		[DataRow(DatabaseSource.IntegrationTests)]
 		public void Test_Transaction_Context_Can_Be_Set(DatabaseSource databaseSource)
 		{
 			var databaseContext = DatabaseContext.GetCurrentContext;
@@ -79,7 +79,7 @@
 		}
 
 		[TestMethod]
-		[DataRow(DatabaseSource.UnitTests)]
+		[DataRow(DatabaseSource.IntegrationTests)]
 		public void Test_Get_Connection_Returns_Valid_Connection(DatabaseSource databaseSource)
 		{
 			var databaseContext = DatabaseContext.GetCurrentContext;
@@ -92,7 +92,7 @@
 		}
 
 		[TestMethod]
-		[DataRow(DatabaseSource.UnitTests)]
+		[DataRow(DatabaseSource.IntegrationTests)]
 		public void Test_Connection_Validation_Replaces_Invalid_Connection(DatabaseSource databaseSource)
 		{
 			var databaseContext = DatabaseContext.GetCurrentContext;

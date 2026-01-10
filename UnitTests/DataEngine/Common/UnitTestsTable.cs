@@ -6,7 +6,7 @@ namespace UnitTests.DataEngine.Common
 	internal sealed class UnitTestsTable : BaseTable<UnitTest>
 	{
 		public UnitTestsTable()
-			: base(DatabaseSource.UnitTests)
+			: base(DatabaseSource.IntegrationTests)
 		{
 		}
 	}
