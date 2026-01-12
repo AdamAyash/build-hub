@@ -3,9 +3,9 @@ using UnitTests.DataEngineTests.Tables;
 
 namespace UnitTests.DataEngine.Common
 {
-	internal sealed class UnitTestsTable : BaseTable<UnitTest>
+	internal sealed class IntegrationTestsTable : BaseTable<IntegrationTestEntity>
 	{
-		public UnitTestsTable()
+		public IntegrationTestsTable()
 			: base(DatabaseSource.IntegrationTests)
 		{
 		}

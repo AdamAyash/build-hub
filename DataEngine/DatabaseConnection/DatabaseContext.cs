@@ -46,6 +46,8 @@
 				DatabaseConnectionValidator databaseConnectionValidator = new(existingConnection, this.TransactionContext);
 				if (databaseConnectionValidator.TestDatabaseConnection())
 					return existingConnection;
+
+				existingConnection.CloseConnection();
 			}
 
 			var newConnection = this._databaseConnectionPool.GetDatabaseConnection(databaseSource);

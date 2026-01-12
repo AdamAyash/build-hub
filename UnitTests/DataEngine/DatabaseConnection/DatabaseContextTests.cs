@@ -6,9 +6,9 @@
 
 	[TestClass]
 	[DoNotParallelize]
+	[TestCategory("Integration")]
 	public class DatabaseContextTests
 	{
-
 		[TestMethod]
 		public void Test_Multiple_Database_Sources_Are_Independent()
 		{
@@ -97,7 +97,7 @@
 		{
 			var databaseContext = DatabaseContext.GetCurrentContext;
 			 DatabaseConnection firstConnection = databaseContext.GetConnection(databaseSource);
-			firstConnection.InternalConnection.Close();
+			firstConnection.CloseConnection();
 
 			DatabaseConnection secondConnection = databaseContext.GetConnection(databaseSource);
 			Assert.IsNotNull(secondConnection);

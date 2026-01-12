@@ -3,9 +3,9 @@ using BuildHub.DataEngine.Tables.Base;
 
 namespace UnitTests.DataEngine.Common
 {
-	internal sealed class UnitTestWithoutTableNameAttributeTable : BaseTable<UnitTestWithoutTableNameAttribute>
+	internal sealed class IntegrationTestWithoutTableNameAttributeTable : BaseTable<UnitTestWithoutTableNameAttribute>
 	{
-		public UnitTestWithoutTableNameAttributeTable()
+		public IntegrationTestWithoutTableNameAttributeTable()
 			: base(DatabaseSource.IntegrationTests)
 		{
 		}

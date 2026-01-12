@@ -2,13 +2,13 @@
 
 namespace UnitTests.DataEngineTests.Tables
 {
-	[TableName("UNIT_TESTS")]
-	internal class UnitTest : VersionedEntity
+	[TableName("INTEGRATION_TESTS")]
+	internal class IntegrationTestEntity : VersionedEntity
 	{
 		[ColumnInfo("NAME")]
 		public string Name { get; set; }
 
-		public UnitTest()
+		public IntegrationTestEntity()
 		{
 			this.Name = string.Empty;
 		}

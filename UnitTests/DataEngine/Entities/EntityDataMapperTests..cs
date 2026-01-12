@@ -9,19 +9,19 @@
 		[TestMethod]
 		public void Assert_Get_Column_Name_Returns_Correct_Column_Name()
 		{
-			Assert.AreEqual("NAME", EntityDataMapper.GetColumnInfo<UnitTest>(x => x.Name).ColumnName);
+			Assert.AreEqual("NAME", EntityDataMapper.GetColumnInfo<IntegrationTestEntity>(x => x.Name).ColumnName);
 		}
 
 		[TestMethod]
 		public void Assert_Get_Primary_Key_Mapping_Data_Returns_Correct_Data()
 		{
-			Assert.AreEqual("GUID", EntityDataMapper.GetPrimaryKeyMappingData<UnitTest>().ColumnInfo.ColumnName);
+			Assert.AreEqual("GUID", EntityDataMapper.GetPrimaryKeyMappingData<IntegrationTestEntity>().ColumnInfo.ColumnName);
 		}
 
 		[TestMethod]
 		public void Assert_Get_Table_Name_Returns_Correct_Table_Name()
 		{
-			Assert.AreEqual("UNIT_TESTS", EntityDataMapper.GetTableName<UnitTest>());
+			Assert.AreEqual("INTEGRATION_TESTS", EntityDataMapper.GetTableName<IntegrationTestEntity>());
 		}
 	}
 }

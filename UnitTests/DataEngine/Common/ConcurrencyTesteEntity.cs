@@ -3,12 +3,12 @@
 namespace UnitTests.DataEngine.Common
 {
 	[TableName("CONCURRENCY_TESTS")]
-	internal class ConcurrencyTest : VersionedEntity
+	internal class ConcurrencyTesteEntity : VersionedEntity
 	{
 		[ColumnInfo("NAME")]
 		public string Name { get; set; }
 
-		public ConcurrencyTest()
+		public ConcurrencyTesteEntity()
 		{
 			this.Name = string.Empty;
 		}

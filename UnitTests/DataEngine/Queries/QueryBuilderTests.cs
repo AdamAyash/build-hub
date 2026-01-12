@@ -164,13 +164,13 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		[DataRow("BUILDS")]
 		public void Assert_That_Build_Insert_Has_No_Affect_If_Called_Twice(string tableName)
 		{
-			var unitTest = new UnitTest();
+			var unitTest = new IntegrationTestEntity();
 
 			var queryBuilder = new InternalQueryBuilder()
 			.From(tableName)
-			.BuildInsert<UnitTest>(unitTest);
+			.BuildInsert<IntegrationTestEntity>(unitTest);
 
-			Assert.AreEqual(queryBuilder.GetQuery(), queryBuilder.BuildInsert<UnitTest>(unitTest).GetQuery());
+			Assert.AreEqual(queryBuilder.GetQuery(), queryBuilder.BuildInsert<IntegrationTestEntity>(unitTest).GetQuery());
 		}
 
 		[TestMethod]
@@ -178,13 +178,13 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		[DataRow("BUILDS")]
 		public void Assert_That_Build_Update_Has_No_Affect_If_Called_Twice(string tableName)
 		{
-			var unitTest = new UnitTest();
+			var unitTest = new IntegrationTestEntity();
 
 			var queryBuilder = new InternalQueryBuilder()
 			.From(tableName)
-			.BuildUpdate<UnitTest>(unitTest);
+			.BuildUpdate<IntegrationTestEntity>(unitTest);
 
-			Assert.AreEqual(queryBuilder.GetQuery(), queryBuilder.BuildUpdate<UnitTest>(unitTest).GetQuery());
+			Assert.AreEqual(queryBuilder.GetQuery(), queryBuilder.BuildUpdate<IntegrationTestEntity>(unitTest).GetQuery());
 		}
 
 		[TestMethod]
@@ -192,56 +192,58 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		[DataRow("BUILDS")]
 		public void Assert_That_Build_Delete_Has_No_Affect_If_Called_Twice(string tableName)
 		{
-			var unitTest = new UnitTest();
+			var unitTest = new IntegrationTestEntity();
 
 			var queryBuilder = new InternalQueryBuilder()
 			.From(tableName)
-			.BuildDelete<UnitTest>(unitTest);
+			.BuildDelete<IntegrationTestEntity>(unitTest);
 
-			Assert.AreEqual(queryBuilder.GetQuery(), queryBuilder.BuildDelete<UnitTest>(unitTest).GetQuery());
+			Assert.AreEqual(queryBuilder.GetQuery(), queryBuilder.BuildDelete<IntegrationTestEntity>(unitTest).GetQuery());
 		}
 
 		[TestMethod]
 		public void Test_Build_Insert()
 		{
-			var unitTest = new UnitTest();
+			var unitTest = new IntegrationTestEntity();
 			unitTest.Name = "INSERT TEST";
 			unitTest.Guid = Guid.NewGuid();
 
 			var queryBuilder = new InternalQueryBuilder()
-				.From("UNIT_TESTS")
-				.BuildInsert<UnitTest>(unitTest);
+				.From("INTEGRATION_TESTS")
+				.BuildInsert<IntegrationTestEntity>(unitTest);
 
 			var query = queryBuilder.GetQuery();
-			Assert.AreEqual($"INSERT INTO UNIT_TESTS (NAME, GUID, VERSION, CREATED_AT, UPDATED_AT) " +
-				$"VALUES ('INSERT TEST', '{unitTest.Guid}', 0, '{unitTest.CreatedAt}', '{unitTest.UpdatedAt}')", query);
+			Assert.AreEqual($"INSERT INTO INTEGRATION_TESTS (NAME, GUID, VERSION, CREATED_AT, UPDATED_AT) " +
+				$"VALUES ('INSERT TEST', '{unitTest.Guid}', 0, '{Utilities.FormatDateTime(unitTest.CreatedAt)}', '{Utilities.FormatDateTime(unitTest.UpdatedAt)}')", query);
 		}
 
 		[TestMethod]
 		public void Test_Build_Update()
 		{
-			var unitTest = new UnitTest();
+			var unitTest = new IntegrationTestEntity();
 			unitTest.Name = "UPDATE TEST";
 			unitTest.Guid = Guid.NewGuid();
 
 			var queryBuilder = new InternalQueryBuilder()
-				.From("UNIT_TESTS")
-				.BuildUpdate<UnitTest>(unitTest);
+				.From("INTEGRATION_TESTS")
+				.BuildUpdate<IntegrationTestEntity>(unitTest);
 
 			var query = queryBuilder.GetQuery();
-			Assert.AreEqual($"UPDATE UNIT_TESTS SET NAME = 'UPDATE TEST' WHERE GUID = '{unitTest.Guid}'", query);
+			Assert.AreEqual($"UPDATE INTEGRATION_TESTS SET NAME = '{unitTest.Name}'" +
+				$", VERSION = 0, CREATED_AT = '{Utilities.FormatDateTime(unitTest.CreatedAt)}'," +
+				$" UPDATED_AT = '{Utilities.FormatDateTime(unitTest.UpdatedAt)}' WHERE GUID = '{unitTest.Guid}'", query);
 		}
 
 		[TestMethod]
 		public void Test_Build_Delete()
 		{
-			var unitTest = new UnitTest();
+			var unitTest = new IntegrationTestEntity();
 			unitTest.Name = "DELETE TEST";
 			unitTest.Guid = Guid.NewGuid();
 
 			var queryBuilder = new InternalQueryBuilder()
 				.From("UNIT_TESTS")
-				.BuildDelete<UnitTest>(unitTest);
+				.BuildDelete<IntegrationTestEntity>(unitTest);
 
 			var query = queryBuilder.GetQuery();
 			Assert.AreEqual($"DELETE FROM UNIT_TESTS WHERE GUID = '{unitTest.Guid}'", query);

@@ -82,29 +82,6 @@
 			return this._databaseConnection;
 		}
 
-		private bool ValidateIfTableExists()
-		{
-			try
-			{
-				var internalQueryBuilder = new InternalQueryBuilder()
-					.Top(0)
-					.From(this.TableName)
-					.BuildSelect();
-
-				using SqlCommand selectCommand = new SqlCommand(internalQueryBuilder.GetQuery(), this._databaseConnection?.InternalConnection);
-
-				if (!this._isConnectionLocal)
-					selectCommand.Transaction = DatabaseContext.GetCurrentContext?.TransactionContext?.InternalTransaction;
-
-				return true;
-			}
-			catch (Exception exception)
-			{
-				Logger.LogError(exception, "$Database table {this.TableName} does not exist.");
-				return false;
-			}
-		}
-
 		/// <summary>
 		/// Releases the database connection if it is locally owned by the current instance.
 		/// </summary>
@@ -361,7 +338,7 @@
 
 				using SqlCommand insertCommand = new SqlCommand(internalQueryBuilder.GetQuery(), databaseConnection.InternalConnection);
 
-				if(!this._isConnectionLocal)
+				if (!this._isConnectionLocal)
 					insertCommand.Transaction = DatabaseContext.GetCurrentContext?.TransactionContext?.InternalTransaction;
 
 				 insertCommand.ExecuteNonQuery();
@@ -458,6 +435,8 @@
 
 				if (!this._isConnectionLocal)
 					deleteCommand.Transaction = DatabaseContext.GetCurrentContext?.TransactionContext?.InternalTransaction;
+
+				deleteCommand.ExecuteNonQuery();
 			}
 			catch (Exception exception)
 			{
