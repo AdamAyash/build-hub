@@ -129,7 +129,7 @@ namespace BuildHub.DataEngine.DatabaseConnection
 					retryCount++;
 				}
 
-				if(databaseConnection is null)
+				if (databaseConnection is null)
 				{
 					Logger.LogWarning($"Connection pool exhausted for {databaseSource}.");
 					throw new ConnectionPoolExhaustedException(databaseSource);
@@ -163,7 +163,7 @@ namespace BuildHub.DataEngine.DatabaseConnection
 
 					if (availableDatabaseConnections.Count < databaseConfiguration.MaxPoolConnections)
 					{
-						if(!availableDatabaseConnections.Contains(databaseConnection))
+						if (!availableDatabaseConnections.Contains(databaseConnection))
 							availableDatabaseConnections.Enqueue(databaseConnection);
 					}
 					else

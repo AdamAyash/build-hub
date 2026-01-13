@@ -38,7 +38,7 @@ namespace UnitTests.DataEngineTests.Tables
 			var integrationTestsTable = new IntegrationTestsTable();
 			var uniTests = integrationTestsTable.GetAll();
 
-			Assert.IsNotNull(uniTests); 
+			Assert.IsNotNull(uniTests);
 		}
 
 		[TestMethod]

@@ -25,7 +25,7 @@ namespace UnitTests.DataEngine.Transactions
 			scopedTransaction.Commit();
 		}
 
-			[TestMethod]
+		[TestMethod]
 		public void Assert_Commit_Returns_True()
 		{
 			using var transaction = new ScopedTransaction(DatabaseSource.IntegrationTests);
@@ -45,7 +45,7 @@ namespace UnitTests.DataEngine.Transactions
 			var integrationTestTable = new IntegrationTestsTable();
 
 			var integrationTest = new IntegrationTestEntity();
-			integrationTest.Name = "Insert with transaction"; 
+			integrationTest.Name = "Insert with transaction";
 
 			Assert.IsTrue(integrationTestTable.Insert(integrationTest));
 			Assert.IsNotNull(integrationTestTable.GetByGuid(integrationTest.Guid));

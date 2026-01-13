@@ -6,7 +6,7 @@
 
 		public WhereCondition(string columnName, CompareTypes compareType, object? value)
 		{
-			this._internalWhereCondition = new Tuple<string, CompareTypes, object?>( columnName, compareType, value );
+			this._internalWhereCondition = new Tuple<string, CompareTypes, object?>(columnName, compareType, value);
 		}
 
 		public Tuple<string, CompareTypes, object?> InternalWhereCondition

@@ -1,6 +1,4 @@
-﻿using BuildHub.DataEngine.Entities;
-
-namespace BuildHub.DataEngine.Exceptions.Entities
+﻿namespace BuildHub.DataEngine.Exceptions.Entities
 {
 	public class MissingTableNameException : Exception
 	{

@@ -7,11 +7,9 @@
 	using DatabaseConnection;
 	using Entities;
 	using Microsoft.Data.SqlClient;
-	using Microsoft.IdentityModel.Tokens;
 	using Queries;
 	using System;
 	using System.Linq.Expressions;
-	using System.Xml;
 
 	#endregion
 
@@ -106,7 +104,7 @@
 			ColumnMappingData primaryKeyMappingData = EntityDataMapper.GetPrimaryKeyMappingData<TEntity>();
 
 			object? primaryKeyValue = EntityDataMapper.GetColumnValue<TEntity>(entity, primaryKeyMappingData.PropertyInfo);
-			if(primaryKeyValue is null)
+			if (primaryKeyValue is null)
 				throw new ArgumentNullException("Null primary key value");
 
 			var internalQueryBuilder = new InternalQueryBuilder()
@@ -242,7 +240,7 @@
 
 				return entities;
 			}
-			catch(MissingColumnDescriptionException missingColumnDescriptionException)
+			catch (MissingColumnDescriptionException missingColumnDescriptionException)
 			{
 				Logger.LogError(missingColumnDescriptionException, $"Failed to map entity because of missing column description.");
 				throw;
@@ -271,7 +269,7 @@
 		/// results. The property referenced in this expression determines which column is compared in the query.</param>
 		/// <returns>An <see cref="IEnumerable{TEntity}"/> containing all entities from the data source that match the specified
 		/// condition. Returns an empty collection if no entities satisfy the condition.</returns>
-		public virtual IEnumerable<TEntity> GetByCondition(TEntity entity, 
+		public virtual IEnumerable<TEntity> GetByCondition(TEntity entity,
 			Expression<Func<TEntity, object>> condition, CompareTypes compareType = CompareTypes.Equal)
 		{
 			try
@@ -328,13 +326,13 @@
 
 			try
 			{
-				databaseConnection = GetDatabaseConnection(); 
+				databaseConnection = GetDatabaseConnection();
 
-				if(entity is BaseEntity)
+				if (entity is BaseEntity)
 				{
 					BaseEntity? baseEntity = entity as BaseEntity;
 
-					if(baseEntity?.Guid == Guid.Empty)
+					if (baseEntity?.Guid == Guid.Empty)
 						baseEntity.Guid = this.GenerateGUID();
 				}
 
@@ -358,7 +356,7 @@
 				if (!this._isConnectionLocal)
 					insertCommand.Transaction = DatabaseContext.GetCurrentContext?.TransactionContext?.InternalTransaction;
 
-				 insertCommand.ExecuteNonQuery();
+				insertCommand.ExecuteNonQuery();
 				return true;
 			}
 			catch (Exception exception)

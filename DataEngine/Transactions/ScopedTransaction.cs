@@ -2,8 +2,8 @@
 {
 	using BuildHub.Common.Logger;
 	using BuildHub.Common.Utilities;
-	using Microsoft.Data.SqlClient;
 	using DatabaseConnection;
+	using Microsoft.Data.SqlClient;
 
 	/// <summary>
 	/// A transaction wrapper class that will rollback automatically out of scope.
@@ -18,7 +18,7 @@
 		private bool _isTransactionFinished;
 		private bool _isDisposed;
 
-		public SqlTransaction InternalTransaction {  get { return _internalTransaction; } }
+		public SqlTransaction InternalTransaction { get { return _internalTransaction; } }
 
 		public ScopedTransaction(DatabaseSource databaseSource = DatabaseSource.Core)
 		{
@@ -57,15 +57,15 @@
 		/// error occurs during commit.</returns>
 		/// <exception cref="ObjectDisposedException">Thrown if the transaction has already been disposed.</exception>
 		public bool Commit()
-		{ 
-			if (_isDisposed) 
+		{
+			if (_isDisposed)
 				throw new ObjectDisposedException(Utilities.GetTypeName(typeof(ScopedTransaction)));
 
 			try
 			{
 				this._internalTransaction.Commit();
 			}
-			catch(Exception exception)
+			catch (Exception exception)
 			{
 				Logger.LogError(exception, $"Commit transaction failed.");
 				return false;
@@ -133,7 +133,7 @@
 			{
 				if (disposing)
 				{
-					if(!this._isTransactionFinished && !this.Rollback())
+					if (!this._isTransactionFinished && !this.Rollback())
 					{
 						throw new InvalidOperationException();
 					}

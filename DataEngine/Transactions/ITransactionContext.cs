@@ -7,7 +7,7 @@ namespace BuildHub.DataEngine.Transactions
 	/// </summary>
 	public interface ITransactionContext
 	{
-		public SqlTransaction InternalTransaction { get;}
+		public SqlTransaction InternalTransaction { get; }
 
 		/// <summary>
 		/// Commits the transaction. 

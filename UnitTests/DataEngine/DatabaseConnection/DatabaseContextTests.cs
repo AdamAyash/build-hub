@@ -2,7 +2,6 @@
 {
 	using BuildHub.DataEngine.DatabaseConnection;
 	using BuildHub.DataEngine.Transactions;
-	using Moq;
 
 	[TestClass]
 	[DoNotParallelize]
@@ -96,7 +95,7 @@
 		public void Test_Connection_Validation_Replaces_Invalid_Connection(DatabaseSource databaseSource)
 		{
 			var databaseContext = DatabaseContext.GetCurrentContext;
-			 DatabaseConnection firstConnection = databaseContext.GetConnection(databaseSource);
+			DatabaseConnection firstConnection = databaseContext.GetConnection(databaseSource);
 			firstConnection.CloseConnection();
 
 			DatabaseConnection secondConnection = databaseContext.GetConnection(databaseSource);
