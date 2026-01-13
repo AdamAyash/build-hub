@@ -1,4 +1,5 @@
-﻿using BuildHub.DataEngine.Transactions;
+﻿using BuildHub.DataEngine.Queries;
+using BuildHub.DataEngine.Transactions;
 using UnitTests.DataEngine.Common;
 using UnitTests.DataEngineTests.Tables;
 
@@ -30,10 +31,10 @@ namespace UnitTests.DataEngine.Transactions
 			using var transaction = new ScopedTransaction(DatabaseSource.IntegrationTests);
 			var IntegrationTestsTable = new IntegrationTestsTable();
 
-			var unitTest = new IntegrationTestEntity();
-			unitTest.Name = "Insert with transaction";
+			var integrationTest = new IntegrationTestEntity();
+			integrationTest.Name = "Insert with transaction";
 
-			Assert.IsTrue(IntegrationTestsTable.Insert(unitTest));
+			Assert.IsTrue(IntegrationTestsTable.Insert(integrationTest));
 			Assert.IsTrue(transaction.Commit());
 		}
 
@@ -41,45 +42,45 @@ namespace UnitTests.DataEngine.Transactions
 		public void Assert_That_Rollback_Rollbacks_The_Inserted_Unit_Test()
 		{
 			using var transaction = new ScopedTransaction(DatabaseSource.IntegrationTests);
-			var unitTestTable = new IntegrationTestsTable();
+			var integrationTestTable = new IntegrationTestsTable();
 
-			var unitTest = new IntegrationTestEntity();
-			unitTest.Name = "Insert with transaction"; 
+			var integrationTest = new IntegrationTestEntity();
+			integrationTest.Name = "Insert with transaction"; 
 
-			Assert.IsTrue(unitTestTable.Insert(unitTest));
-			Assert.IsNotNull(unitTestTable.GetByGuid(unitTest.Guid));
+			Assert.IsTrue(integrationTestTable.Insert(integrationTest));
+			Assert.IsNotNull(integrationTestTable.GetByGuid(integrationTest.Guid));
 
 			Assert.IsTrue(transaction.Rollback());
-			Assert.IsNull(unitTestTable.GetByGuid(unitTest.Guid));
+			Assert.IsNull(integrationTestTable.GetByGuid(integrationTest.Guid));
 		}
 
 		[TestMethod]
 		public void Assert_That_The_Transaction_Will_Be_Disposed_When_Out_Of_Scope()
 		{
-			var unitTestTable = new IntegrationTestsTable();
-			var unitTest = new IntegrationTestEntity();
+			var integrationTestTable = new IntegrationTestsTable();
+			var integrationTest = new IntegrationTestEntity();
 
 			{
-				unitTest.Name = "Transaction out of scope test";
+				integrationTest.Name = "Transaction out of scope test";
 
 				using var scopedTransaction = new ScopedTransaction(DatabaseSource.IntegrationTests);
-				Assert.IsTrue(unitTestTable.Insert(unitTest));
+				Assert.IsTrue(integrationTestTable.Insert(integrationTest));
 			}
 
-			Assert.IsNull(unitTestTable.GetByGuid(unitTest.Guid));
+			Assert.IsNull(integrationTestTable.GetByGuid(integrationTest.Guid));
 		}
 
 		[TestMethod]
 		public void Calling_Rollback_Twice_Reurns_False()
 		{
 			using var transaction = new ScopedTransaction(DatabaseSource.IntegrationTests);
-			var unitTestTable = new IntegrationTestsTable();
+			var integrationTestTable = new IntegrationTestsTable();
 
-			var unitTest = new IntegrationTestEntity();
-			unitTest.Name = "Insert with transaction";
+			var integrationTest = new IntegrationTestEntity();
+			integrationTest.Name = "Insert with transaction";
 
-			Assert.IsTrue(unitTestTable.Insert(unitTest));
-			Assert.IsNotNull(unitTestTable.GetByGuid(unitTest.Guid));
+			Assert.IsTrue(integrationTestTable.Insert(integrationTest));
+			Assert.IsNotNull(integrationTestTable.GetByGuid(integrationTest.Guid));
 
 			Assert.IsTrue(transaction.Rollback());
 			Assert.IsFalse(transaction.Rollback());
@@ -89,13 +90,13 @@ namespace UnitTests.DataEngine.Transactions
 		public void Calling_Commit_Twice_Reurns_False()
 		{
 			using var transaction = new ScopedTransaction(DatabaseSource.IntegrationTests);
-			var unitTestTable = new IntegrationTestsTable();
+			var integrationTestTable = new IntegrationTestsTable();
 
-			var unitTest = new IntegrationTestEntity();
-			unitTest.Name = "Insert with transaction";
+			var integrationTest = new IntegrationTestEntity();
+			integrationTest.Name = "Insert with transaction";
 
-			Assert.IsTrue(unitTestTable.Insert(unitTest));
-			Assert.IsNotNull(unitTestTable.GetByGuid(unitTest.Guid));
+			Assert.IsTrue(integrationTestTable.Insert(integrationTest));
+			Assert.IsNotNull(integrationTestTable.GetByGuid(integrationTest.Guid));
 
 			Assert.IsTrue(transaction.Commit());
 			Assert.IsFalse(transaction.Commit());
@@ -105,12 +106,12 @@ namespace UnitTests.DataEngine.Transactions
 		public void Assert_That_Scoped_Transaction_Commit_Works_For_More_Than_One_Tables()
 		{
 			using var transaction = new ScopedTransaction(DatabaseSource.IntegrationTests);
-			var unitTestTable = new IntegrationTestsTable();
+			var integrationTestTable = new IntegrationTestsTable();
 
-			var unitTest = new IntegrationTestEntity();
-			unitTest.Name = "Insert with transaction";
+			var integrationTest = new IntegrationTestEntity();
+			integrationTest.Name = "Insert with transaction";
 
-			Assert.IsTrue(unitTestTable.Insert(unitTest));
+			Assert.IsTrue(integrationTestTable.Insert(integrationTest));
 
 			var concurrencyTable = new ConcurrencyTestsTable();
 			var concurrencyTest = new ConcurrencyTesteEntity();
@@ -124,12 +125,12 @@ namespace UnitTests.DataEngine.Transactions
 		public void Assert_That_Scoped_Transaction_Rollbacks_For_More_Than_One_Tables()
 		{
 			using var transaction = new ScopedTransaction(DatabaseSource.IntegrationTests);
-			var unitTestTable = new IntegrationTestsTable();
+			var integrationTestTable = new IntegrationTestsTable();
 
-			var unitTest = new IntegrationTestEntity();
-			unitTest.Name = "Insert with transaction";
+			var integrationTest = new IntegrationTestEntity();
+			integrationTest.Name = "Insert with transaction";
 
-			Assert.IsTrue(unitTestTable.Insert(unitTest));
+			Assert.IsTrue(integrationTestTable.Insert(integrationTest));
 
 			var concurrencyTable = new ConcurrencyTestsTable();
 			var concurrencyTest = new ConcurrencyTesteEntity();
@@ -138,8 +139,28 @@ namespace UnitTests.DataEngine.Transactions
 			Assert.IsTrue(concurrencyTable.Insert(concurrencyTest));
 			Assert.IsTrue(transaction.Rollback());
 
-			Assert.IsNull(unitTestTable.GetByGuid(unitTest.Guid));
+			Assert.IsNull(integrationTestTable.GetByGuid(integrationTest.Guid));
 			Assert.IsNull(concurrencyTable.GetByGuid(concurrencyTest.Guid));
+		}
+
+		[TestMethod]
+		public void Assert_Update_Locked_Resource_Is_True()
+		{
+			using ScopedTransaction scopedTransaction = new ScopedTransaction(DatabaseSource.IntegrationTests);
+
+			var integrationTest = new IntegrationTestEntity();
+			integrationTest.Name = this.TestContext.TestName;
+
+			var integrationTestTable = new IntegrationTestsTable();
+			Assert.IsTrue(integrationTestTable.Insert(integrationTest));
+
+			QueryBuilder queryBuilder = new QueryBuilder()
+				.Where<IntegrationTestEntity>(integrationTest, integrationTest => integrationTest.Guid)
+				.Lock(LockTypes.Update);
+
+			var sameIntegrationTest = integrationTestTable.GetByCondition(queryBuilder).FirstOrDefault();
+
+			Assert.IsFalse(integrationTestTable.Update(sameIntegrationTest));
 		}
 	}
 }

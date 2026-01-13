@@ -44,118 +44,118 @@ namespace UnitTests.DataEngineTests.Tables
 		[TestMethod]
 		public void Assert_Get_By_Guid_Returns_Null_If_Entity_Does_Not_Exist()
 		{
-			var unitTestTable = new IntegrationTestsTable();
-			Assert.IsNull(unitTestTable.GetByGuid(Guid.NewGuid()));
+			var integrationTestTable = new IntegrationTestsTable();
+			Assert.IsNull(integrationTestTable.GetByGuid(Guid.NewGuid()));
 		}
 
 		[TestMethod]
 		public void Get_Unit_Test_By_Guid()
 		{
-			var unitTest = new IntegrationTestEntity();
-			unitTest.Name = this.TestContext.TestName;
+			var integrationTest = new IntegrationTestEntity();
+			integrationTest.Name = this.TestContext.TestName;
 
-			var unitTestTable = new IntegrationTestsTable();
-			Assert.IsTrue(unitTestTable.Insert(unitTest));
+			var integrationTestTable = new IntegrationTestsTable();
+			Assert.IsTrue(integrationTestTable.Insert(integrationTest));
 
-			Assert.IsGreaterThan(0, unitTestTable.GetByGuid(unitTest.Guid).Id);
+			Assert.IsGreaterThan(0, integrationTestTable.GetByGuid(integrationTest.Guid).Id);
 		}
 
 		[TestMethod]
 		public void Get_All_Unit_Test_With_Unmapped_Fields_Should_Throw_Exception()
 		{
-			var unitTestTable = new InegrationTestWithUnmappedFieldTable();
-			Assert.Throws<MissingColumnDescriptionException>(() => unitTestTable.GetAll());
+			var integrationTestTable = new InegrationTestWithUnmappedFieldTable();
+			Assert.Throws<MissingColumnDescriptionException>(() => integrationTestTable.GetAll());
 		}
 
 		[TestMethod]
 		public void Get_By_Unit_Test_By_Condition()
 		{
-			var unitTest = new IntegrationTestEntity();
-			unitTest.Name = this.TestContext.TestName;
-			var unitTestTable = new IntegrationTestsTable();
+			var integrationTest = new IntegrationTestEntity();
+			integrationTest.Name = this.TestContext.TestName;
+			var integrationTestTable = new IntegrationTestsTable();
 
-			Assert.IsTrue(unitTestTable.Insert(unitTest));
-			Assert.IsNotNull(unitTestTable.GetByCondition(unitTest, (unitTest) => unitTest.Id));
+			Assert.IsTrue(integrationTestTable.Insert(integrationTest));
+			Assert.IsNotNull(integrationTestTable.GetByCondition(integrationTest, (integrationTest) => integrationTest.Id));
 		}
 
 		[TestMethod]
 		public void Get_By_Unit_Test_By_Condition_With_Query_Builder()
 		{
-			var unitTest = new IntegrationTestEntity();
-			unitTest.Name = this.TestContext.TestName;
-			var unitTestTable = new IntegrationTestsTable();
+			var integrationTest = new IntegrationTestEntity();
+			integrationTest.Name = this.TestContext.TestName;
+			var integrationTestTable = new IntegrationTestsTable();
 
-			Assert.IsTrue(unitTestTable.Insert(unitTest));
+			Assert.IsTrue(integrationTestTable.Insert(integrationTest));
 
 			QueryBuilder queryBuilder = new QueryBuilder()
-				.Where(unitTest, (unitTest) => unitTest.Guid);
+				.Where(integrationTest, (integrationTest) => integrationTest.Guid);
 
-			Assert.IsNotNull(unitTestTable.GetByCondition(queryBuilder));
+			Assert.IsNotNull(integrationTestTable.GetByCondition(queryBuilder));
 		}
 
 		[TestMethod]
 		public void Assert_Insert_Unit_Test()
 		{
-			var unitTest = new IntegrationTestEntity();
-			unitTest.Name = this.TestContext.TestName;
+			var integrationTest = new IntegrationTestEntity();
+			integrationTest.Name = this.TestContext.TestName;
 
-			var unitTestTable = new IntegrationTestsTable();
-			Assert.IsTrue(unitTestTable.Insert(unitTest));
+			var integrationTestTable = new IntegrationTestsTable();
+			Assert.IsTrue(integrationTestTable.Insert(integrationTest));
 
-			var dbUnitTest = unitTestTable.GetByGuid(unitTest.Guid);
-			Assert.AreEqual(unitTest.Guid, dbUnitTest.Guid);
+			var dbUnitTest = integrationTestTable.GetByGuid(integrationTest.Guid);
+			Assert.AreEqual(integrationTest.Guid, dbUnitTest.Guid);
 		}
 
 		[TestMethod]
 		public void Assert_That_Inserting_Duplicate_Unit_Test_Should_Throw()
 		{
-			var unitTest = new IntegrationTestEntity();
-			unitTest.Name = this.TestContext.TestName;
+			var integrationTest = new IntegrationTestEntity();
+			integrationTest.Name = this.TestContext.TestName;
 
-			var unitTestTable = new IntegrationTestsTable();
-			Assert.IsTrue(unitTestTable.Insert(unitTest));
-			Assert.IsFalse(unitTestTable.Insert(unitTest));
+			var integrationTestTable = new IntegrationTestsTable();
+			Assert.IsTrue(integrationTestTable.Insert(integrationTest));
+			Assert.IsFalse(integrationTestTable.Insert(integrationTest));
 		}
 
 		[TestMethod]
 		public void Assert_Update_Unit_Test_Is_True()
 		{
-			var unitTest = new IntegrationTestEntity();
-			unitTest.Name = this.TestContext.TestName;
+			var integrationTest = new IntegrationTestEntity();
+			integrationTest.Name = this.TestContext.TestName;
 
-			var unitTestTable = new IntegrationTestsTable();
-			Assert.IsTrue(unitTestTable.Insert(unitTest));
+			var integrationTestTable = new IntegrationTestsTable();
+			Assert.IsTrue(integrationTestTable.Insert(integrationTest));
 
-			unitTest.Name = this.TestContext.TestName.ToLower();
-			Assert.IsTrue(unitTestTable.Update(unitTest));
+			integrationTest.Name = this.TestContext.TestName.ToLower();
+			Assert.IsTrue(integrationTestTable.Update(integrationTest));
 		}
 
 		[TestMethod]
 		public void Assert_Delete_Unit_Test_Is_True()
 		{
-			var unitTest = new IntegrationTestEntity();
-			unitTest.Name = this.TestContext.TestName;
+			var integrationTest = new IntegrationTestEntity();
+			integrationTest.Name = this.TestContext.TestName;
 
-			var unitTestTable = new IntegrationTestsTable();
-			Assert.IsTrue(unitTestTable.Insert(unitTest));
+			var integrationTestTable = new IntegrationTestsTable();
+			Assert.IsTrue(integrationTestTable.Insert(integrationTest));
 
-			unitTest.Name = this.TestContext.TestName;
-			Assert.IsTrue(unitTestTable.Delete(unitTest));
+			integrationTest.Name = this.TestContext.TestName;
+			Assert.IsTrue(integrationTestTable.Delete(integrationTest));
 		}
 
 		[TestMethod]
-		public void Deleting_An_Existing_Unit_Test_Should_Return_True()
+		public void Deleting_An_Existing_Unit_Test_Should_Return_False()
 		{
-			var unitTest = new IntegrationTestEntity();
-			unitTest.Name = this.TestContext.TestName;
+			var integrationTest = new IntegrationTestEntity();
+			integrationTest.Name = this.TestContext.TestName;
 
-			var unitTestTable = new IntegrationTestsTable();
-			Assert.IsTrue(unitTestTable.Insert(unitTest));
+			var integrationTestTable = new IntegrationTestsTable();
+			Assert.IsTrue(integrationTestTable.Insert(integrationTest));
 
-			unitTest.Name = this.TestContext.TestName;
-			Assert.IsTrue(unitTestTable.Delete(unitTest));
+			integrationTest.Name = this.TestContext.TestName;
+			Assert.IsTrue(integrationTestTable.Delete(integrationTest));
 
-			Assert.IsTrue(unitTestTable.Delete(unitTest));
+			Assert.IsFalse(integrationTestTable.Delete(integrationTest));
 		}
 
 		[TestMethod]

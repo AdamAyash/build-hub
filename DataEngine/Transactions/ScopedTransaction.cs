@@ -14,6 +14,7 @@
 		private readonly DatabaseConnection _databaseConnection;
 		private readonly SqlTransaction _internalTransaction;
 		private readonly DatabaseSource _databaseSource;
+
 		private bool _isTransactionFinished;
 		private bool _isDisposed;
 
