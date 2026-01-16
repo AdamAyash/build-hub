@@ -8,13 +8,13 @@ namespace BuildHub.CommandBuilder.Models.Unused.Steps;
 /// </summary>
 public sealed class ScriptStep : ExecutionStep
 {
-    /// <summary>
-    /// Shell environment used to execute the script.
-    /// </summary>
-    public ScriptShell Shell { get; init; }
+	/// <summary>
+	/// Shell environment used to execute the script.
+	/// </summary>
+	public ScriptShell Shell { get; init; }
 
-    /// <summary>
-    /// Path to the script file to be executed.
-    /// </summary>
-    public string ScriptPath { get; init; } = string.Empty;
+	/// <summary>
+	/// Path to the script file to be executed.
+	/// </summary>
+	public string ScriptPath { get; init; } = string.Empty;
 }

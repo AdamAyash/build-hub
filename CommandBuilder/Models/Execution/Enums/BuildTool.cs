@@ -5,9 +5,9 @@
 /// </summary>
 public enum BuildTool
 {
-    VisualStudio,
-    MSBuild,
-    IncrediBuild,
-    DotNetCLI,
-    Npm
+	VisualStudio,
+	MSBuild,
+	IncrediBuild,
+	DotNetCLI,
+	Npm
 }

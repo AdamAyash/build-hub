@@ -5,7 +5,7 @@
 /// </summary>
 public enum FileOperation
 {
-    RemoveReadOnly,
-    Copy,
-    Delete
+	RemoveReadOnly,
+	Copy,
+	Delete
 }

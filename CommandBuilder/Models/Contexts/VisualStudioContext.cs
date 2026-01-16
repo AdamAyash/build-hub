@@ -6,8 +6,8 @@
 /// </summary>
 public class VisualStudioContext : MsBuildBasedContext
 {
-    /// <summary>
-    /// Path to the output file produced by the build.
-    /// </summary>
-    public string? OutputFile { get; set; }
+	/// <summary>
+	/// Path to the output file produced by the build.
+	/// </summary>
+	public string? OutputFile { get; set; }
 }

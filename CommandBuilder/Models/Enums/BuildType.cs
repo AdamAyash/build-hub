@@ -5,6 +5,6 @@
 /// </summary>
 public enum BuildType
 {
-    Build = 0,
-    Rebuild
+	Build = 0,
+	Rebuild
 };

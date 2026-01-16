@@ -5,8 +5,8 @@
 /// </summary>
 public enum AgentStatus
 {
-    Offline,
-    Idle,
-    Busy,
-    Error
+	Offline,
+	Idle,
+	Busy,
+	Error
 }

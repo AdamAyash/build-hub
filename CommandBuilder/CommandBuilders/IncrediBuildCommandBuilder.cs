@@ -12,108 +12,108 @@ namespace BuildHub.CommandBuilder.CommandBuilders;
 /// </summary>
 public class IncrediBuildCommandBuilder : MsBuildBasedCommandBuilderBase<IncrediBuildCommandBuilder, IncrediBuildContext>
 {
-    public IncrediBuildCommandBuilder(IncrediBuildContext context)
-        : base(context)
-    {
-        Name = "IncrediBuild";
-    }
+	public IncrediBuildCommandBuilder(IncrediBuildContext context)
+		: base(context)
+	{
+		Name = "IncrediBuild";
+	}
 
-    public IncrediBuildCommandBuilder()
-        : this(new IncrediBuildContext())
-    { }
+	public IncrediBuildCommandBuilder()
+		: this(new IncrediBuildContext())
+	{ }
 
-    protected override IReadOnlyList<ExecutionStep> GenerateCommandInternal()
-    {
-        var command = new List<string>
-        {
-            AddQuotes(Context.Target),
-            $"/Cfg={AddQuotes(GetConfigurationPlatform())}",
-            $"/Log={AddQuotes(Context.OutputFile)}",
-            "/All"
-        };
+	protected override IReadOnlyList<ExecutionStep> GenerateCommandInternal()
+	{
+		var command = new List<string>
+		{
+			AddQuotes(Context.Target),
+			$"/Cfg={AddQuotes(GetConfigurationPlatform())}",
+			$"/Log={AddQuotes(Context.OutputFile)}",
+			"/All"
+		};
 
-        if (Context.BuildType == BuildType.Rebuild)
-            command.Add("/Rebuild");
+		if (Context.BuildType == BuildType.Rebuild)
+			command.Add("/Rebuild");
 
-        command.Add($"/VsVersion={VisualStudioInfo.GetCodeName(Context.VisualStudioVersion)}");
+		command.Add($"/VsVersion={VisualStudioInfo.GetCodeName(Context.VisualStudioVersion)}");
 
-        if (Context.UseMsBuild)
-        {
-            var msCommand = new List<string>
-            {
-                $"/p:VersionAssembly={$"{Context.Version.GetStringVersion()}"}",
-                $"/t:{Context.BuildType.ToString().ToLower()}",
-                "-restore"
-            };
+		if (Context.UseMsBuild)
+		{
+			var msCommand = new List<string>
+			{
+				$"/p:VersionAssembly={$"{Context.Version.GetStringVersion()}"}",
+				$"/t:{Context.BuildType.ToString().ToLower()}",
+				"-restore"
+			};
 
-            foreach (var item in _extraParams)
-            {
-                msCommand.Add(item.Value);
-            }
+			foreach (var item in _extraParams)
+			{
+				msCommand.Add(item.Value);
+			}
 
-            command.Add("/UseMSBuild");
-            command.Add($"/msbuildargs={AddQuotes(string.Join(" ", msCommand))}");
-        }
+			command.Add("/UseMSBuild");
+			command.Add($"/msbuildargs={AddQuotes(string.Join(" ", msCommand))}");
+		}
 
-        return new List<ExecutionStep>
-        {
-            new ExecutionStep
-            {
-                Id = new Guid(),
-                Order = 1,
-                Name = Name ?? string.Empty,
-                StepType = Name ?? string.Empty,
-                Commands = new List<ExecutionCommand>
-                {
-                    new ExecutionCommand
-                    {
-                        Executable = Name ?? string.Empty,
-                        Arguments = string.Join(" ", command),
-                    }
-                }
-            }
-        };
-    }
+		return new List<ExecutionStep>
+		{
+			new ExecutionStep
+			{
+				Id = new Guid(),
+				Order = 1,
+				Name = Name ?? string.Empty,
+				StepType = Name ?? string.Empty,
+				Commands = new List<ExecutionCommand>
+				{
+					new ExecutionCommand
+					{
+						Executable = Name ?? string.Empty,
+						Arguments = string.Join(" ", command),
+					}
+				}
+			}
+		};
+	}
 
-    protected override void ValidateDerived()
-    {
-        if (string.IsNullOrEmpty(Context.OutputFile))
-        { throw new InvalidOperationException("Build output file cannot be empty."); }
+	protected override void ValidateDerived()
+	{
+		if (string.IsNullOrEmpty(Context.OutputFile))
+		{ throw new InvalidOperationException("Build output file cannot be empty."); }
 
-        if (Context.UseMsBuild)
-        {
-            if (Context.Version == null)
-            { throw new InvalidOperationException("Build version cannot be empty."); }
-        }
-    }
+		if (Context.UseMsBuild)
+		{
+			if (Context.Version == null)
+			{ throw new InvalidOperationException("Build version cannot be empty."); }
+		}
+	}
 
-    /// <summary>
-    /// Specifies the output log file path.
-    /// </summary>
-    public IncrediBuildCommandBuilder SetOutputFile(string outputFile)
-    { Context.OutputFile = outputFile; return this; }
+	/// <summary>
+	/// Specifies the output log file path.
+	/// </summary>
+	public IncrediBuildCommandBuilder SetOutputFile(string outputFile)
+	{ Context.OutputFile = outputFile; return this; }
 
-    /// <summary>
-    /// Specifies the version applied to the build when using MSBuild.
-    /// </summary>
-    public IncrediBuildCommandBuilder SetVersion(BuildVersion version)
-    { Context.Version = version; return this; }
+	/// <summary>
+	/// Specifies the version applied to the build when using MSBuild.
+	/// </summary>
+	public IncrediBuildCommandBuilder SetVersion(BuildVersion version)
+	{ Context.Version = version; return this; }
 
-    /// <summary>
-    /// Specifies the version applied to the build when using MSBuild.
-    /// </summary>
-    public IncrediBuildCommandBuilder SetVersion(string version)
-    { Context.Version = new BuildVersion().SetFromString(version); return this; }
+	/// <summary>
+	/// Specifies the version applied to the build when using MSBuild.
+	/// </summary>
+	public IncrediBuildCommandBuilder SetVersion(string version)
+	{ Context.Version = new BuildVersion().SetFromString(version); return this; }
 
-    /// <summary>
-    /// Specifies the Visual Studio version used by IncrediBuild.
-    /// </summary>
-    public IncrediBuildCommandBuilder SetVisualStudioVersion(VisualStudioVersions visualStudioVersion)
-    { Context.VisualStudioVersion = visualStudioVersion; return this; }
+	/// <summary>
+	/// Specifies the Visual Studio version used by IncrediBuild.
+	/// </summary>
+	public IncrediBuildCommandBuilder SetVisualStudioVersion(VisualStudioVersions visualStudioVersion)
+	{ Context.VisualStudioVersion = visualStudioVersion; return this; }
 
-    /// <summary>
-    /// Controls whether MSBuild is used explicitly during the build.
-    /// </summary>
-    public IncrediBuildCommandBuilder SetUseMsBuild(bool useMsBuild)
-    { Context.UseMsBuild = useMsBuild; return this; }
+	/// <summary>
+	/// Controls whether MSBuild is used explicitly during the build.
+	/// </summary>
+	public IncrediBuildCommandBuilder SetUseMsBuild(bool useMsBuild)
+	{ Context.UseMsBuild = useMsBuild; return this; }
 }

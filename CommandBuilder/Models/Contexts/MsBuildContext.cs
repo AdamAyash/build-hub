@@ -6,8 +6,8 @@
 /// </summary>
 public class MsBuildContext : MsBuildBasedContext
 {
-    /// <summary>
-    /// Version produced by this build definition.
-    /// </summary>
-    public BuildVersion Version { get; set; } = new();
+	/// <summary>
+	/// Version produced by this build definition.
+	/// </summary>
+	public BuildVersion Version { get; set; } = new();
 }

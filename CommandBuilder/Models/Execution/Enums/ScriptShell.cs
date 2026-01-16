@@ -5,7 +5,7 @@
 /// </summary>
 public enum ScriptShell
 {
-    Cmd,
-    PowerShell,
-    Bash
+	Cmd,
+	PowerShell,
+	Bash
 }

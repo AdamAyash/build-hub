@@ -5,9 +5,9 @@
 /// </summary>
 public enum StepType
 {
-    Build,
-    Script,
-    File,
-    Command,
-    Source
+	Build,
+	Script,
+	File,
+	Command,
+	Source
 }

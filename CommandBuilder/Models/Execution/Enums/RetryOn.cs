@@ -2,6 +2,6 @@
 
 public enum RetryOn
 {
-    FailuresOnly,
-    FailuresAndTimeouts
+	FailuresOnly,
+	FailuresAndTimeouts
 }

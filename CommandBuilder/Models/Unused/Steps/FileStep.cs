@@ -8,13 +8,13 @@ namespace BuildHub.CommandBuilder.Models.Unused.Steps;
 /// </summary>
 public sealed class FileStep : ExecutionStep
 {
-    /// <summary>
-    /// File system operation to perform.
-    /// </summary>
-    public FileOperation Operation { get; init; }
+	/// <summary>
+	/// File system operation to perform.
+	/// </summary>
+	public FileOperation Operation { get; init; }
 
-    /// <summary>
-    /// Path associated with the file operation.
-    /// </summary>
-    public string Path { get; init; } = string.Empty;
+	/// <summary>
+	/// Path associated with the file operation.
+	/// </summary>
+	public string Path { get; init; } = string.Empty;
 }

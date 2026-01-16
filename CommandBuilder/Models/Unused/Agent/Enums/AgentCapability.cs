@@ -5,11 +5,11 @@
 /// </summary>
 public enum AgentCapability
 {
-    CppBuild,
-    DotNetBuild,
-    NodeBuild,
-    IncrediBuild,
-    MSBuild,
-    ScriptExecution,
-    FileOperations
+	CppBuild,
+	DotNetBuild,
+	NodeBuild,
+	IncrediBuild,
+	MSBuild,
+	ScriptExecution,
+	FileOperations
 }
