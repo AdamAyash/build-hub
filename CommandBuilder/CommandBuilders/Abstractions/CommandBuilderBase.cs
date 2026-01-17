@@ -46,21 +46,20 @@ public abstract class CommandBuilderBase<TBuilder, TContext> : ICommandBuilder
 		ValidateAll();
 
 		var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-		BuildCommandResult result;
 		IReadOnlyList<ExecutionStep> steps = new List<ExecutionStep>();
 
 		try
 		{
 			steps = GenerateCommandInternal();
+			
+			stopwatch.Stop();
+			return BuildCommandResult.OnSuccess(Name, stopwatch.Elapsed, steps);
 		}
 		catch (Exception ex)
 		{
-			result = BuildCommandResult.OnFailure(Name, stopwatch.Elapsed, ex.Message);
-		}
-
-		stopwatch.Stop();
-
-		return BuildCommandResult.OnSuccess(Name, stopwatch.Elapsed, steps);
+			stopwatch.Stop();
+			return BuildCommandResult.OnFailure(Name, stopwatch.Elapsed, ex.Message);
+		}		
 	}
 
 	/// <summary>
