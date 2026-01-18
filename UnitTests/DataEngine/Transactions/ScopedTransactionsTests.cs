@@ -31,7 +31,7 @@ namespace UnitTests.DataEngine.Transactions
 			var IntegrationTestsTable = new IntegrationTestsTable();
 
 			var unitTest = new IntegrationTestEntity();
-			unitTest.Name = "Insert with transaction";
+			unitTest.Name = TestContext.TestName;
 
 			Assert.IsTrue(IntegrationTestsTable.Insert(unitTest));
 			Assert.IsTrue(transaction.Commit());
@@ -44,7 +44,7 @@ namespace UnitTests.DataEngine.Transactions
 			var unitTestTable = new IntegrationTestsTable();
 
 			var unitTest = new IntegrationTestEntity();
-			unitTest.Name = "Insert with transaction"; 
+			unitTest.Name = TestContext.TestName; 
 
 			Assert.IsTrue(unitTestTable.Insert(unitTest));
 			Assert.IsNotNull(unitTestTable.GetByGuid(unitTest.Guid));
@@ -60,7 +60,7 @@ namespace UnitTests.DataEngine.Transactions
 			var unitTest = new IntegrationTestEntity();
 
 			{
-				unitTest.Name = "Transaction out of scope test";
+				unitTest.Name = TestContext.TestName;
 
 				using var scopedTransaction = new ScopedTransaction(DatabaseSource.IntegrationTests);
 				Assert.IsTrue(unitTestTable.Insert(unitTest));
@@ -76,7 +76,7 @@ namespace UnitTests.DataEngine.Transactions
 			var unitTestTable = new IntegrationTestsTable();
 
 			var unitTest = new IntegrationTestEntity();
-			unitTest.Name = "Insert with transaction";
+			unitTest.Name = TestContext.TestName;
 
 			Assert.IsTrue(unitTestTable.Insert(unitTest));
 			Assert.IsNotNull(unitTestTable.GetByGuid(unitTest.Guid));
@@ -92,7 +92,7 @@ namespace UnitTests.DataEngine.Transactions
 			var unitTestTable = new IntegrationTestsTable();
 
 			var unitTest = new IntegrationTestEntity();
-			unitTest.Name = "Insert with transaction";
+			unitTest.Name = TestContext.TestName;
 
 			Assert.IsTrue(unitTestTable.Insert(unitTest));
 			Assert.IsNotNull(unitTestTable.GetByGuid(unitTest.Guid));
@@ -108,13 +108,13 @@ namespace UnitTests.DataEngine.Transactions
 			var unitTestTable = new IntegrationTestsTable();
 
 			var unitTest = new IntegrationTestEntity();
-			unitTest.Name = "Insert with transaction";
+			unitTest.Name = TestContext.TestName;
 
 			Assert.IsTrue(unitTestTable.Insert(unitTest));
 
 			var concurrencyTable = new ConcurrencyTestsTable();
 			var concurrencyTest = new ConcurrencyTesteEntity();
-			concurrencyTest.Name = "ConcurrencyTest";
+			concurrencyTest.Name = TestContext.TestName;
 
 			Assert.IsTrue(concurrencyTable.Insert(concurrencyTest));
 			Assert.IsTrue(transaction.Commit());
@@ -127,13 +127,13 @@ namespace UnitTests.DataEngine.Transactions
 			var unitTestTable = new IntegrationTestsTable();
 
 			var unitTest = new IntegrationTestEntity();
-			unitTest.Name = "Insert with transaction";
+			unitTest.Name = TestContext.TestName;
 
 			Assert.IsTrue(unitTestTable.Insert(unitTest));
 
 			var concurrencyTable = new ConcurrencyTestsTable();
 			var concurrencyTest = new ConcurrencyTesteEntity();
-			concurrencyTest.Name = "ConcurrencyTest";
+			concurrencyTest.Name = TestContext.TestName;
 
 			Assert.IsTrue(concurrencyTable.Insert(concurrencyTest));
 			Assert.IsTrue(transaction.Rollback());
