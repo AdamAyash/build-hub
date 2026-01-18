@@ -3,12 +3,14 @@ using Microsoft.IdentityModel.Protocols.Configuration;
 
 namespace BuildHub.DataEngine.DatabaseConnection
 {
+	#region
+	using Exceptions.DatabaseConnection;
 	using DataEngine.Configuration;
 	using Common.Utilities;
 	using Common.Logger;
+	#endregion
 
 	using DatabaseConfigurationsMap = Dictionary<DatabaseSource, Configuration.DatabaseConfiguration>;
-	using BuildHub.DataEngine.Exceptions.DatabaseConnection;
 
 	/// <summary>
 	/// Database connection pool singleton, initializing and managing a number of database connections.
@@ -16,6 +18,10 @@ namespace BuildHub.DataEngine.DatabaseConnection
 	public sealed class DatabaseConnectionPool : IDisposable
 	{
 		private static readonly Lazy<DatabaseConnectionPool> _databaseConnectionPoolInstance = new Lazy<DatabaseConnectionPool>(() => new DatabaseConnectionPool());
+
+		/// <summary>
+		/// Database configuration manager instance
+		/// </summary>
 		private DatabaseConfigurationManager _configurationManager;
 
 		/// <summary>
@@ -33,11 +39,6 @@ namespace BuildHub.DataEngine.DatabaseConnection
 		/// <remarks>This field is intended to be used as a locking mechanism to ensure thread safety when accessing
 		/// or modifying shared data. Always use this object with a <c>lock</c> statement to avoid race conditions.</remarks>
 		private readonly object _mutex = new object();
-
-		/// <summary>
-		/// A semaphore objec3t how many threads could, request a connection.
-		/// </summary>
-		private SemaphoreSlim _semaphore;
 
 		private bool _isDisposed;
 
@@ -128,7 +129,7 @@ namespace BuildHub.DataEngine.DatabaseConnection
 					retryCount++;
 				}
 
-				if(databaseConnection is null)
+				if (databaseConnection is null)
 				{
 					Logger.LogWarning($"Connection pool exhausted for {databaseSource}.");
 					throw new ConnectionPoolExhaustedException(databaseSource);
@@ -162,7 +163,7 @@ namespace BuildHub.DataEngine.DatabaseConnection
 
 					if (availableDatabaseConnections.Count < databaseConfiguration.MaxPoolConnections)
 					{
-						if(!availableDatabaseConnections.Contains(databaseConnection))
+						if (!availableDatabaseConnections.Contains(databaseConnection))
 							availableDatabaseConnections.Enqueue(databaseConnection);
 					}
 					else
@@ -263,8 +264,6 @@ namespace BuildHub.DataEngine.DatabaseConnection
 
 			int minPoolConnections = _databaseConfigurationsMap.Values.Min(config => config.MinPoolConnections);
 			int maxPoolConnections = _databaseConfigurationsMap.Values.Max(config => config.MaxPoolConnections);
-
-			this._semaphore = new SemaphoreSlim(minPoolConnections, maxPoolConnections);
 
 			Logger.LogInformation("Database connection pool initialized.");
 		}

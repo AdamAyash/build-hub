@@ -37,7 +37,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		}
 
 		[TestMethod]
-		[DataRow("USERS",  "AGE", CompareTypes.Equal, 20)]
+		[DataRow("USERS", "AGE", CompareTypes.Equal, 20)]
 		[DataRow("BUILDS", "BUILD_COUNT", CompareTypes.Equal, 200)]
 		[DataRow("BUILDS", "BUILD_COUNT", CompareTypes.NotEqual, 7000)]
 		[DataRow("BUILDS", "BUILD_COUNT", CompareTypes.LessThanOrEqual, 400)]
@@ -125,7 +125,7 @@ namespace UnitTests.DataEngineTests.SQLQueries
 		[DataRow(1000)]
 		[DataRow(230)]
 		[DataRow(60)]
-		[DataRow(6 )]
+		[DataRow(6)]
 		public void Test_Top_Clause_Is_Generated_Correctly(int topClauseCount)
 		{
 			var queryBuilder = new InternalQueryBuilder()

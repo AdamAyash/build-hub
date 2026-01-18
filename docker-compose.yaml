@@ -1,22 +1,9 @@
 services:
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: sqlserver
-    environment:
-      ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "Presiyana8901231871"
-    ports:
-      - "1433:1433"
-    volumes:
-      - sqlserverdata:/var/opt/mssql
   seq:
      image: datalust/seq
      container_name: seq
      environment:
       ACCEPT_EULA: "Y"
-      SEQ_PASSWORD: "Presiyana8901231871"
+      SEQ_PASSWORD: "{SEQ_PASSWORD}"
      ports:
-      - "5341"
-
-volumes:
-  sqlserverdata:
+      - "${SEQ_PORT}"

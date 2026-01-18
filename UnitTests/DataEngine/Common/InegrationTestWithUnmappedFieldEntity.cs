@@ -3,7 +3,7 @@ using BuildHub.DataEngine.Tables.Base;
 
 namespace UnitTests.DataEngineTests.Tables
 {
-	internal sealed class InegrationTestWithUnmappedFieldTable: BaseTable<InegrationTestWithUnmappedFieldEntity>
+	internal sealed class InegrationTestWithUnmappedFieldTable : BaseTable<InegrationTestWithUnmappedFieldEntity>
 	{
 		public InegrationTestWithUnmappedFieldTable()
 			: base(DatabaseSource.IntegrationTests)

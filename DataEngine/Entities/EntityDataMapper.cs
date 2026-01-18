@@ -1,6 +1,5 @@
 ﻿#region
 using BuildHub.Common.Utilities;
-using BuildHub.DataEngine.Exceptions;
 using BuildHub.DataEngine.Exceptions.Entities;
 using Microsoft.Data.SqlClient;
 using System.Collections.Concurrent;

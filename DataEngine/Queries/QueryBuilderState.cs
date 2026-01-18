@@ -13,7 +13,7 @@
 		/// <summary>
 		/// Gets or sets the collection of WHERE clause conditions to apply to a query.
 		/// </summary>
-		public List<WhereCondition> WhereStatements {  get; set; }
+		public List<WhereCondition> WhereStatements { get; set; }
 
 		/// <summary>
 		/// Gets or sets the type of lock to apply to the resource.

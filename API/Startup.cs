@@ -1,6 +1,6 @@
-using Scalar.AspNetCore;
-using BuildHub.Common.Logger;
 using BuildHub.Common.Application;
+using BuildHub.Common.Logger;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +14,7 @@ try
 	Logger.Initialize();
 	Logger.LogInformation("Application Starting Up");
 }
-catch(Exception exception)
+catch (Exception exception)
 {
 	Application.ExitWithError(exception, "Failed to initialize logger configuration.");
 }

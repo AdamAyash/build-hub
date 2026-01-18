@@ -1,9 +1,6 @@
-using Microsoft.Extensions.Configuration;
-
 namespace BuildHub.Common.Configuration
 {
 	using Base;
-	using Application;
 
 	/// <summary>
 	/// Configuration manager class
@@ -24,7 +21,7 @@ namespace BuildHub.Common.Configuration
 		/// <returns></returns>
 		public static ConfigurationManager GetConfigurationManager()
 		{
-			if(_configurationManagerInstance is null)
+			if (_configurationManagerInstance is null)
 				_configurationManagerInstance = new ConfigurationManager();
 
 			_configurationManagerInstance.Initialize();

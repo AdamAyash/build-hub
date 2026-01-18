@@ -1,5 +1,5 @@
-using System.Data;
 using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace BuildHub.DataEngine.DatabaseConnection
 {
@@ -31,7 +31,7 @@ namespace BuildHub.DataEngine.DatabaseConnection
 		/// Opens the database connection.
 		/// </summary>
 		public void OpenConnection() => this.InternalConnection.Open();
-	
+
 		/// <summary>
 		/// Closes the database connection.
 		/// </summary>

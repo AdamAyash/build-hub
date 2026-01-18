@@ -20,7 +20,7 @@ namespace BuildHub.DataEngine.DatabaseConnection
 		private readonly DatabaseConnection _databaseConnection;
 		private readonly ITransactionContext? _transactionContext;
 
-		public DatabaseConnectionValidator(DatabaseConnection databaseConnection, 
+		public DatabaseConnectionValidator(DatabaseConnection databaseConnection,
 			ITransactionContext? transactionContext = null)
 		{
 			this._databaseConnection = databaseConnection;

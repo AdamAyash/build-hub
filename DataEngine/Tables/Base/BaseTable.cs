@@ -1,16 +1,16 @@
 ﻿namespace BuildHub.DataEngine.Tables.Base
 {
 	#region
-	using Entities;
-	using Queries;
-	using System;
-	using DatabaseConnection;
 	using BuildHub.Common.Logger;
-	using System.Linq.Expressions;
-	using Microsoft.Data.SqlClient;
 	using BuildHub.Common.Utilities;
 	using BuildHub.DataEngine.Exceptions.Entities;
-	using Microsoft.IdentityModel.Tokens;
+	using DatabaseConnection;
+	using Entities;
+	using Microsoft.Data.SqlClient;
+	using Queries;
+	using System;
+	using System.Linq.Expressions;
+
 	#endregion
 
 	/// <summary>
@@ -104,7 +104,7 @@
 			ColumnMappingData primaryKeyMappingData = EntityDataMapper.GetPrimaryKeyMappingData<TEntity>();
 
 			object? primaryKeyValue = EntityDataMapper.GetColumnValue<TEntity>(entity, primaryKeyMappingData.PropertyInfo);
-			if(primaryKeyValue is null)
+			if (primaryKeyValue is null)
 				throw new ArgumentNullException("Null primary key value");
 
 			var internalQueryBuilder = new InternalQueryBuilder()
@@ -166,6 +166,11 @@
 			}
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="guid"></param>
+		/// <returns></returns>
 		public virtual TEntity? GetByGuid(Guid guid)
 		{
 			try
@@ -205,6 +210,11 @@
 			}
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="queryBuilder"></param>
+		/// <returns></returns>
 		public virtual IEnumerable<TEntity> GetByCondition(QueryBuilder queryBuilder)
 		{
 			try
@@ -230,7 +240,7 @@
 
 				return entities;
 			}
-			catch(MissingColumnDescriptionException missingColumnDescriptionException)
+			catch (MissingColumnDescriptionException missingColumnDescriptionException)
 			{
 				Logger.LogError(missingColumnDescriptionException, $"Failed to map entity because of missing column description.");
 				throw;
@@ -259,7 +269,7 @@
 		/// results. The property referenced in this expression determines which column is compared in the query.</param>
 		/// <returns>An <see cref="IEnumerable{TEntity}"/> containing all entities from the data source that match the specified
 		/// condition. Returns an empty collection if no entities satisfy the condition.</returns>
-		public virtual IEnumerable<TEntity> GetByCondition(TEntity entity, 
+		public virtual IEnumerable<TEntity> GetByCondition(TEntity entity,
 			Expression<Func<TEntity, object>> condition, CompareTypes compareType = CompareTypes.Equal)
 		{
 			try
@@ -305,19 +315,24 @@
 			}
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="entity"></param>
+		/// <returns></returns>
 		public virtual bool Insert(TEntity entity)
 		{
 			DatabaseConnection? databaseConnection = null;
 
 			try
 			{
-				databaseConnection = GetDatabaseConnection(); 
+				databaseConnection = GetDatabaseConnection();
 
-				if(entity is BaseEntity)
+				if (entity is BaseEntity)
 				{
 					BaseEntity? baseEntity = entity as BaseEntity;
 
-					if(baseEntity?.Guid == Guid.Empty)
+					if (baseEntity?.Guid == Guid.Empty)
 						baseEntity.Guid = this.GenerateGUID();
 				}
 
@@ -341,7 +356,7 @@
 				if (!this._isConnectionLocal)
 					insertCommand.Transaction = DatabaseContext.GetCurrentContext?.TransactionContext?.InternalTransaction;
 
-				 insertCommand.ExecuteNonQuery();
+				insertCommand.ExecuteNonQuery();
 				return true;
 			}
 			catch (Exception exception)
@@ -354,6 +369,12 @@
 				this.ReleaseDatabaseConnection();
 			}
 		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="entity"></param>
+		/// <returns></returns>
 		public virtual bool Update(TEntity entity)
 		{
 			try
@@ -375,6 +396,8 @@
 				else
 					throw new EntityDoesNotExistException();
 
+				sqlReader.Close();
+
 				if (entity is VersionedEntity)
 				{
 					VersionedEntity? existingVersionedEntity = existingEntity as VersionedEntity;
@@ -389,8 +412,6 @@
 						currentVersionedEntity.UpdatedAt = Utilities.GetCurrentDateTime;
 					}
 				}
-
-				sqlReader.Close();
 
 				var updateQueryBuilder = new InternalQueryBuilder()
 					.From(this.TableName)
@@ -425,17 +446,29 @@
 			{
 				this._databaseConnection = GetDatabaseConnection();
 
-				var primaryKeyColumnInfo = EntityDataMapper.GetPrimaryKeyMappingData<TEntity>().ColumnInfo;
-				var internalQueryBuilder = new InternalQueryBuilder()
-					.From(this.TableName)
-					.BuildDelete<TEntity>(entity);
+				var selectQuery = GenerateSelectQueryByPrimaryKey(entity);
 
-				using SqlCommand deleteCommand = new SqlCommand(internalQueryBuilder.GetQuery(),
+				using SqlCommand deleteCommand = new SqlCommand(selectQuery,
 					this._databaseConnection.InternalConnection);
 
 				if (!this._isConnectionLocal)
 					deleteCommand.Transaction = DatabaseContext.GetCurrentContext?.TransactionContext?.InternalTransaction;
 
+				TEntity existingEntity;
+				var sqlReader = deleteCommand.ExecuteReader();
+
+				if (sqlReader.Read())
+					existingEntity = EntityDataMapper.MapDataToEntity<TEntity>(sqlReader);
+				else
+					throw new EntityDoesNotExistException();
+
+				sqlReader.Close();
+
+				var internalQueryBuilder = new InternalQueryBuilder()
+					.From(this.TableName)
+					.BuildDelete<TEntity>(entity);
+
+				deleteCommand.CommandText = internalQueryBuilder.GetQuery();
 				deleteCommand.ExecuteNonQuery();
 			}
 			catch (Exception exception)

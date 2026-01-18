@@ -3,7 +3,6 @@
 	#region
 	using BuildHub.Common.Logger;
 	using BuildHub.Common.Utilities;
-	using BuildHub.DataEngine.Exceptions;
 	using BuildHub.DataEngine.Exceptions.Queries;
 	using Entities;
 	using System.Data;
@@ -211,7 +210,7 @@
 		public InternalQueryBuilder BuildUpdate<Entity>(Entity entity)
 			where Entity : IEntity
 		{
-			if(!this._isQueryBuilt)
+			if (!this._isQueryBuilt)
 			{
 				this._query = string.Empty;
 

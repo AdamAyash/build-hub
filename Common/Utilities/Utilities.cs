@@ -47,7 +47,7 @@ namespace BuildHub.Common.Utilities
 		/// </summary>
 		/// <param name="dateTime">The <see cref="DateTime"/> value to format.</param>
 		/// <returns>A string representation of the <paramref name="dateTime"/> value in the predefined format.</returns>
-		public static string FormatDateTime(DateTime dateTime, string dateFormat = _DATE_TIME_FORMAT) 
+		public static string FormatDateTime(DateTime dateTime, string dateFormat = _DATE_TIME_FORMAT)
 			=> dateTime.ToString(dateFormat);
 
 		/// <summary>
@@ -70,7 +70,7 @@ namespace BuildHub.Common.Utilities
 		/// <typeparam name="TObject">The type whose public properties are to be retrieved.</typeparam>
 		/// <returns>An <see cref="IEnumerable{PropertyInfo}"/> containing the public properties of the specified type. The collection
 		/// is empty if the type has no public properties.</returns>
-		public static IEnumerable<PropertyInfo> GetObjectProperties<TObject>() 
+		public static IEnumerable<PropertyInfo> GetObjectProperties<TObject>()
 			=> typeof(TObject).GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).ToList().OrderBy(property => property.MetadataToken);
 
 		/// <summary>
@@ -112,7 +112,7 @@ namespace BuildHub.Common.Utilities
 		{
 			var memberExpression = GetMemberExpression(propertyExpression);
 			var propertyInfo = (PropertyInfo)memberExpression.Member;
-			
+
 			return propertyInfo;
 		}
 	}
