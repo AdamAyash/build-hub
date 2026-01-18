@@ -31,8 +31,8 @@ namespace UnitTests.DataEngine.Transactions
 			using var transaction = new ScopedTransaction(DatabaseSource.IntegrationTests);
 			var IntegrationTestsTable = new IntegrationTestsTable();
 
-			var unitTest = new IntegrationTestEntity();
-			unitTest.Name = TestContext.TestName;
+			var integrationTest = new IntegrationTestEntity();
+			integrationTest.Name = TestContext.TestName;
 
 			Assert.IsTrue(IntegrationTestsTable.Insert(integrationTest));
 			Assert.IsTrue(transaction.Commit());
@@ -44,8 +44,8 @@ namespace UnitTests.DataEngine.Transactions
 			using var transaction = new ScopedTransaction(DatabaseSource.IntegrationTests);
 			var integrationTestTable = new IntegrationTestsTable();
 
-			var unitTest = new IntegrationTestEntity();
-			unitTest.Name = TestContext.TestName; 
+			var integrationTest = new IntegrationTestEntity();
+			integrationTest.Name = TestContext.TestName; 
 
 			Assert.IsTrue(integrationTestTable.Insert(integrationTest));
 			Assert.IsNotNull(integrationTestTable.GetByGuid(integrationTest.Guid));
@@ -61,7 +61,7 @@ namespace UnitTests.DataEngine.Transactions
 			var integrationTest = new IntegrationTestEntity();
 
 			{
-				unitTest.Name = TestContext.TestName;
+				integrationTest.Name = TestContext.TestName;
 
 				using var scopedTransaction = new ScopedTransaction(DatabaseSource.IntegrationTests);
 				Assert.IsTrue(integrationTestTable.Insert(integrationTest));
@@ -76,8 +76,8 @@ namespace UnitTests.DataEngine.Transactions
 			using var transaction = new ScopedTransaction(DatabaseSource.IntegrationTests);
 			var integrationTestTable = new IntegrationTestsTable();
 
-			var unitTest = new IntegrationTestEntity();
-			unitTest.Name = TestContext.TestName;
+			var integrationTest = new IntegrationTestEntity();
+			integrationTest.Name = TestContext.TestName;
 
 			Assert.IsTrue(integrationTestTable.Insert(integrationTest));
 			Assert.IsNotNull(integrationTestTable.GetByGuid(integrationTest.Guid));
@@ -92,8 +92,8 @@ namespace UnitTests.DataEngine.Transactions
 			using var transaction = new ScopedTransaction(DatabaseSource.IntegrationTests);
 			var integrationTestTable = new IntegrationTestsTable();
 
-			var unitTest = new IntegrationTestEntity();
-			unitTest.Name = TestContext.TestName;
+			var integrationTest = new IntegrationTestEntity();
+			integrationTest.Name = TestContext.TestName;
 
 			Assert.IsTrue(integrationTestTable.Insert(integrationTest));
 			Assert.IsNotNull(integrationTestTable.GetByGuid(integrationTest.Guid));
@@ -108,8 +108,8 @@ namespace UnitTests.DataEngine.Transactions
 			using var transaction = new ScopedTransaction(DatabaseSource.IntegrationTests);
 			var integrationTestTable = new IntegrationTestsTable();
 
-			var unitTest = new IntegrationTestEntity();
-			unitTest.Name = TestContext.TestName;
+			var integrationTest = new IntegrationTestEntity();
+			integrationTest.Name = TestContext.TestName;
 
 			Assert.IsTrue(integrationTestTable.Insert(integrationTest));
 
@@ -127,8 +127,8 @@ namespace UnitTests.DataEngine.Transactions
 			using var transaction = new ScopedTransaction(DatabaseSource.IntegrationTests);
 			var integrationTestTable = new IntegrationTestsTable();
 
-			var unitTest = new IntegrationTestEntity();
-			unitTest.Name = TestContext.TestName;
+			var integrationTest = new IntegrationTestEntity();
+			integrationTest.Name = TestContext.TestName;
 
 			Assert.IsTrue(integrationTestTable.Insert(integrationTest));
 
