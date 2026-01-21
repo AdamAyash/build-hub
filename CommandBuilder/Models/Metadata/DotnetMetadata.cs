@@ -3,6 +3,6 @@
 /// <summary>
 /// Metadata for Dotnet CLI steps.
 /// </summary>
-public class DotnetMetadata
+public sealed class DotnetMetadata
 {
 }

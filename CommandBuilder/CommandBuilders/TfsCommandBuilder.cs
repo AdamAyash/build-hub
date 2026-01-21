@@ -9,11 +9,11 @@ namespace BuildHub.CommandBuilder.CommandBuilders;
 /// </summary>
 public class TfsCommandBuilder : CommandBuilderBase<TfsCommandBuilder, TfsContext>
 {
+	protected override string Name => "TFS";
+
 	public TfsCommandBuilder(TfsContext context)
 		: base(context)
-	{
-		Name = "TFS";
-	}
+	{ }
 
 	public TfsCommandBuilder()
 		: this(new TfsContext())

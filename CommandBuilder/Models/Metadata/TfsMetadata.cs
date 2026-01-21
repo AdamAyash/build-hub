@@ -3,6 +3,6 @@
 /// <summary>
 /// Metadata for TFS steps.
 /// </summary>
-public class TfsMetadata
+public sealed class TfsMetadata
 {
 }

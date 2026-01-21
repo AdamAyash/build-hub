@@ -6,7 +6,7 @@ namespace BuildHub.CommandBuilder.Models.Contexts;
 /// Context for IncrediBuild command builder.
 /// Contains properties specific to distributed IncrediBuild execution.
 /// </summary>
-public class IncrediBuildContext : MsBuildBasedContext
+public sealed class IncrediBuildContext : MsBuildBasedContextBase
 {
 	/// <summary>
 	/// Path to the output file produced by the build.

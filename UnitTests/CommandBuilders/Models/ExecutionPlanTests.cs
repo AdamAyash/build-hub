@@ -39,10 +39,10 @@ namespace UnitTests.CommandBuilders.Models
 
 			Assert.IsNotNull(p.Version, "Version should be initialized by default.");
 			Assert.IsNotNull(p.Steps);
-			Assert.AreEqual(0, p.Steps.Count);
+			Assert.IsEmpty(p.Steps);
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow("")]
 		[DataRow("Build Plan")]
 		[DataRow("Release Pipeline - Windows")]
@@ -72,7 +72,7 @@ namespace UnitTests.CommandBuilders.Models
 
 			Assert.AreEqual("MyPlan", plan.Name);
 			Assert.IsNotNull(plan.Steps);
-			Assert.AreEqual(2, plan.Steps.Count);
+			Assert.HasCount(2, plan.Steps);
 			Assert.AreSame(step1, plan.Steps[0]);
 			Assert.AreSame(step2, plan.Steps[1]);
 		}
@@ -100,7 +100,7 @@ namespace UnitTests.CommandBuilders.Models
 			Assert.AreEqual("Custom", plan.Name);
 			Assert.IsNotNull(plan.Version);
 			Assert.IsNotNull(plan.Steps);
-			Assert.AreEqual(0, plan.Steps.Count);
+			Assert.IsEmpty(plan.Steps);
 		}
 	}
 }

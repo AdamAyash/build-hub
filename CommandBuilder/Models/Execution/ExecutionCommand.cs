@@ -1,6 +1,6 @@
 ﻿namespace BuildHub.CommandBuilder.Models.Execution;
 
-public sealed record ExecutionCommand
+public sealed record class ExecutionCommand
 {
 	/// <summary>Command executable (e.g. dotnet, msbuild, cmd)</summary>
 	public string Executable { get; init; } = string.Empty;

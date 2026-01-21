@@ -3,6 +3,6 @@
 /// <summary>
 /// Metadata specific to Visual Studio steps.
 /// </summary>
-public class VisualStudioMetadata
+public sealed class VisualStudioMetadata
 {
 }

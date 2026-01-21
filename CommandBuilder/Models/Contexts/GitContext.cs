@@ -1,10 +1,12 @@
-﻿namespace BuildHub.CommandBuilder.Models.Contexts;
+﻿using BuildHub.CommandBuilder.CommandBuilders.Abstractions;
+
+namespace BuildHub.CommandBuilder.Models.Contexts;
 
 /// <summary>
 /// Context for Git command builder.
 /// Holds repository-specific information and checkout options.
 /// </summary>
-public class GitContext
+public sealed class GitContext : ICommandBuilderContext
 {
 	public string Repository { get; set; } = default!;
 	public string Branch { get; set; } = "main";

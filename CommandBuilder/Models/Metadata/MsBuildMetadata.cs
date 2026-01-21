@@ -3,6 +3,6 @@
 /// <summary>
 /// Metadata specific to MSBuild steps.
 /// </summary>
-public class MsBuildStepMetadata
+public sealed class MsBuildStepMetadata
 {
 }

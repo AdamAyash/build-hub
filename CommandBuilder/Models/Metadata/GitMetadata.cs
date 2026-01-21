@@ -3,7 +3,7 @@
 /// <summary>
 /// Metadata for Git steps.
 /// </summary>
-public class GitMetadata
+public sealed class GitMetadata
 {
 }
 

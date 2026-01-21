@@ -9,19 +9,19 @@ namespace UnitTests.CommandBuilders.Abstractions
 	public sealed class MsBuildBasedCommandBuilderBaseTests
 	{
 		// Concrete context for testing (since MsBuildBasedContext is abstract).
-		private sealed class TestMsBuildContext : MsBuildBasedContext
+		private sealed class TestMsBuildContext : MsBuildBasedContextBase
 		{
 			// No extra members needed.
 		}
 
 		private sealed class TestBuilder : MsBuildBasedCommandBuilderBase<TestBuilder, TestMsBuildContext>
 		{
+			protected override string Name => "TestMsBuildBased";
+
 			public bool DerivedValidated { get; private set; }
 
 			public TestBuilder(TestMsBuildContext ctx) : base(ctx)
-			{
-				SetName("TestMsBuildBased");
-			}
+			{ }
 
 			protected override void ValidateDerived()
 			{
@@ -47,7 +47,7 @@ namespace UnitTests.CommandBuilders.Abstractions
 
 			var b = new TestBuilder(ctx);
 
-			var ex = Assert.Throws<InvalidOperationException>(() => b.ValidateAll());
+			var ex = Assert.Throws<InvalidOperationException>(() => b.Validate());
 			StringAssert.Contains(ex.Message, "Build platform cannot be empty");
 		}
 
@@ -64,7 +64,7 @@ namespace UnitTests.CommandBuilders.Abstractions
 
 			var b = new TestBuilder(ctx);
 
-			var ex = Assert.Throws<InvalidOperationException>(() => b.ValidateAll());
+			var ex = Assert.Throws<InvalidOperationException>(() => b.Validate());
 			StringAssert.Contains(ex.Message, "Build target cannot be empty");
 		}
 
@@ -81,7 +81,7 @@ namespace UnitTests.CommandBuilders.Abstractions
 
 			var b = new TestBuilder(ctx);
 
-			b.ValidateAll();
+			b.Validate();
 
 			Assert.IsTrue(b.DerivedValidated, "Expected ValidateDerived() to be invoked when core validation passes.");
 		}

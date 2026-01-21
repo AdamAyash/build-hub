@@ -46,10 +46,10 @@ namespace UnitTests.CommandBuilders.Models
 			Assert.AreEqual(string.Empty, s.StepType);
 
 			Assert.IsNotNull(s.Commands);
-			Assert.AreEqual(0, s.Commands.Count);
+			Assert.IsEmpty(s.Commands);
 
 			Assert.IsNotNull(s.DependsOn);
-			Assert.AreEqual(0, s.DependsOn.Count);
+			Assert.IsEmpty(s.DependsOn);
 
 			Assert.IsNull(s.Metadata);
 			Assert.IsNull(s.RetryPolicy);
@@ -57,7 +57,7 @@ namespace UnitTests.CommandBuilders.Models
 			Assert.IsNull(s.EnvironmentVariables);
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(0, "", "")]
 		[DataRow(10, "Compile", "msbuild")]
 		[DataRow(-1, "Fetch", "git")]
@@ -99,7 +99,7 @@ namespace UnitTests.CommandBuilders.Models
 			Assert.AreEqual("Build & Test", step.Name);
 			Assert.AreEqual("dotnet", step.StepType);
 
-			Assert.AreEqual(2, step.Commands.Count);
+			Assert.HasCount(2, step.Commands);
 			Assert.AreEqual("dotnet", step.Commands[0].Executable);
 			Assert.AreEqual("test", step.Commands[1].Arguments);
 
@@ -146,10 +146,10 @@ namespace UnitTests.CommandBuilders.Models
 			var step = Create(commands: null, dependsOn: null);
 
 			Assert.IsNotNull(step.Commands);
-			Assert.AreEqual(0, step.Commands.Count);
+			Assert.IsEmpty(step.Commands);
 
 			Assert.IsNotNull(step.DependsOn);
-			Assert.AreEqual(0, step.DependsOn.Count);
+			Assert.IsEmpty(step.DependsOn);
 		}
 	}
 

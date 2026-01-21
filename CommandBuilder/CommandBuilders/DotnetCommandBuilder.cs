@@ -6,16 +6,15 @@ namespace BuildHub.CommandBuilder.CommandBuilders;
 
 public class DotnetCommandBuilder : CommandBuilderBase<DotnetCommandBuilder, DotnetContext>
 {
+	protected override string Name => "Dotnet";
+
 	public DotnetCommandBuilder(DotnetContext context)
 		: base(context)
-	{
-		Name = "Dotnet";
-	}
+	{ }
 
 	public DotnetCommandBuilder()
 		: this(new DotnetContext())
-	{
-	}
+	{ }
 
 	protected override IReadOnlyList<ExecutionStep> GenerateCommandInternal()
 	{

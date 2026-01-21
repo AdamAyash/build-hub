@@ -11,12 +11,12 @@ namespace UnitTests.CommandBuilders.Abstractions
 			public bool ValidateWasCalled { get; private set; }
 			public bool GenerateWasCalled { get; private set; }
 
-			public void ValidateAll() => ValidateWasCalled = true;
+			public void Validate() => ValidateWasCalled = true;
 
 			public BuildCommandResult GenerateCommand()
 			{
 				GenerateWasCalled = true;
-				return BuildCommandResult.OnSuccess(string.Empty, TimeSpan.Zero, []);
+				return BuildCommandResult.CreateSuccess(string.Empty, TimeSpan.Zero, []);
 			}
 		}
 
@@ -25,7 +25,7 @@ namespace UnitTests.CommandBuilders.Abstractions
 		{
 			ICommandBuilder builder = new FakeBuilder();
 
-			builder.ValidateAll();
+			builder.Validate();
 
 			Assert.IsTrue(((FakeBuilder)builder).ValidateWasCalled);
 		}
@@ -46,7 +46,7 @@ namespace UnitTests.CommandBuilders.Abstractions
 		{
 			ICommandBuilder builder = new FakeBuilder();
 
-			builder.ValidateAll();
+			builder.Validate();
 			var result = builder.GenerateCommand();
 
 			Assert.IsNotNull(result);

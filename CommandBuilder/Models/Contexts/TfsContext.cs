@@ -1,10 +1,12 @@
-﻿namespace BuildHub.CommandBuilder.Models.Contexts;
+﻿using BuildHub.CommandBuilder.CommandBuilders.Abstractions;
+
+namespace BuildHub.CommandBuilder.Models.Contexts;
 
 /// <summary>
 /// Context for TFS (Team Foundation Server) command builder.
 /// Contains information for versioning, workspace, and changeset management.
 /// </summary>
-public class TfsContext
+public sealed class TfsContext : ICommandBuilderContext
 {
 	/// <summary>
 	/// Gets or sets the workspace path to retrieve.

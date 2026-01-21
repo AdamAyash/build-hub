@@ -26,7 +26,7 @@ namespace UnitTests.CommandBuilders.Models
 			Assert.IsNull(c.WorkingDirectory);
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow("dotnet", "build", null)]
 		[DataRow("msbuild", "\"a.sln\" /t:build", "C:\\work")]
 		[DataRow("", "", "")]

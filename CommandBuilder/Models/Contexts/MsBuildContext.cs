@@ -4,7 +4,7 @@
 /// Context specific to MSBuild command builder.
 /// Includes version information produced by the build.
 /// </summary>
-public class MsBuildContext : MsBuildBasedContext
+public sealed class MsBuildContext : MsBuildBasedContextBase
 {
 	/// <summary>
 	/// Version produced by this build definition.

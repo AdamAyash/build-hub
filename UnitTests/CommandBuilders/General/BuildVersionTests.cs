@@ -79,10 +79,8 @@ namespace TestProject.CommandBuilders.General
 		[TestMethod]
 		public void SetFromString_ValidVersion_UpdatesProperties()
 		{
-			var version = new BuildVersion();
 			string input = "2.5.10";
-
-			version.SetFromString(input);
+			var version = new BuildVersion(input);
 
 			Assert.AreEqual(2, version.Major);
 			Assert.AreEqual(5, version.Minor);
@@ -98,32 +96,18 @@ namespace TestProject.CommandBuilders.General
 		[DataRow(null)]
 		public void SetFromString_InvalidFormat_ThrowsFormatException(string input)
 		{
-			var version = new BuildVersion();
-			Assert.Throws<FormatException>(() => version.SetFromString(input));
+			Assert.Throws<FormatException>(() => new BuildVersion(input));
 		}
 
 		[TestMethod]
 		public void SetFromString_LeadingZeros_ParsesCorrectly()
 		{
-			var version = new BuildVersion();
 			string input = "01.02.003";
-
-			version.SetFromString(input);
+			var version = new BuildVersion(input);
 
 			Assert.AreEqual(1, version.Major);
 			Assert.AreEqual(2, version.Minor);
 			Assert.AreEqual(3, version.LastBuild);
-		}
-
-		[TestMethod]
-		public void SetFromString_ReturnsSelf()
-		{
-			var version = new BuildVersion();
-			string input = "1.2.3";
-
-			var result = version.SetFromString(input);
-
-			Assert.AreSame(version, result);
 		}
 	}
 }

@@ -5,16 +5,18 @@ using BuildHub.CommandBuilder.Models.Execution;
 
 namespace BuildHub.CommandBuilder.CommandBuilders;
 
+using static BuildHub.Common.Utilities.StringUtilities;
+
 /// <summary>
 /// Command builder responsible for generating MSBuild command-line arguments.
 /// </summary>
 public class MSBuildCommandBuilder : MsBuildBasedCommandBuilderBase<MSBuildCommandBuilder, MsBuildContext>
 {
+	protected override string Name => "MSBuild";
+
 	public MSBuildCommandBuilder(MsBuildContext context)
 		: base(context)
-	{
-		Name = "MSBuild";
-	}
+	{ }
 
 	public MSBuildCommandBuilder()
 		: this(new MsBuildContext())
@@ -73,5 +75,5 @@ public class MSBuildCommandBuilder : MsBuildBasedCommandBuilderBase<MSBuildComma
 	/// Specifies the version applied to the build when using MSBuild.
 	/// </summary>
 	public MSBuildCommandBuilder SetVersion(string version)
-	{ Context.Version = new BuildVersion().SetFromString(version); return this; }
+	{ Context.Version = new BuildVersion(version); return this; }
 }

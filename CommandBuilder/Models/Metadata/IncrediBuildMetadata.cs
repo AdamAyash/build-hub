@@ -3,7 +3,7 @@
 /// <summary>
 /// Metadata for IncrediBuild steps.
 /// </summary>
-public class IncrediBuildMetadata
+public sealed class IncrediBuildMetadata
 {
 
 }

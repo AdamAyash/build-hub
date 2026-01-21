@@ -4,16 +4,18 @@ using BuildHub.CommandBuilder.Models.Execution;
 
 namespace BuildHub.CommandBuilder.CommandBuilders;
 
+using static BuildHub.Common.Utilities.StringUtilities;
+
 /// <summary>
 /// Command builder responsible for generating VisualStudio command-line arguments.
 /// </summary>
 public class VisualStudioCommandBuilder : MsBuildBasedCommandBuilderBase<VisualStudioCommandBuilder, VisualStudioContext>
 {
+	protected override string Name => "VisualStudio";
+
 	public VisualStudioCommandBuilder(VisualStudioContext context)
 		: base(context)
-	{
-		Name = "VisualStudio";
-	}
+	{ }
 
 	public VisualStudioCommandBuilder()
 		: this(new VisualStudioContext())

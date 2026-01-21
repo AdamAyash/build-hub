@@ -3,24 +3,27 @@ using BuildHub.CommandBuilder.Models.Execution;
 
 namespace UnitTests.CommandBuilders.Abstractions
 {
+
+	using static BuildHub.Common.Utilities.StringUtilities;
+
 	[TestClass]
 	public sealed class CommandBuilderBaseTests
 	{
-		private sealed class TestContext
+		private sealed class TestContext : ICommandBuilderContext
 		{
 			public string Value { get; set; } = "ok";
 		}
 
 		private sealed class GoodBuilder : CommandBuilderBase<GoodBuilder, TestContext>
 		{
+			protected override string Name => "GoodBuilder";
+
 			public bool CoreValidated { get; private set; }
 			public bool DerivedValidated { get; private set; }
 			public bool InternalCalled { get; private set; }
 
 			public GoodBuilder(TestContext ctx) : base(ctx)
-			{
-				SetName("GoodBuilder");
-			}
+			{ }
 
 			protected override void ValidateCore()
 			{
@@ -52,12 +55,12 @@ namespace UnitTests.CommandBuilders.Abstractions
 
 		private sealed class ThrowingBuilder : CommandBuilderBase<ThrowingBuilder, TestContext>
 		{
+			protected override string Name => "ThrowingBuilder";
+			
 			public bool DerivedValidated { get; private set; }
 
 			public ThrowingBuilder(TestContext ctx) : base(ctx)
-			{
-				SetName("ThrowingBuilder");
-			}
+			{ }
 
 			protected override void ValidateDerived()
 			{
@@ -72,10 +75,10 @@ namespace UnitTests.CommandBuilders.Abstractions
 
 		private sealed class ValidateThrowsBuilder : CommandBuilderBase<ValidateThrowsBuilder, TestContext>
 		{
+			protected override string Name => "ValidateThrowsBuilder";
+
 			public ValidateThrowsBuilder(TestContext ctx) : base(ctx)
-			{
-				SetName("ValidateThrowsBuilder");
-			}
+			{ }
 
 			protected override void ValidateDerived()
 			{
@@ -97,7 +100,7 @@ namespace UnitTests.CommandBuilders.Abstractions
 		{
 			var b = new GoodBuilder(new TestContext());
 
-			var quoted = b.AddQuotes(@"C:\Path With Space");
+			var quoted = AddQuotes(@"C:\Path With Space");
 
 			Assert.AreEqual("\"C:\\Path With Space\"", quoted);
 		}
@@ -107,7 +110,7 @@ namespace UnitTests.CommandBuilders.Abstractions
 		{
 			var b = new GoodBuilder(new TestContext());
 
-			b.ValidateAll();
+			b.Validate();
 
 			Assert.IsTrue(b.CoreValidated, "ValidateCore should be called.");
 			Assert.IsTrue(b.DerivedValidated, "ValidateDerived should be called.");
@@ -131,7 +134,7 @@ namespace UnitTests.CommandBuilders.Abstractions
 			Assert.IsTrue(result.Success);
 			Assert.AreEqual("GoodBuilder", result.BuilderName);
 			Assert.IsNotNull(result.Steps);
-			Assert.AreEqual(1, result.Steps.Count);
+			Assert.HasCount(1, result.Steps);
 			Assert.AreEqual(string.Empty, result.ErrorMessage);
 		}
 
@@ -146,7 +149,7 @@ namespace UnitTests.CommandBuilders.Abstractions
 			Assert.AreEqual("ThrowingBuilder", result.BuilderName);
 			StringAssert.Contains(result.ErrorMessage, "kaboom");
 			Assert.IsNotNull(result.Steps);
-			Assert.AreEqual(0, result.Steps.Count);
+			Assert.IsEmpty(result.Steps);
 		}
 
 		[TestMethod]

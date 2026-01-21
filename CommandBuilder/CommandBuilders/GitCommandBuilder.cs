@@ -4,16 +4,18 @@ using BuildHub.CommandBuilder.Models.Execution;
 
 namespace BuildHub.CommandBuilder.CommandBuilders;
 
+using static BuildHub.Common.Utilities.StringUtilities;
+
 /// <summary>
 /// Command builder responsible for generating Git command-line arguments to fetch sources.
 /// </summary>
 public class GitCommandBuilder : CommandBuilderBase<GitCommandBuilder, GitContext>
 {
+	protected override string Name => "Git";
+
 	public GitCommandBuilder(GitContext context)
 		: base(context)
-	{
-		Name = "Git";
-	}
+	{ }
 
 	public GitCommandBuilder()
 		: this(new GitContext())

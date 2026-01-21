@@ -15,7 +15,7 @@ namespace BuildHub.CommandBuilder.CommandBuilders.Abstractions;
 public abstract class MsBuildBasedCommandBuilderBase<TBuilder, TContext>
 	: CommandBuilderBase<TBuilder, TContext>
 	where TBuilder : MsBuildBasedCommandBuilderBase<TBuilder, TContext>
-	where TContext : MsBuildBasedContext
+	where TContext : MsBuildBasedContextBase
 {
 	public MsBuildBasedCommandBuilderBase(TContext context)
 		: base(context)

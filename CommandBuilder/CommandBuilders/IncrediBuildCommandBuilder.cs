@@ -7,16 +7,18 @@ using BuildHub.CommandBuilder.Models.Execution.Enums;
 
 namespace BuildHub.CommandBuilder.CommandBuilders;
 
+using static BuildHub.Common.Utilities.StringUtilities;
+
 /// <summary>
 /// Command builder responsible for generating IncrediBuild command-line arguments.
 /// </summary>
 public class IncrediBuildCommandBuilder : MsBuildBasedCommandBuilderBase<IncrediBuildCommandBuilder, IncrediBuildContext>
 {
+	protected override string Name => "IncrediBuild";
+
 	public IncrediBuildCommandBuilder(IncrediBuildContext context)
 		: base(context)
-	{
-		Name = "IncrediBuild";
-	}
+	{ }
 
 	public IncrediBuildCommandBuilder()
 		: this(new IncrediBuildContext())
@@ -103,7 +105,7 @@ public class IncrediBuildCommandBuilder : MsBuildBasedCommandBuilderBase<Incredi
 	/// Specifies the version applied to the build when using MSBuild.
 	/// </summary>
 	public IncrediBuildCommandBuilder SetVersion(string version)
-	{ Context.Version = new BuildVersion().SetFromString(version); return this; }
+	{ Context.Version = new BuildVersion(version); return this; }
 
 	/// <summary>
 	/// Specifies the Visual Studio version used by IncrediBuild.

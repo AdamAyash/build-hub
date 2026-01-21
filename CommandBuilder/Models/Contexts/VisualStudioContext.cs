@@ -4,7 +4,7 @@
 /// Context for Visual Studio command builder.
 /// Includes paths and outputs specific to Visual Studio builds.
 /// </summary>
-public class VisualStudioContext : MsBuildBasedContext
+public sealed class VisualStudioContext : MsBuildBasedContextBase
 {
 	/// <summary>
 	/// Path to the output file produced by the build.

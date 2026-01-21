@@ -6,11 +6,11 @@ namespace BuildHub.CommandBuilder.CommandBuilders;
 
 public class NpmCommandBuilder : CommandBuilderBase<NpmCommandBuilder, NodeContext>
 {
+	protected override string Name => "Npm";
+
 	public NpmCommandBuilder(NodeContext context)
 		: base(context)
-	{
-		Name = "Npm";
-	}
+	{ }
 
 	public NpmCommandBuilder()
 		: this(new NodeContext())

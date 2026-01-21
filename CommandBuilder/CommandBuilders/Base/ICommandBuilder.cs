@@ -18,5 +18,5 @@ public interface ICommandBuilder
 	/// Validates the builder state and throws an exception if required
 	/// values are missing or invalid.
 	/// </summary>
-	void ValidateAll();
+	void Validate();
 }

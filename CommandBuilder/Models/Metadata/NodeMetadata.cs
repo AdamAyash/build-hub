@@ -3,6 +3,6 @@
 /// <summary>
 /// Metadata for Node.js / NPM steps.
 /// </summary>
-public class NodeMetadata
+public sealed class NodeMetadata
 {
 }

@@ -1,11 +1,12 @@
-﻿using BuildHub.CommandBuilder.Models.Enums;
+﻿using BuildHub.CommandBuilder.CommandBuilders.Abstractions;
+using BuildHub.CommandBuilder.Models.Enums;
 
 namespace BuildHub.CommandBuilder.Models.Contexts;
 
 /// <summary>
 /// Represents the base context for MSBuild-based builders, containing common build settings.
 /// </summary>
-public abstract class MsBuildBasedContext
+public class MsBuildBasedContextBase : ICommandBuilderContext
 {
 	/// <summary>
 	/// Type of build operation to perform (e.g. Build or Rebuild).
