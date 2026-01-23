@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { Ticker } from './ticker';
+import { TickerService } from './ticker.service';
 
-describe('Ticker', () => {
-  let service: Ticker;
+describe('TickerService', () => {
+  let service: TickerService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(Ticker);
+    service = TestBed.inject(TickerService);
   });
 
   it('should be created', () => {

@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { Ticker } from '../../../../core/services/ticker/ticker';
+import { TickerService } from '../../../../core/services/ticker/ticker.service';
 
 @Component({
   selector: 'app-news-ticker',
@@ -8,5 +8,5 @@ import { Ticker } from '../../../../core/services/ticker/ticker';
   styleUrl: './news-ticker.css',
 })
 export class NewsTicker {
-  public thickerService = inject(Ticker);
+  public thickerService = inject(TickerService);
 }
