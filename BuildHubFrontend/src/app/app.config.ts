@@ -13,7 +13,7 @@ import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { routes } from './app.routes';
 
 import { providePrimeNG } from 'primeng/config';
-import { myPreset } from './core/theme/theme';
+import { myPreset } from './core/themes/theme';
 
 export const appConfig: ApplicationConfig = {
   providers: [
