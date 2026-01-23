@@ -10,9 +10,13 @@
 	/// </summary>
 	public sealed class ScopedTransaction : ITransactionContext, IDisposable
 	{
+		/// <summary> Database context </summary>
 		private readonly DatabaseContext _databaseContext;
+		/// <summary> Database connection with withc the transaction is associated </summary>
 		private readonly DatabaseConnection _databaseConnection;
+		/// <summary> Internal transaction object from Micrsoft.SqlData </summary>
 		private readonly SqlTransaction _internalTransaction;
+
 		private readonly DatabaseSource _databaseSource;
 
 		private bool _isTransactionFinished;

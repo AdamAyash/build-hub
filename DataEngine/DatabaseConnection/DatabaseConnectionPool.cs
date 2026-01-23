@@ -262,9 +262,6 @@ namespace BuildHub.DataEngine.DatabaseConnection
 			foreach (DatabaseConfiguration databaseConfiguration in _databaseConfigurationsMap.Values)
 				InitializeConnections(databaseConfiguration);
 
-			int minPoolConnections = _databaseConfigurationsMap.Values.Min(config => config.MinPoolConnections);
-			int maxPoolConnections = _databaseConfigurationsMap.Values.Max(config => config.MaxPoolConnections);
-
 			Logger.LogInformation("Database connection pool initialized.");
 		}
 

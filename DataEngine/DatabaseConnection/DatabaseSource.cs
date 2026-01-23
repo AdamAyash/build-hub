@@ -1,16 +1,19 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-public enum DatabaseSource
+namespace BuildHub.DataEngine.DatabaseConnection
 {
-	[Description("BuildHubCore")]
-	[Required]
-	Core = 0,
+	public enum DatabaseSource
+	{
+		[Description("BuildHubCore")]
+		[Required]
+		Core = 0,
 
-	[Description("BuildHubUsers")]
-	[Required]
-	Users = 1,
+		[Description("BuildHubUsers")]
+		[Required]
+		Users = 1,
 
-	[Description("BuildHubIntegrationTests")]
-	IntegrationTests
+		[Description("BuildHubIntegrationTests")]
+		IntegrationTests
+	}
 }

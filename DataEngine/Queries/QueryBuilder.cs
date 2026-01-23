@@ -1,4 +1,5 @@
 ﻿using BuildHub.DataEngine.Entities;
+using BuildHub.DataEngine.Queries.Base;
 using System.Linq.Expressions;
 
 namespace BuildHub.DataEngine.Queries
@@ -46,6 +47,18 @@ namespace BuildHub.DataEngine.Queries
 			return this;
 		}
 
+		/// <summary>
+		/// Adds a WHERE condition to the query using the specified entity property, comparison type, and value.
+		/// </summary>
+		/// <remarks>This method enables building queries by specifying conditions based on entity properties.
+		/// Multiple calls to <c>Where</c> will add additional conditions to the query.</remarks>
+		/// <typeparam name="TEntity"></typeparam>
+		/// <param name="entity">The entity instance whose property value will be used in the condition. Cannot be <see langword="null"/>.</param>
+		/// <param name="condition">An expression that specifies the property of <typeparamref name="TEntity"/> to compare. Cannot be <see
+		/// langword="null"/>.</param>
+		/// <param name="compareType">The comparison operator to use for the condition, such as equal, greater than, or less than.</param>
+		/// <returns>The current <see cref="InternalQueryBuilder"/> instance with the added WHERE condition, allowing for method
+		/// chaining.</returns>
 		public QueryBuilder Where<TEntity>(TEntity entity, Expression<Func<TEntity, object>> condition, CompareTypes compareType = CompareTypes.Equal)
 			where TEntity : IEntity
 		{
@@ -56,6 +69,12 @@ namespace BuildHub.DataEngine.Queries
 			return this;
 		}
 
+		/// <summary>
+		/// Specifies the locking behavior for the query by setting the lock type.
+		/// </summary>
+		/// <param name="lockType">The type of lock to apply to the query. Determines how concurrent access to the queried data is managed.</param>
+		/// <returns>The current <see cref="InternalQueryBuilder"/> instance with the specified lock type applied, enabling method
+		/// chaining.</returns>
 		public QueryBuilder Lock(LockTypes lockType)
 		{
 			this.QueryBuilderState.LockType = lockType;

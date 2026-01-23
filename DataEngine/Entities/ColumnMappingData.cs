@@ -2,7 +2,10 @@
 
 namespace BuildHub.DataEngine.Entities
 {
-	public sealed class ColumnMappingData
+	/// <summary>
+	/// Class representing all data necessary for mapping to a specific Entity
+	/// </summary>
+	public sealed record class ColumnMappingData
 	{
 		public ColumnInfo ColumnInfo { get; private set; }
 		public PropertyInfo PropertyInfo { get; private set; }

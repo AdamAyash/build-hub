@@ -1,4 +1,6 @@
-﻿namespace BuildHub.DataEngine.Exceptions.DatabaseConnection
+﻿using BuildHub.DataEngine.DatabaseConnection;
+
+namespace BuildHub.DataEngine.Exceptions.DatabaseConnection
 {
 	public class DatabaseConnectionValidationException : Exception
 	{

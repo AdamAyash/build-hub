@@ -1,5 +1,6 @@
 ﻿#region
 using BuildHub.Common.Configuration.Base;
+using BuildHub.DataEngine.DatabaseConnection;
 using BuildHub.DataEngine.Exceptions.DatabaseConnection;
 using Microsoft.Extensions.Configuration;
 #endregion

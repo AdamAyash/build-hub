@@ -1,4 +1,5 @@
-﻿using BuildHub.DataEngine.Queries;
+﻿using BuildHub.DataEngine.DatabaseConnection;
+using BuildHub.DataEngine.Queries;
 using BuildHub.DataEngine.Transactions;
 using UnitTests.DataEngine.Common;
 using UnitTests.DataEngineTests.Tables;

@@ -2,6 +2,9 @@
 
 namespace BuildHub.DataEngine.Queries
 {
+	/// <summary>
+	/// Compare types for SQL Queries
+	/// </summary>
 	public enum CompareTypes
 	{
 		[Description("=")]

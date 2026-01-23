@@ -1,4 +1,5 @@
-﻿using BuildHub.DataEngine.Tables.Base;
+﻿using BuildHub.DataEngine.DatabaseConnection;
+using BuildHub.DataEngine.Tables.Base;
 
 namespace UnitTests.DataEngine.Common
 {

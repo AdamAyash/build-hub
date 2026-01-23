@@ -2,6 +2,9 @@
 
 namespace BuildHub.DataEngine.Queries
 {
+	/// <summary>
+	/// SQL Lock types.
+	/// </summary>
 	public enum LockTypes
 	{
 		[Description("NOLOCK")]

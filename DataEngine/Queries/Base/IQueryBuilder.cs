@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace BuildHub.DataEngine.Queries
+namespace BuildHub.DataEngine.Queries.Base
 {
 	using Entities;
 

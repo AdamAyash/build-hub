@@ -23,7 +23,14 @@
 	/// <typeparam name="TEntity">The type of entity represented by the table. Must implement <see cref="IEntity"/>.</typeparam>
 	public abstract class BaseTable<TEntity> where TEntity : IEntity
 	{
+		/// <summary>
+		/// Instance to the connection pool.
+		/// </summary>
 		private readonly DatabaseConnectionPool _databaseConnectionPoolInstance;
+
+		/// <summary>
+		/// Database source.
+		/// </summary>
 		private readonly DatabaseSource _databaseSource;
 
 		/// <summary>
@@ -65,7 +72,7 @@
 		/// Resolves whether to use a context connection from the current thread or use a local one.
 		/// </summary>
 		/// <returns></returns>
-		private DatabaseConnection GetDatabaseConnection()
+		private void AcquireDatabaseConnection()
 		{
 			var databaseConnectionContext = DatabaseContext.GetCurrentContext;
 			if (databaseConnectionContext.HasContextDatabaseConnection(this._databaseSource))
@@ -78,8 +85,6 @@
 				this._databaseConnection = this._databaseConnectionPoolInstance.GetDatabaseConnection(this._databaseSource);
 				this._isConnectionLocal = true;
 			}
-
-			return this._databaseConnection;
 		}
 
 		/// <summary>
@@ -128,13 +133,14 @@
 		{
 			try
 			{
-				this._databaseConnection = this.GetDatabaseConnection();
+				this.AcquireDatabaseConnection();
 
 				var internalQueryBuilder = new InternalQueryBuilder()
 					.From(this.TableName)
 					.BuildSelect();
 
-				using SqlCommand selectCommand = new SqlCommand(internalQueryBuilder.GetQuery(), this._databaseConnection.InternalConnection);
+				using SqlCommand selectCommand = new SqlCommand(internalQueryBuilder.GetQuery(), 
+					this._databaseConnection?.InternalConnection);
 
 				if (!this._isConnectionLocal)
 					selectCommand.Transaction = DatabaseContext.GetCurrentContext?.TransactionContext?.InternalTransaction;
@@ -167,15 +173,18 @@
 		}
 
 		/// <summary>
-		/// 
+		/// Retrieves an entity of type <typeparamref name="TEntity"/> from the database using its primary key GUID value.
 		/// </summary>
-		/// <param name="guid"></param>
-		/// <returns></returns>
+		/// <remarks>This method performs a database query to locate an entity by its primary key GUID.  If the entity
+		/// does not exist or an error occurs, the method returns <see langword="null"/>.</remarks>
+		/// <param name="guid">The GUID value of the entity's primary key to search for.</param>
+		/// <returns>The entity of type <typeparamref name="TEntity"/> that matches the specified GUID;  or <see langword="null"/> if
+		/// no matching entity is found or if an error occurs during retrieval.</returns>
 		public virtual TEntity? GetByGuid(Guid guid)
 		{
 			try
 			{
-				this._databaseConnection = this.GetDatabaseConnection();
+				this.AcquireDatabaseConnection();
 
 				var primaryKeyColumnInfo = EntityDataMapper.GetPrimaryKeyMappingData<TEntity>().ColumnInfo;
 				var queryBuilder = new InternalQueryBuilder()
@@ -183,7 +192,8 @@
 					.Where(primaryKeyColumnInfo.ColumnName, guid)
 					.BuildSelect();
 
-				using SqlCommand selectCommand = new SqlCommand(queryBuilder.GetQuery(), this._databaseConnection.InternalConnection);
+				using SqlCommand selectCommand = new SqlCommand(queryBuilder.GetQuery(), 
+					this._databaseConnection?.InternalConnection);
 				if (!this._isConnectionLocal)
 					selectCommand.Transaction = DatabaseContext.GetCurrentContext?.TransactionContext?.InternalTransaction;
 
@@ -211,21 +221,27 @@
 		}
 
 		/// <summary>
-		/// 
+		/// Retrieves a collection of entities that match the specified query conditions.
 		/// </summary>
-		/// <param name="queryBuilder"></param>
-		/// <returns></returns>
+		/// <remarks>This method executes a SELECT query against the underlying database table using the criteria
+		/// defined in the <paramref name="queryBuilder"/>. The returned entities are mapped from the result set using the
+		/// configured entity data mapper.</remarks>
+		/// <param name="queryBuilder">The <see cref="QueryBuilder"/> instance that specifies the filtering conditions and query parameters to apply when
+		/// selecting entities.</param>
+		/// <returns>An <see cref="IEnumerable{TEntity}"/> containing all entities that satisfy the provided query conditions. If no
+		/// entities match, the collection will be empty.</returns>
 		public virtual IEnumerable<TEntity> GetByCondition(QueryBuilder queryBuilder)
 		{
 			try
 			{
-				this._databaseConnection = this.GetDatabaseConnection();
+				this.AcquireDatabaseConnection();
 
 				var internalQueryBuilder = new InternalQueryBuilder(queryBuilder)
 					.From(this.TableName)
 					.BuildSelect();
 
-				using SqlCommand selectCommand = new SqlCommand(internalQueryBuilder.GetQuery(), this._databaseConnection.InternalConnection);
+				using SqlCommand selectCommand = new SqlCommand(internalQueryBuilder.GetQuery(), 
+					this._databaseConnection?.InternalConnection);
 				if (!this._isConnectionLocal)
 					selectCommand.Transaction = DatabaseContext.GetCurrentContext?.TransactionContext?.InternalTransaction;
 
@@ -274,7 +290,7 @@
 		{
 			try
 			{
-				this._databaseConnection = this.GetDatabaseConnection();
+				this.AcquireDatabaseConnection();
 
 				var columnInfo = EntityDataMapper.GetColumnInfo<TEntity>(condition);
 				var value = condition.Compile()(entity);
@@ -284,7 +300,7 @@
 					.Where(columnInfo.ColumnName, compareType, value)
 					.BuildSelect();
 
-				using SqlCommand selectCommand = new SqlCommand(internalQueryBuilder.GetQuery(), this._databaseConnection.InternalConnection);
+				using SqlCommand selectCommand = new SqlCommand(internalQueryBuilder.GetQuery(), this._databaseConnection?.InternalConnection);
 				if (!this._isConnectionLocal)
 					selectCommand.Transaction = DatabaseContext.GetCurrentContext?.TransactionContext?.InternalTransaction;
 
@@ -316,17 +332,22 @@
 		}
 
 		/// <summary>
-		/// 
+		/// Inserts the specified entity into the database table associated with this repository.
 		/// </summary>
-		/// <param name="entity"></param>
-		/// <returns></returns>
+		/// <remarks>This method acquires and releases a database connection as part of the insert operation. If the
+		/// entity is a <see cref="BaseEntity"/> or <see cref="VersionedEntity"/>, certain properties may be automatically set
+		/// prior to insertion.</remarks>
+		/// <param name="entity">The entity to insert. If the entity implements <see cref="BaseEntity"/>, its <c>Guid</c> property will be set if
+		/// not already assigned. If the entity implements <see cref="VersionedEntity"/>, its <c>CreatedAt</c> and
+		/// <c>UpdatedAt</c> properties will be set to the current date and time.</param>
+		/// <returns><see langword="true"/> if the entity was successfully inserted; otherwise, <see langword="false"/>.</returns>
 		public virtual bool Insert(TEntity entity)
 		{
 			DatabaseConnection? databaseConnection = null;
 
 			try
 			{
-				databaseConnection = GetDatabaseConnection();
+				this.AcquireDatabaseConnection();
 
 				if (entity is BaseEntity)
 				{
@@ -351,7 +372,8 @@
 					.From(this.TableName)
 					.BuildInsert(entity);
 
-				using SqlCommand insertCommand = new SqlCommand(internalQueryBuilder.GetQuery(), databaseConnection.InternalConnection);
+				using SqlCommand insertCommand = new SqlCommand(internalQueryBuilder.GetQuery(), 
+					databaseConnection?.InternalConnection);
 
 				if (!this._isConnectionLocal)
 					insertCommand.Transaction = DatabaseContext.GetCurrentContext?.TransactionContext?.InternalTransaction;
@@ -371,18 +393,22 @@
 		}
 
 		/// <summary>
-		/// 
+		/// Updates the specified entity in the database using its primary key.
 		/// </summary>
-		/// <param name="entity"></param>
-		/// <returns></returns>
+		/// <remarks>If the entity implements versioning (i.e., is a <see cref="VersionedEntity"/>), the method checks
+		/// for version consistency before updating and increments the version upon a successful update. The method returns
+		/// <see langword="false"/> if the update fails due to an error or exception.</remarks>
+		/// <param name="entity">The entity to update. Must contain a valid primary key corresponding to an existing record in the database.</param>
+		/// <returns><see langword="true"/> if the entity was successfully updated; otherwise, <see langword="false"/>.</returns>
 		public virtual bool Update(TEntity entity)
 		{
 			try
 			{
-				this._databaseConnection = GetDatabaseConnection();
+				this.AcquireDatabaseConnection();
 
 				var selectQuery = GenerateSelectQueryByPrimaryKey(entity, true);
-				using SqlCommand updateCommand = new SqlCommand(selectQuery, this._databaseConnection.InternalConnection);
+				using SqlCommand updateCommand = new SqlCommand(selectQuery, 
+					this._databaseConnection?.InternalConnection);
 
 				if (!this._isConnectionLocal)
 					updateCommand.Transaction = DatabaseContext.GetCurrentContext?.TransactionContext?.InternalTransaction;
@@ -444,12 +470,12 @@
 		{
 			try
 			{
-				this._databaseConnection = GetDatabaseConnection();
+				this.AcquireDatabaseConnection();
 
 				var selectQuery = GenerateSelectQueryByPrimaryKey(entity);
 
 				using SqlCommand deleteCommand = new SqlCommand(selectQuery,
-					this._databaseConnection.InternalConnection);
+					this._databaseConnection?.InternalConnection);
 
 				if (!this._isConnectionLocal)
 					deleteCommand.Transaction = DatabaseContext.GetCurrentContext?.TransactionContext?.InternalTransaction;

@@ -2,6 +2,7 @@
 {
 	using BuildHub.DataEngine.DatabaseConnection;
 	using BuildHub.DataEngine.Transactions;
+	using Moq;
 
 	[TestClass]
 	[DoNotParallelize]
