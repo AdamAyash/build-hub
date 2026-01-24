@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
 	<AssemblyName>BuildHub.DataEngine</AssemblyName>
 	<RootNamespace>BuildHub.DataEngine</RootNamespace>
+	<BaseOutputPath>..\bin\DataEngine</BaseOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,12 +14,14 @@
     <Content Include="..\API\appsettings.json" Link="appsettings.json" />
   </ItemGroup>
 
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+			<_Parameter1>BuildHub.UnitTests</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.3" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.0" />
   </ItemGroup>
 
   <ItemGroup>

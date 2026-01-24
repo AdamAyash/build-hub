@@ -40,5 +40,13 @@
 			Logger.LogError("Build-Hub has been shutdown due to an error.");
 			Environment.Exit(0);
 		}
+
+		/// <summary>
+		/// Gets the unique identifier for the currently executing thread.
+		/// </summary>
+		/// <remarks>The managed thread ID is unique within the application domain and remains constant for the
+		/// lifetime of the thread.</remarks>
+		/// <returns>An integer representing the managed thread ID of the currently executing thread.</returns>
+		public static int GetCurrentThreadId() => Thread.CurrentThread.ManagedThreadId;
 	}
 }

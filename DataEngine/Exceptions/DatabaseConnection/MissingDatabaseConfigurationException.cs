@@ -1,0 +1,20 @@
+using BuildHub.DataEngine.DatabaseConnection;
+
+namespace BuildHub.DataEngine.Exceptions.DatabaseConnection
+{
+	/// <summary>
+	/// Exception describing the scenario where a database configuration is missing.
+	/// </summary>
+	public sealed class MissingDatabaseConfigurationException : Exception
+	{
+		public MissingDatabaseConfigurationException()
+			: base("Database configuration is missing.")
+		{
+		}
+
+		public MissingDatabaseConfigurationException(DatabaseSource databaseSource)
+			: base($"Database configuration is missing for database {databaseSource}.")
+		{
+		}
+	}
+}
