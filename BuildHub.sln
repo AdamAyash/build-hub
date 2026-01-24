@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36717.8 d17.14
+# Visual Studio Version 18
+VisualStudioVersion = 18.2.11408.102 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API", "API\API.csproj", "{F8DB5826-399E-45A4-B48A-80CFADC5C13F}"
 EndProject
@@ -25,6 +25,28 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Databases", "Databases", "{C6996FAE-F5C3-4B33-9C1C-3B65F684C8E4}"
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "IntegrationTests", "Databases\IntegrationTests\IntegrationTests.sqlproj", "{858F5046-1C08-4A97-BA31-03240D59D73E}"
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Frontend", "Frontend\", "{FDF4B59B-35AD-6015-B25A-E0DC55C3637F}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.8"
+		Debug.AspNetCompiler.VirtualPath = "/localhost_55610"
+		Debug.AspNetCompiler.PhysicalPath = "Frontend\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_55610\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/localhost_55610"
+		Release.AspNetCompiler.PhysicalPath = "Frontend\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_55610\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "55610"
+		SlnRelativePath = "Frontend\"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandBuilder", "CommandBuilder\CommandBuilder.csproj", "{8E4775E6-DF40-4BB1-9D23-9B7CE1702635}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -70,6 +92,14 @@ Global
 		{858F5046-1C08-4A97-BA31-03240D59D73E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{858F5046-1C08-4A97-BA31-03240D59D73E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{858F5046-1C08-4A97-BA31-03240D59D73E}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{FDF4B59B-35AD-6015-B25A-E0DC55C3637F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDF4B59B-35AD-6015-B25A-E0DC55C3637F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDF4B59B-35AD-6015-B25A-E0DC55C3637F}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDF4B59B-35AD-6015-B25A-E0DC55C3637F}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{8E4775E6-DF40-4BB1-9D23-9B7CE1702635}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E4775E6-DF40-4BB1-9D23-9B7CE1702635}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E4775E6-DF40-4BB1-9D23-9B7CE1702635}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E4775E6-DF40-4BB1-9D23-9B7CE1702635}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

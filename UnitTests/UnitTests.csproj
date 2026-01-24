@@ -37,6 +37,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\DataEngine\DataEngine.csproj" />
+    <ProjectReference Include="..\CommandBuilder\CommandBuilder.csproj" />
   </ItemGroup>
 
   <ItemGroup>
