@@ -27,7 +27,7 @@ namespace UnitTests.DataEngineTests.DatabaseConnection
 
 		[TestMethod]
 		[DataRow(DatabaseSource.IntegrationTests)]
-		public void Release_connection_should_keep_connection_open_and_return_to_pool(DatabaseSource databaseSource)
+		public void Release_Connection_Should_Keep_Connection_Open_And_Return_To_Pool(DatabaseSource databaseSource)
 		{
 			DatabaseConnectionPool databaseConnectionPoolInstance = DatabaseConnectionPool.GetInstance();
 			DatabaseConnection databaseConnection = databaseConnectionPoolInstance.GetDatabaseConnection(databaseSource);
