@@ -1,12 +1,19 @@
 ﻿namespace UnitTests.DataEngineTests.Entities
 {
-	using BuildHub.DataEngine.Entities;
+    using BuildHub.Common.Logger;
+    using BuildHub.DataEngine.Entities;
 	using UnitTests.DataEngineTests.Tables;
 
 	[TestClass]
 	public sealed class EntityDataMapperTests
 	{
-		[TestMethod]
+        [ClassInitialize]
+        public static void ClassInit(TestContext context)
+        {
+            Logger.Initialize();
+        }
+
+        [TestMethod]
 		public void Assert_Get_Column_Name_Returns_Correct_Column_Name()
 		{
 			Assert.AreEqual("NAME", EntityDataMapper.GetColumnInfo<IntegrationTestEntity>(x => x.Name).ColumnName);

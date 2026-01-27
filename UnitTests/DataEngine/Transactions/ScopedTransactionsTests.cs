@@ -1,4 +1,5 @@
-﻿using BuildHub.DataEngine.DatabaseConnection;
+﻿using BuildHub.Common.Logger;
+using BuildHub.DataEngine.DatabaseConnection;
 using BuildHub.DataEngine.Queries;
 using BuildHub.DataEngine.Transactions;
 using UnitTests.DataEngine.Common;
@@ -12,7 +13,13 @@ namespace UnitTests.DataEngine.Transactions
 	{
 		public TestContext TestContext { get; set; }
 
-		[ClassCleanup]
+        [ClassInitialize]
+        public static void ClassInit(TestContext context)
+        {
+            Logger.Initialize();
+        }
+
+        [ClassCleanup]
 		public static void Cleanup()
 		{
 			using ScopedTransaction scopedTransaction = new ScopedTransaction(DatabaseSource.IntegrationTests);
@@ -161,7 +168,7 @@ namespace UnitTests.DataEngine.Transactions
 
 			var sameIntegrationTest = integrationTestTable.GetByCondition(queryBuilder).FirstOrDefault();
 
-			Assert.IsFalse(integrationTestTable.Update(sameIntegrationTest));
+			Assert.IsTrue(integrationTestTable.Update(sameIntegrationTest));
 		}
 	}
 }

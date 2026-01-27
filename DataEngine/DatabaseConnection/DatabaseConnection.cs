@@ -8,15 +8,26 @@ namespace BuildHub.DataEngine.DatabaseConnection
 	/// </summary>
 	public class DatabaseConnection : IDisposable
 	{
+		/// <summary>
+		/// Internal SQL connection class form Microsoft.SQlClient
+		/// </summary>
 		public SqlConnection InternalConnection { get; private set; }
+
+		/// <summary>
+		/// Database source
+		/// </summary>
 		public DatabaseSource DatabaseSource { get; private set; }
-		public bool IsConnectionPooled { get; internal set; }
+
+		/// <summary>
+		/// Whether the connections is currently being contained in the pool. 
+		/// </summary>
+		internal bool IsConnectionPooled { get; set; }
 
 		public DatabaseConnection(DatabaseSource databaseSource, string connectionString)
 		{
 			this.InternalConnection = new SqlConnection(connectionString);
 			this.DatabaseSource = databaseSource;
-			this.IsConnectionPooled = true;
+			this.IsConnectionPooled = false;
 		}
 
 		~DatabaseConnection() => Dispose(false);
@@ -53,10 +64,7 @@ namespace BuildHub.DataEngine.DatabaseConnection
 		protected virtual void Dispose(bool disposing)
 		{
 			if (disposing && !this.IsConnectionPooled)
-			{
 				DatabaseConnectionPool.GetInstance().ReleaseDatabaseConnection(this);
-				this.IsConnectionPooled = true;
-			}
 		}
 	}
 }

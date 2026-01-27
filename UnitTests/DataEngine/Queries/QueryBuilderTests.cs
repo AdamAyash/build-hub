@@ -1,4 +1,5 @@
 ﻿#region
+using BuildHub.Common.Logger;
 using BuildHub.Common.Utilities;
 using BuildHub.DataEngine.Exceptions.Queries;
 using BuildHub.DataEngine.Queries;
@@ -10,7 +11,13 @@ namespace UnitTests.DataEngineTests.SQLQueries
 	[TestClass]
 	public class QueryBuilderTests
 	{
-		[TestMethod]
+        [ClassInitialize]
+        public static void ClassInit(TestContext context)
+        {
+            Logger.Initialize();
+        }
+
+        [TestMethod]
 		[DataRow("USERS")]
 		[DataRow("BUILDS")]
 		[DataRow("UNIT_TESTS")]

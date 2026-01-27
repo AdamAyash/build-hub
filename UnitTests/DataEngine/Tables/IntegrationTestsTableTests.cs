@@ -1,4 +1,5 @@
-﻿using BuildHub.DataEngine.DatabaseConnection;
+﻿using BuildHub.Common.Logger;
+using BuildHub.DataEngine.DatabaseConnection;
 using BuildHub.DataEngine.Exceptions.Entities;
 using BuildHub.DataEngine.Queries;
 using BuildHub.DataEngine.Transactions;
@@ -12,7 +13,13 @@ namespace UnitTests.DataEngineTests.Tables
 	{
 		public TestContext TestContext { get; set; }
 
-		[ClassCleanup]
+        [ClassInitialize]
+        public static void ClassInit(TestContext context)
+        {
+			Logger.Initialize();
+        }
+
+        [ClassCleanup]
 		public static void Cleanup()
 		{
 			using var scopedTransaction = new ScopedTransaction(DatabaseSource.IntegrationTests);
@@ -64,8 +71,14 @@ namespace UnitTests.DataEngineTests.Tables
 		[TestMethod]
 		public void Get_All_Unit_Test_With_Unmapped_Fields_Should_Throw_Exception()
 		{
-			var integrationTestTable = new InegrationTestWithUnmappedFieldTable();
-			Assert.Throws<MissingColumnDescriptionException>(() => integrationTestTable.GetAll());
+            var integrationTest = new IntegrationTestEntity();
+            integrationTest.Name = this.TestContext.TestName;
+
+            var integrationTestTable = new IntegrationTestsTable();
+			Assert.IsTrue(integrationTestTable.Insert(integrationTest));
+
+            var integrationTestTableWithUnmappedFields = new InegrationTestWithUnmappedFieldTable();
+			Assert.Throws<MissingColumnDescriptionException>(() => integrationTestTableWithUnmappedFields.GetAll());
 		}
 
 		[TestMethod]

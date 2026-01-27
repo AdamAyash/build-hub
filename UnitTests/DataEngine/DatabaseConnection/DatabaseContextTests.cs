@@ -1,6 +1,7 @@
 ﻿namespace UnitTests.DataEngineTests.DatabaseConnection
 {
-	using BuildHub.DataEngine.DatabaseConnection;
+    using BuildHub.Common.Logger;
+    using BuildHub.DataEngine.DatabaseConnection;
 	using BuildHub.DataEngine.Transactions;
 	using Moq;
 
@@ -9,7 +10,13 @@
 	[TestCategory("Integration")]
 	public class DatabaseContextTests
 	{
-		[TestMethod]
+        [ClassInitialize]
+        public static void ClassInit(TestContext context)
+        {
+            Logger.Initialize();
+        }
+
+        [TestMethod]
 		public void Test_Multiple_Database_Sources_Are_Independent()
 		{
 			var databaseContext = DatabaseContext.GetCurrentContext;

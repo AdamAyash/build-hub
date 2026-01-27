@@ -1,12 +1,19 @@
 ﻿namespace UnitTests.DataEngineTests.DatabaseConnection
 {
-	using BuildHub.DataEngine.DatabaseConnection;
+    using BuildHub.Common.Logger;
+    using BuildHub.DataEngine.DatabaseConnection;
 	using BuildHub.DataEngine.Transactions;
 
 	[TestClass]
 	public class DatabaseConnectionValidatorTests
 	{
-		[TestMethod]
+        [ClassInitialize]
+        public static void ClassInit(TestContext context)
+        {
+            Logger.Initialize();
+        }
+
+        [TestMethod]
 		[DataRow(DatabaseSource.IntegrationTests)]
 		public void Test_Connection_Should_Return_False_When_Connection_String_Is_Empty(DatabaseSource databaseSource)
 		{

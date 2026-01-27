@@ -343,8 +343,6 @@
 		/// <returns><see langword="true"/> if the entity was successfully inserted; otherwise, <see langword="false"/>.</returns>
 		public virtual bool Insert(TEntity entity)
 		{
-			DatabaseConnection? databaseConnection = null;
-
 			try
 			{
 				this.AcquireDatabaseConnection();
@@ -373,7 +371,7 @@
 					.BuildInsert(entity);
 
 				using SqlCommand insertCommand = new SqlCommand(internalQueryBuilder.GetQuery(), 
-					databaseConnection?.InternalConnection);
+					this._databaseConnection?.InternalConnection);
 
 				if (!this._isConnectionLocal)
 					insertCommand.Transaction = DatabaseContext.GetCurrentContext?.TransactionContext?.InternalTransaction;
@@ -434,7 +432,7 @@
 						if (existingVersionedEntity.Version != currentVersionedEntity.Version)
 							throw new InconsistentEntityVersionException();
 
-						currentVersionedEntity.Version++;
+						currentVersionedEntity.IncrementVersion();
 						currentVersionedEntity.UpdatedAt = Utilities.GetCurrentDateTime;
 					}
 				}

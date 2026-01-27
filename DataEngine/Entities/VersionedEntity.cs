@@ -20,5 +20,10 @@
 		public VersionedEntity()
 		{
 		}
+
+		/// <summary>
+		/// Increments the version counter.
+		/// </summary>
+		public void IncrementVersion() => this.Version++;
 	}
 }
