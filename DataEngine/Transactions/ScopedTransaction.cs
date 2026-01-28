@@ -12,7 +12,7 @@
 	{
 		/// <summary> Database context </summary>
 		private readonly DatabaseContext _databaseContext;
-		/// <summary> Database connection with withc the transaction is associated </summary>
+		/// <summary> Database connection with with the transaction is associated </summary>
 		private readonly DatabaseConnection _databaseConnection;
 		/// <summary> Internal transaction object from Micrsoft.SqlData </summary>
 		private readonly SqlTransaction _internalTransaction;

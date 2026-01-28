@@ -113,18 +113,31 @@
 			Log.Warning(message, propertyValues);
 		}
 
-		/// <summary>
-		/// Writes an error log message with optional property values for structured logging.
-		/// </summary>
-		/// <remarks>Use this method to record general information about application execution, such as status updates
-		/// or routine events. The message template supports structured logging, allowing property values to be captured for
-		/// later analysis. This method does not throw exceptions for null or empty messages, but such messages may result in
-		/// incomplete log entries.</remarks>
-		/// <param name="message">The message template to log. May include placeholders for property values, which will be replaced by corresponding
-		/// elements from <paramref name="propertyValues"/>.</param>
-		/// <param name="propertyValues">An array of property values to be formatted into the message template. Each value is substituted into the
-		/// corresponding placeholder in <paramref name="message"/>.</param>
-		public static void LogError(string message, params object[] propertyValues)
+        /// <summary>
+        /// Logs a warning message and associated exception details to the application's error logging system.
+        /// </summary>
+        /// <remarks>This method is typically used to record unexpected errors or exceptions for diagnostic purposes.
+        /// If <paramref name="exception"/> is null, only the message and property values are logged.</remarks>
+        /// <param name="exception">The exception to log. Can be null if no exception is associated with the error.</param>
+        /// <param name="message">The error message to log. This should describe the error or context.</param>
+        /// <param name="propertyValues">Optional property values to format into the message. These are used for structured logging or message formatting.</param>
+        public static void LogWarning(Exception? exception, string message)
+        {
+            Log.Warning(exception, message);
+        }
+
+        /// <summary>
+        /// Writes an error log message with optional property values for structured logging.
+        /// </summary>
+        /// <remarks>Use this method to record general information about application execution, such as status updates
+        /// or routine events. The message template supports structured logging, allowing property values to be captured for
+        /// later analysis. This method does not throw exceptions for null or empty messages, but such messages may result in
+        /// incomplete log entries.</remarks>
+        /// <param name="message">The message template to log. May include placeholders for property values, which will be replaced by corresponding
+        /// elements from <paramref name="propertyValues"/>.</param>
+        /// <param name="propertyValues">An array of property values to be formatted into the message template. Each value is substituted into the
+        /// corresponding placeholder in <paramref name="message"/>.</param>
+        public static void LogError(string message, params object[] propertyValues)
 		{
 			Log.Error(message, propertyValues);
 		}

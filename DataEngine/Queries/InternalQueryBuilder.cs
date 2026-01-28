@@ -26,6 +26,10 @@
 		private string _query = string.Empty;
 		private string _tableName = string.Empty;
 		private bool _isQueryBuilt;
+
+		/// <summary>
+		/// Internal builder's state
+		/// </summary>
 		private QueryBuilderState _queryBuilderState;
 
 		public InternalQueryBuilder(QueryBuilder queryBuilder)
@@ -113,7 +117,7 @@
 		/// <summary>
 		/// Resets the state of the query builder.
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>Reference to the builder</returns>
 		public InternalQueryBuilder Reset()
 		{
 			this._queryBuilderState.Reset();

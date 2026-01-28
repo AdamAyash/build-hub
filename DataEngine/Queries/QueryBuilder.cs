@@ -15,6 +15,9 @@ namespace BuildHub.DataEngine.Queries
 	/// </para></remarks>
 	public sealed class QueryBuilder : IQueryBuilder<QueryBuilder>
 	{
+		/// <summary>
+		/// Query builder's internal state.
+		/// </summary>
 		public QueryBuilderState QueryBuilderState { get; set; }
 
 		public QueryBuilder()
@@ -23,7 +26,11 @@ namespace BuildHub.DataEngine.Queries
 			this.Reset();
 		}
 
-		public QueryBuilder Reset()
+        /// <summary>
+        /// Resets the state of the query builder.
+        /// </summary>
+        /// <returns>Reference to the builder</returns>
+        public QueryBuilder Reset()
 		{
 			QueryBuilderState.Reset();
 			return this;
@@ -35,13 +42,26 @@ namespace BuildHub.DataEngine.Queries
 			return this;
 		}
 
-		public QueryBuilder Where(string columnName, CompareTypes compareType, object? value)
+        /// <summary>
+        ///	Generates a where statement by providing a column and value.
+        /// </summary>
+        /// <param name="columnName">Name of the column</param>
+		/// <param name="compareType">Cmpare type </param>
+        /// <param name="value"></param>
+        /// <returns>Returns a reference to the query builder</returns>
+        public QueryBuilder Where(string columnName, CompareTypes compareType, object? value)
 		{
 			this.QueryBuilderState.WhereStatements.Add(new WhereCondition(columnName.ToUpper(), compareType, value));
 			return this;
 		}
 
-		public QueryBuilder Where(string columnName, object? value)
+        /// <summary>
+        ///	Generates a where statement by providing a column and value.
+        /// </summary>
+        /// <param name="columnName">Name of the column</param>
+        /// <param name="value"></param>
+        /// <returns>Returns a reference to the query builder</returns>
+        public QueryBuilder Where(string columnName, object? value)
 		{
 			this.QueryBuilderState.WhereStatements.Add(new WhereCondition(columnName, CompareTypes.Equal, value));
 			return this;

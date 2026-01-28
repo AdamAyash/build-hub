@@ -1,5 +1,4 @@
 using Microsoft.Data.SqlClient;
-using Microsoft.IdentityModel.Protocols.Configuration;
 
 namespace BuildHub.DataEngine.DatabaseConnection
 {
