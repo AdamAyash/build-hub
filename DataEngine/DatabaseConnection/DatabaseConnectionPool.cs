@@ -150,9 +150,8 @@ namespace BuildHub.DataEngine.DatabaseConnection
 			if (_isDisposed)
 				throw new ObjectDisposedException(Utilities.GetTypeName(typeof(DatabaseConnection)));
 
-			if(databaseConnection.IsConnectionPooled)
-			{
-			}
+			if (databaseConnection.IsConnectionPooled)
+				throw new DatabaseConnectionLeakException();
 
 			lock (_mutex)
 			{
